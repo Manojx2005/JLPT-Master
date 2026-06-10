@@ -1,0 +1,17 @@
+{
+  "name": "JLPT Master",
+  "short_name": "JLPT Master",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0e17",
+  "theme_color": "#6C63FF",
+  "description": "Premium Japanese Language Study Companion",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

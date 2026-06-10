@@ -1,0 +1,2667 @@
+[
+  {
+    "pattern": "～が早（はや）いか",
+    "meaning": "As soon as",
+    "level": "N1",
+    "structure": "動辞書形/た形+が早いか",
+    "examples": [
+      {
+        "jp": "チャイムが鳴（な）るが早いか、生徒（せいと）は飛（と）び出（だ）した。",
+        "en": "As soon as"
+      }
+    ],
+    "notes": "～するとすぐに"
+  },
+  {
+    "pattern": "～や否（いな）や",
+    "meaning": "No sooner than",
+    "level": "N1",
+    "structure": "動辞書形+や否や",
+    "examples": [
+      {
+        "jp": "彼（かれ）は顔（かお）を見（み）るや否や、逃（に）げた。",
+        "en": "No sooner than"
+      }
+    ],
+    "notes": "～するとすぐに"
+  },
+  {
+    "pattern": "～なり",
+    "meaning": "Right after",
+    "level": "N1",
+    "structure": "動辞書形+なり",
+    "examples": [
+      {
+        "jp": "彼（かれ）は一口（ひとくち）飲（の）むなり、吐（は）き出（だ）した。",
+        "en": "Right after"
+      }
+    ],
+    "notes": "～するとすぐに"
+  },
+  {
+    "pattern": "～そばから",
+    "meaning": "As soon as (repeatedly)",
+    "level": "N1",
+    "structure": "動辞書形/た形+そばから",
+    "examples": [
+      {
+        "jp": "聞（き）くそばから忘（わす）れる。",
+        "en": "As soon as (repeatedly)"
+      }
+    ],
+    "notes": "～してもすぐに（繰り返す）"
+  },
+  {
+    "pattern": "～てからというもの",
+    "meaning": "Ever since",
+    "level": "N1",
+    "structure": "て形+からというもの",
+    "examples": [
+      {
+        "jp": "日本（にほん）に来（き）てからというもの、毎日（まいにち）が楽（たの）しい。",
+        "en": "Ever since"
+      }
+    ],
+    "notes": "～して以来ずっと"
+  },
+  {
+    "pattern": "～にあって",
+    "meaning": "In the condition/situation of",
+    "level": "N1",
+    "structure": "名+にあって",
+    "examples": [
+      {
+        "jp": "緊急事態（きんきゅうじたい）にあって、冷静（れいせい）に行動（こうどう）した。",
+        "en": "In the condition/situation of"
+      }
+    ],
+    "notes": "～という特別な状況で"
+  },
+  {
+    "pattern": "～を皮切（かわき）りに",
+    "meaning": "Starting with",
+    "level": "N1",
+    "structure": "名+を皮切りに",
+    "examples": [
+      {
+        "jp": "東京（とうきょう）公演（こうえん）を皮切りに、全国（ぜんこく）ツアーが始（はじ）まる。",
+        "en": "Starting with"
+      }
+    ],
+    "notes": "～を出発点として"
+  },
+  {
+    "pattern": "～に至（いた）るまで",
+    "meaning": "Up to; even to",
+    "level": "N1",
+    "structure": "名+に至るまで",
+    "examples": [
+      {
+        "jp": "髪の毛（かみのけ）から足（あし）の先（さき）に至るまで、泥（どろ）だらけだ。",
+        "en": "Up to; even to"
+      }
+    ],
+    "notes": "～という範囲まで広く"
+  },
+  {
+    "pattern": "～を限（かぎ）りに",
+    "meaning": "As the last time",
+    "level": "N1",
+    "structure": "名+を限りに",
+    "examples": [
+      {
+        "jp": "今日（きょう）を限りに、タバコをやめる。",
+        "en": "As the last time"
+      }
+    ],
+    "notes": "～を最後として"
+  },
+  {
+    "pattern": "～をもって",
+    "meaning": "As of; by means of",
+    "level": "N1",
+    "structure": "名+をもって",
+    "examples": [
+      {
+        "jp": "本日（ほんじつ）をもって、閉店（へいてん）いたします。",
+        "en": "As of; by means of"
+      }
+    ],
+    "notes": "～の時を最後として / ～の方法で"
+  },
+  {
+    "pattern": "～といったところだ",
+    "meaning": "About; around",
+    "level": "N1",
+    "structure": "名/動辞書形+といったところだ",
+    "examples": [
+      {
+        "jp": "私（わたし）の睡眠時間（すいみんじかん）は、６時間（ろくじかん）といったところだ。",
+        "en": "About; around"
+      }
+    ],
+    "notes": "だいたい～くらいだ"
+  },
+  {
+    "pattern": "～をおいて",
+    "meaning": "Other than; apart from",
+    "level": "N1",
+    "structure": "名+をおいて",
+    "examples": [
+      {
+        "jp": "彼（かれ）をおいて、適任者（てきにんしゃ）はいない。",
+        "en": "Other than; apart from"
+      }
+    ],
+    "notes": "～以外には（いない）"
+  },
+  {
+    "pattern": "～ならでは",
+    "meaning": "Unique to; only by",
+    "level": "N1",
+    "structure": "名+ならでは",
+    "examples": [
+      {
+        "jp": "これは京都（きょうと）ならではの景色（けしき）だ。",
+        "en": "Unique to; only by"
+      }
+    ],
+    "notes": "～だからこそできる（素晴らしい）"
+  },
+  {
+    "pattern": "～にとどまらず",
+    "meaning": "Not limited to",
+    "level": "N1",
+    "structure": "名+にとどまらず",
+    "examples": [
+      {
+        "jp": "彼（かれ）の活躍（かつやく）は国内（こくない）にとどまらず、海外（かいがい）にも及（およ）ぶ。",
+        "en": "Not limited to"
+      }
+    ],
+    "notes": "～の範囲に終わらないで"
+  },
+  {
+    "pattern": "～はおろか",
+    "meaning": "Let alone; not to mention",
+    "level": "N1",
+    "structure": "名+はおろか",
+    "examples": [
+      {
+        "jp": "彼（かれ）は漢字（かんじ）はおろか、ひらがなも書（か）けない。",
+        "en": "Let alone; not to mention"
+      }
+    ],
+    "notes": "～はもちろん"
+  },
+  {
+    "pattern": "～もさることながら",
+    "meaning": "Not only... but also",
+    "level": "N1",
+    "structure": "名+もさることながら",
+    "examples": [
+      {
+        "jp": "この車（くるま）はデザインもさることながら、性能（せいのう）もいい。",
+        "en": "Not only... but also"
+      }
+    ],
+    "notes": "～も当然だが、それ以上に"
+  },
+  {
+    "pattern": "～なり～なり",
+    "meaning": "Or; such as",
+    "level": "N1",
+    "structure": "名/動辞書形+なり",
+    "examples": [
+      {
+        "jp": "電話（でんわ）なりメールなりで連絡（れんらく）してください。",
+        "en": "Or; such as"
+      }
+    ],
+    "notes": "～でもいいし～でもいいから"
+  },
+  {
+    "pattern": "～であれ～であれ",
+    "meaning": "Whether... or...",
+    "level": "N1",
+    "structure": "名+であれ",
+    "examples": [
+      {
+        "jp": "男（おとこ）であれ女（おんな）であれ、条件（じょうけん）は同（おな）じだ。",
+        "en": "Whether... or..."
+      }
+    ],
+    "notes": "～でも～でも（関係なく）"
+  },
+  {
+    "pattern": "～といい～といい",
+    "meaning": "Both... and...",
+    "level": "N1",
+    "structure": "名+といい",
+    "examples": [
+      {
+        "jp": "この家（いえ）は広（ひろ）さといい、値段（ねだん）といい、完璧（かんぺき）だ。",
+        "en": "Both... and..."
+      }
+    ],
+    "notes": "～の点でも～の点でも"
+  },
+  {
+    "pattern": "～といわず～といわず",
+    "meaning": "Not just... but everywhere",
+    "level": "N1",
+    "structure": "名+といわず",
+    "examples": [
+      {
+        "jp": "手（て）といわず足（あし）といわず、泥（どろ）だらけになった。",
+        "en": "Not just... but everywhere"
+      }
+    ],
+    "notes": "～も～も区別なくすべて"
+  },
+  {
+    "pattern": "～いかんだ",
+    "meaning": "Depending on",
+    "level": "N1",
+    "structure": "名（の）+いかんだ",
+    "examples": [
+      {
+        "jp": "結果（けっか）は努力（どりょく）いかんだ。",
+        "en": "Depending on"
+      }
+    ],
+    "notes": "～によって決まる"
+  },
+  {
+    "pattern": "～いかんにかかわらず",
+    "meaning": "Regardless of",
+    "level": "N1",
+    "structure": "名（の）+いかんにかかわらず",
+    "examples": [
+      {
+        "jp": "理由（りゆう）のいかんにかかわらず、遅刻（ちこく）は許（ゆる）されない。",
+        "en": "Regardless of"
+      }
+    ],
+    "notes": "～に関係なく"
+  },
+  {
+    "pattern": "～をものともせずに",
+    "meaning": "Defying; unbothered by",
+    "level": "N1",
+    "structure": "名+をものともせずに",
+    "examples": [
+      {
+        "jp": "彼（かれ）は困難（こんなん）をものともせずに進（すす）んだ。",
+        "en": "Defying; unbothered by"
+      }
+    ],
+    "notes": "～を全く気にしないで"
+  },
+  {
+    "pattern": "～をよそに",
+    "meaning": "Ignoring; unmindful of",
+    "level": "N1",
+    "structure": "名+をよそに",
+    "examples": [
+      {
+        "jp": "親（おや）の心配（しんぱい）をよそに、遊（あそ）んでばかりいる。",
+        "en": "Ignoring; unmindful of"
+      }
+    ],
+    "notes": "～を気にしないで"
+  },
+  {
+    "pattern": "～ならいざしらず",
+    "meaning": "It might be different if",
+    "level": "N1",
+    "structure": "名+ならいざしらず",
+    "examples": [
+      {
+        "jp": "子供（こども）ならいざしらず、大人（おとな）がそんなことをしてはいけない。",
+        "en": "It might be different if"
+      }
+    ],
+    "notes": "～ならともかく（許せるが）"
+  },
+  {
+    "pattern": "～んばかりに",
+    "meaning": "As if about to",
+    "level": "N1",
+    "structure": "動ない形+んばかりに",
+    "examples": [
+      {
+        "jp": "彼（かれ）は今（いま）にも泣（な）き出（だ）さんばかりの顔（かお）をした。",
+        "en": "As if about to"
+      }
+    ],
+    "notes": "まるで～しそうな様子で"
+  },
+  {
+    "pattern": "～とばかりに",
+    "meaning": "As if to say",
+    "level": "N1",
+    "structure": "発話+とばかりに",
+    "examples": [
+      {
+        "jp": "彼（かれ）は「出（で）て行（い）け」とばかりにドアを開（あ）けた。",
+        "en": "As if to say"
+      }
+    ],
+    "notes": "言葉で言わないが、～という態度で"
+  },
+  {
+    "pattern": "～ともなく",
+    "meaning": "Without any specific intention",
+    "level": "N1",
+    "structure": "動辞書形+ともなく",
+    "examples": [
+      {
+        "jp": "見（み）るともなく空（そら）を見上（みあ）げていた。",
+        "en": "Without any specific intention"
+      }
+    ],
+    "notes": "はっきりとした目的を持たずに"
+  },
+  {
+    "pattern": "～ながらに",
+    "meaning": "While keeping the state",
+    "level": "N1",
+    "structure": "動ます形/名+ながらに",
+    "examples": [
+      {
+        "jp": "この村（むら）は昔（むかし）ながらの風景（ふうけい）が残（のこ）っている。",
+        "en": "While keeping the state"
+      }
+    ],
+    "notes": "～の状態のままで"
+  },
+  {
+    "pattern": "～きらいがある",
+    "meaning": "Have a tendency to (negative)",
+    "level": "N1",
+    "structure": "動辞書形/名+の+きらいがある",
+    "examples": [
+      {
+        "jp": "彼（かれ）は物事（ものごと）を大（おお）げさに言（い）うきらいがある。",
+        "en": "Have a tendency to (negative)"
+      }
+    ],
+    "notes": "～という悪い傾向がある"
+  },
+  {
+    "pattern": "～がてら",
+    "meaning": "On the way; while at it",
+    "level": "N1",
+    "structure": "動ます形/名+がてら",
+    "examples": [
+      {
+        "jp": "散歩（さんぽ）がてら、買い物（かいもの）に行（い）く。",
+        "en": "On the way; while at it"
+      }
+    ],
+    "notes": "～のついでに"
+  },
+  {
+    "pattern": "～かたがた",
+    "meaning": "While doing (formal)",
+    "level": "N1",
+    "structure": "名+かたがた",
+    "examples": [
+      {
+        "jp": "ご挨拶（あいさつ）かたがた、お伺（うかが）いしました。",
+        "en": "While doing (formal)"
+      }
+    ],
+    "notes": "～を兼ねて（硬い表現）"
+  },
+  {
+    "pattern": "～かたわら",
+    "meaning": "While; on the side",
+    "level": "N1",
+    "structure": "動辞書形/名の+かたわら",
+    "examples": [
+      {
+        "jp": "彼（かれ）は仕事（しごと）のかたわら、ボランティアをしている。",
+        "en": "While; on the side"
+      }
+    ],
+    "notes": "～を本業としてやりながら、別に"
+  },
+  {
+    "pattern": "～ところを",
+    "meaning": "Despite the circumstance",
+    "level": "N1",
+    "structure": "普通形+ところを",
+    "examples": [
+      {
+        "jp": "お忙（いそが）しいところをお邪魔（じゃま）します。",
+        "en": "Despite the circumstance"
+      }
+    ],
+    "notes": "～という状況なのに"
+  },
+  {
+    "pattern": "～ものを",
+    "meaning": "Even though; but",
+    "level": "N1",
+    "structure": "普通形+ものを",
+    "examples": [
+      {
+        "jp": "言（い）ってくれれば手伝（てつだ）ったものを。",
+        "en": "Even though; but"
+      }
+    ],
+    "notes": "～のに（不満や残念な気持ち）"
+  },
+  {
+    "pattern": "～とはいえ",
+    "meaning": "Although it is said that",
+    "level": "N1",
+    "structure": "普通形+とはいえ",
+    "examples": [
+      {
+        "jp": "春（はる）とはいえ、まだ寒（さむ）い。",
+        "en": "Although it is said that"
+      }
+    ],
+    "notes": "～とは言っても"
+  },
+  {
+    "pattern": "～といえども",
+    "meaning": "Even if; even though",
+    "level": "N1",
+    "structure": "普通形+といえども",
+    "examples": [
+      {
+        "jp": "子供（こども）といえども、ルールは守（まも）るべきだ。",
+        "en": "Even if; even though"
+      }
+    ],
+    "notes": "たとえ～であっても"
+  },
+  {
+    "pattern": "～と思（おも）いきや",
+    "meaning": "I thought... but",
+    "level": "N1",
+    "structure": "普通形+と思いきや",
+    "examples": [
+      {
+        "jp": "簡単（かんたん）だと思いきや、難（むずか）しかった。",
+        "en": "I thought... but"
+      }
+    ],
+    "notes": "～と思ったが、違って"
+  },
+  {
+    "pattern": "～とあれば",
+    "meaning": "If it is the case that",
+    "level": "N1",
+    "structure": "普通形+とあれば",
+    "examples": [
+      {
+        "jp": "彼（かれ）の頼（たの）みとあれば、断（ことわ）れない。",
+        "en": "If it is the case that"
+      }
+    ],
+    "notes": "～という特別な条件なら"
+  },
+  {
+    "pattern": "～たら最後（さいご）",
+    "meaning": "Once done (bad result follows)",
+    "level": "N1",
+    "structure": "た形+ら最後",
+    "examples": [
+      {
+        "jp": "彼（かれ）はマイクを握（にぎ）ったら最後、離（はな）さない。",
+        "en": "Once done (bad result follows)"
+      }
+    ],
+    "notes": "～したら、必ず悪い結果になる"
+  },
+  {
+    "pattern": "～ようでは",
+    "meaning": "If (bad situation)",
+    "level": "N1",
+    "structure": "普通形+ようでは",
+    "examples": [
+      {
+        "jp": "こんなミスをするようでは、失格（しっかく）だ。",
+        "en": "If (bad situation)"
+      }
+    ],
+    "notes": "～という悪い状況では"
+  },
+  {
+    "pattern": "～なしに（は）",
+    "meaning": "Without",
+    "level": "N1",
+    "structure": "名+なしに",
+    "examples": [
+      {
+        "jp": "予告（よこく）なしにテストが行（おこな）われた。",
+        "en": "Without"
+      }
+    ],
+    "notes": "～しないで"
+  },
+  {
+    "pattern": "～くらいなら",
+    "meaning": "Rather than",
+    "level": "N1",
+    "structure": "動辞書形+くらいなら",
+    "examples": [
+      {
+        "jp": "諦（あきら）めるくらいなら、最初（さいしょ）からやらない。",
+        "en": "Rather than"
+      }
+    ],
+    "notes": "～するよりは（まだマシだ）"
+  },
+  {
+    "pattern": "～ゆえに",
+    "meaning": "Because of; due to",
+    "level": "N1",
+    "structure": "普通形/名+ゆえ（に）",
+    "examples": [
+      {
+        "jp": "若（わか）さゆえに、失敗（しっぱい）もする。",
+        "en": "Because of; due to"
+      }
+    ],
+    "notes": "～だから"
+  },
+  {
+    "pattern": "～べく",
+    "meaning": "In order to",
+    "level": "N1",
+    "structure": "動辞書形+べく",
+    "examples": [
+      {
+        "jp": "優勝（ゆうしょう）するべく、毎日（まいにち）練習（れんしゅう）した。",
+        "en": "In order to"
+      }
+    ],
+    "notes": "～するために"
+  },
+  {
+    "pattern": "～んがため",
+    "meaning": "For the purpose of",
+    "level": "N1",
+    "structure": "動ない形+んがため",
+    "examples": [
+      {
+        "jp": "夢（ゆめ）を実現（じつげん）せんがため、努力（どりょく）する。",
+        "en": "For the purpose of"
+      }
+    ],
+    "notes": "～するという目的のために"
+  },
+  {
+    "pattern": "～てやまない",
+    "meaning": "Can't stop feeling",
+    "level": "N1",
+    "structure": "て形+やまない",
+    "examples": [
+      {
+        "jp": "皆様（みなさま）のご健康（けんこう）を祈（いの）ってやみません。",
+        "en": "Can't stop feeling"
+      }
+    ],
+    "notes": "～という強い気持ちを持ち続ける"
+  },
+  {
+    "pattern": "～に堪（た）えない",
+    "meaning": "Unbearable to",
+    "level": "N1",
+    "structure": "動辞書形/名+に堪えない",
+    "examples": [
+      {
+        "jp": "これは見（み）るに堪えない悲惨（ひさん）な事件（じけん）だ。",
+        "en": "Unbearable to"
+      }
+    ],
+    "notes": "～するのは我慢できない"
+  },
+  {
+    "pattern": "～に堪（た）える",
+    "meaning": "Worth doing",
+    "level": "N1",
+    "structure": "動辞書形/名+に堪える",
+    "examples": [
+      {
+        "jp": "これは大人（おとな）の鑑賞（かんしょう）に堪える映画（えいが）だ。",
+        "en": "Worth doing"
+      }
+    ],
+    "notes": "～する価値がある"
+  },
+  {
+    "pattern": "～に足（た）る",
+    "meaning": "Deserving of; worthy of",
+    "level": "N1",
+    "structure": "動辞書形/名+に足る",
+    "examples": [
+      {
+        "jp": "彼（かれ）は信頼（しんらい）に足る人物（じんぶつ）だ。",
+        "en": "Deserving of; worthy of"
+      }
+    ],
+    "notes": "～する価値が十分にある"
+  },
+  {
+    "pattern": "～を禁（きん）じ得（え）ない",
+    "meaning": "Can't help but feel",
+    "level": "N1",
+    "structure": "名+を禁じ得ない",
+    "examples": [
+      {
+        "jp": "彼（かれ）の行動（こうどう）には怒（いか）りを禁じ得ない。",
+        "en": "Can't help but feel"
+      }
+    ],
+    "notes": "～という感情を抑えられない"
+  },
+  {
+    "pattern": "～まじき",
+    "meaning": "Must not; should not",
+    "level": "N1",
+    "structure": "動辞書形+まじき",
+    "examples": [
+      {
+        "jp": "それは教師（きょうし）にあるまじき行為（こうい）だ。",
+        "en": "Must not; should not"
+      }
+    ],
+    "notes": "～してはいけない"
+  },
+  {
+    "pattern": "～べからず",
+    "meaning": "Must not (prohibition)",
+    "level": "N1",
+    "structure": "動辞書形+べからず",
+    "examples": [
+      {
+        "jp": "ここに入（はい）るべからず。",
+        "en": "Must not (prohibition)"
+      }
+    ],
+    "notes": "～してはならない（禁止）"
+  },
+  {
+    "pattern": "～たるもの",
+    "meaning": "As a... (should do)",
+    "level": "N1",
+    "structure": "名+たるもの",
+    "examples": [
+      {
+        "jp": "医者（いしゃ）たるもの、患者（かんじゃ）を第一（だいいち）に考（かんが）えるべきだ。",
+        "en": "As a... (should do)"
+      }
+    ],
+    "notes": "～という優れた立場にある人は"
+  },
+  {
+    "pattern": "～ともあろう",
+    "meaning": "Someone of the status of",
+    "level": "N1",
+    "structure": "名+ともあろう",
+    "examples": [
+      {
+        "jp": "社長（しゃちょう）ともあろう人（ひと）が、こんなミスをするとは。",
+        "en": "Someone of the status of"
+      }
+    ],
+    "notes": "～という立派な人が"
+  },
+  {
+    "pattern": "～に至（いた）って",
+    "meaning": "Upon reaching the stage of",
+    "level": "N1",
+    "structure": "名/動辞書形+に至って",
+    "examples": [
+      {
+        "jp": "死者（ししゃ）が出（で）るに至って、ようやく事態（じたい）の深刻（しんこく）さに気（き）づいた。",
+        "en": "Upon reaching the stage of"
+      }
+    ],
+    "notes": "～という重大な事態になって"
+  },
+  {
+    "pattern": "～に至（いた）っては",
+    "meaning": "When it comes to (extreme)",
+    "level": "N1",
+    "structure": "名/動辞書形+に至っては",
+    "examples": [
+      {
+        "jp": "兄（あに）も姉（あね）も背（せ）が低（ひく）いが、私（わたし）に至っては150cmもない。",
+        "en": "When it comes to (extreme)"
+      }
+    ],
+    "notes": "～という極端な例では"
+  },
+  {
+    "pattern": "～始末（しまつ）だ",
+    "meaning": "Ends up being (bad)",
+    "level": "N1",
+    "structure": "動辞書形+始末だ",
+    "examples": [
+      {
+        "jp": "彼（かれ）は遅刻（ちこく）した挙句（あげく）、嘘（うそ）までつく始末だ。",
+        "en": "Ends up being (bad)"
+      }
+    ],
+    "notes": "最後は～という悪い結果になった"
+  },
+  {
+    "pattern": "～っぱなし",
+    "meaning": "Leaving (something) on/as is",
+    "level": "N1",
+    "structure": "動ます形+っぱなし",
+    "examples": [
+      {
+        "jp": "テレビをつけっぱなしで寝（ね）てしまった。",
+        "en": "Leaving (something) on/as is"
+      }
+    ],
+    "notes": "～のままで"
+  },
+  {
+    "pattern": "～極（きわ）まる",
+    "meaning": "Extremely",
+    "level": "N1",
+    "structure": "な形/名+極まる",
+    "examples": [
+      {
+        "jp": "彼（かれ）の態度（たいど）は失礼（しつれい）極まる。",
+        "en": "Extremely"
+      }
+    ],
+    "notes": "最高に～だ"
+  },
+  {
+    "pattern": "～極（きわ）み",
+    "meaning": "The height of; ultimate",
+    "level": "N1",
+    "structure": "名+の+極み",
+    "examples": [
+      {
+        "jp": "優勝（ゆうしょう）できて、感激（かんげき）の極みです。",
+        "en": "The height of; ultimate"
+      }
+    ],
+    "notes": "最高に～だ"
+  },
+  {
+    "pattern": "～の至（いた）り",
+    "meaning": "The utmost",
+    "level": "N1",
+    "structure": "名+の至り",
+    "examples": [
+      {
+        "jp": "このような賞（しょう）をいただき、光栄（こうえい）の至りです。",
+        "en": "The utmost"
+      }
+    ],
+    "notes": "最高に～だ"
+  },
+  {
+    "pattern": "～にはあたらない",
+    "meaning": "Not worth; no need to",
+    "level": "N1",
+    "structure": "動辞書形/名+にはあたらない",
+    "examples": [
+      {
+        "jp": "あの程度（ていど）の失敗（しっぱい）で落（お）ち込（こ）むにはあたらない。",
+        "en": "Not worth; no need to"
+      }
+    ],
+    "notes": "～するほどのことではない"
+  },
+  {
+    "pattern": "～にかたくない",
+    "meaning": "Not difficult to",
+    "level": "N1",
+    "structure": "動辞書形/名+にかたくない",
+    "examples": [
+      {
+        "jp": "彼（かれ）の悲（かな）しみは想像（そうぞう）にかたくない。",
+        "en": "Not difficult to"
+      }
+    ],
+    "notes": "簡単に～できる"
+  },
+  {
+    "pattern": "～てやまない",
+    "meaning": "Always; continually",
+    "level": "N1",
+    "structure": "て形+やまない",
+    "examples": [
+      {
+        "jp": "君（きみ）の成功（せいこう）を祈（いの）ってやまない。",
+        "en": "Always; continually"
+      }
+    ],
+    "notes": "～という気持ちがずっと続く"
+  },
+  {
+    "pattern": "～に忍（しの）びない",
+    "meaning": "Can't bear to",
+    "level": "N1",
+    "structure": "動辞書形+に忍びない",
+    "examples": [
+      {
+        "jp": "古（ふる）い手紙（てがみ）は捨（す）てるに忍びない。",
+        "en": "Can't bear to"
+      }
+    ],
+    "notes": "可哀想で～できない"
+  },
+  {
+    "pattern": "～てはばからない",
+    "meaning": "Do without hesitation",
+    "level": "N1",
+    "structure": "て形+はばからない",
+    "examples": [
+      {
+        "jp": "彼（かれ）は自分（じぶん）が天才（てんさい）だと言（い）ってはばからない。",
+        "en": "Do without hesitation"
+      }
+    ],
+    "notes": "遠慮せずに堂々と～する"
+  },
+  {
+    "pattern": "～べくもない",
+    "meaning": "No way to; impossible",
+    "level": "N1",
+    "structure": "動辞書形+べくもない",
+    "examples": [
+      {
+        "jp": "彼（かれ）の気持（きも）ちは知（し）るべくもない。",
+        "en": "No way to; impossible"
+      }
+    ],
+    "notes": "～することは全くできない"
+  },
+  {
+    "pattern": "～ごとく",
+    "meaning": "Like; as if",
+    "level": "N1",
+    "structure": "動辞書形/た形/名+の+ごとく",
+    "examples": [
+      {
+        "jp": "矢（や）のごとく時間（じかん）が過（す）ぎた。",
+        "en": "Like; as if"
+      }
+    ],
+    "notes": "～のように"
+  },
+  {
+    "pattern": "～ごとき",
+    "meaning": "Like (derogatory/humble)",
+    "level": "N1",
+    "structure": "名+ごとき",
+    "examples": [
+      {
+        "jp": "私（わたし）ごときが意見（いけん）を言（い）うのはおこがましい。",
+        "en": "Like (derogatory/humble)"
+      }
+    ],
+    "notes": "～のような（相手を低く見る）"
+  },
+  {
+    "pattern": "～ことなしに",
+    "meaning": "Without doing",
+    "level": "N1",
+    "structure": "動辞書形+ことなしに",
+    "examples": [
+      {
+        "jp": "努力（どりょく）することなしに成功（せいこう）はない。",
+        "en": "Without doing"
+      }
+    ],
+    "notes": "～しないで"
+  },
+  {
+    "pattern": "～までだ",
+    "meaning": "All one has to do is",
+    "level": "N1",
+    "structure": "動辞書形+までだ",
+    "examples": [
+      {
+        "jp": "ダメならまた頑張（がんば）るまでだ。",
+        "en": "All one has to do is"
+      }
+    ],
+    "notes": "ただ～すればいい"
+  },
+  {
+    "pattern": "～までのことだ",
+    "meaning": "Just doing because",
+    "level": "N1",
+    "structure": "動た形+までのことだ",
+    "examples": [
+      {
+        "jp": "気（き）になったから聞（き）いてみたまでのことだ。",
+        "en": "Just doing because"
+      }
+    ],
+    "notes": "ただ～しただけだ"
+  },
+  {
+    "pattern": "～ばそれまでだ",
+    "meaning": "If... then it's over",
+    "level": "N1",
+    "structure": "動ば形+それまでだ",
+    "examples": [
+      {
+        "jp": "いくらお金（かね）があっても、死（し）んでしまえばそれまでだ。",
+        "en": "If... then it's over"
+      }
+    ],
+    "notes": "～したら全て終わりだ"
+  },
+  {
+    "pattern": "～てからというもの",
+    "meaning": "Ever since",
+    "level": "N1",
+    "structure": "て形+からというもの",
+    "examples": [
+      {
+        "jp": "パソコンを買（か）ってからというもの、毎日（まいにち）使（つか）っている。",
+        "en": "Ever since"
+      }
+    ],
+    "notes": "～してからずっと"
+  },
+  {
+    "pattern": "～を余儀（よぎ）なくされる",
+    "meaning": "Be forced to",
+    "level": "N1",
+    "structure": "名+を余儀なくされる",
+    "examples": [
+      {
+        "jp": "病気（びょうき）で退学（たいがく）を余儀なくされた。",
+        "en": "Be forced to"
+      }
+    ],
+    "notes": "嫌だが～しなければならない状況になる"
+  },
+  {
+    "pattern": "～を余儀（よぎ）なくさせる",
+    "meaning": "Force someone to",
+    "level": "N1",
+    "structure": "名+を余儀なくさせる",
+    "examples": [
+      {
+        "jp": "大雪（おおゆき）が休校（きゅうこう）を余儀なくさせた。",
+        "en": "Force someone to"
+      }
+    ],
+    "notes": "～という状況に追い込む"
+  },
+  {
+    "pattern": "～たりとも",
+    "meaning": "Even; not even",
+    "level": "N1",
+    "structure": "名（数量1）+たりとも",
+    "examples": [
+      {
+        "jp": "１日（いちにち）たりとも無駄（むだ）にしない。",
+        "en": "Even; not even"
+      }
+    ],
+    "notes": "～であっても（強調）"
+  },
+  {
+    "pattern": "～すら",
+    "meaning": "Even",
+    "level": "N1",
+    "structure": "名+すら",
+    "examples": [
+      {
+        "jp": "彼（かれ）は自分（じぶん）の名前（なまえ）すら書（か）けない。",
+        "en": "Even"
+      }
+    ],
+    "notes": "～さえ"
+  },
+  {
+    "pattern": "～だに",
+    "meaning": "Just by (imagining, thinking)",
+    "level": "N1",
+    "structure": "動辞書形/名+だに",
+    "examples": [
+      {
+        "jp": "地震（じしん）の被害（ひがい）は想像（そうぞう）するだに恐（おそ）ろしい。",
+        "en": "Just by (imagining, thinking)"
+      }
+    ],
+    "notes": "～するだけでも"
+  },
+  {
+    "pattern": "～にして",
+    "meaning": "Because of being; even for",
+    "level": "N1",
+    "structure": "名+にして",
+    "examples": [
+      {
+        "jp": "天才（てんさい）の彼（かれ）にして解（と）けない問題（もんだい）だ。",
+        "en": "Because of being; even for"
+      }
+    ],
+    "notes": "～だからこそ / ～でも"
+  },
+  {
+    "pattern": "～あっての",
+    "meaning": "Thanks to; existing because of",
+    "level": "N1",
+    "structure": "名+あっての",
+    "examples": [
+      {
+        "jp": "お客様（きゃくさま）あっての商売（しょうばい）です。",
+        "en": "Thanks to; existing because of"
+      }
+    ],
+    "notes": "～があるからこそ成り立つ"
+  },
+  {
+    "pattern": "～からある",
+    "meaning": "As much as; over (weight/length)",
+    "level": "N1",
+    "structure": "名（数量）+からある",
+    "examples": [
+      {
+        "jp": "ここには100キロからある石（いし）がある。",
+        "en": "As much as; over (weight/length)"
+      }
+    ],
+    "notes": "～以上もある（重さ・長さ）"
+  },
+  {
+    "pattern": "～からする",
+    "meaning": "Costing as much as",
+    "level": "N1",
+    "structure": "名（数量）+からする",
+    "examples": [
+      {
+        "jp": "10万円（じゅうまんえん）からするバッグを買（か）った。",
+        "en": "Costing as much as"
+      }
+    ],
+    "notes": "～以上もする（値段）"
+  },
+  {
+    "pattern": "～までのことではない",
+    "meaning": "No need to go as far as",
+    "level": "N1",
+    "structure": "動辞書形+までのことではない",
+    "examples": [
+      {
+        "jp": "わざわざ行（い）くまでのことはない。",
+        "en": "No need to go as far as"
+      }
+    ],
+    "notes": "～する必要はない"
+  },
+  {
+    "pattern": "～を限（かぎ）りに",
+    "meaning": "To the limit of",
+    "level": "N1",
+    "structure": "名+を限りに",
+    "examples": [
+      {
+        "jp": "声（こえ）を限りに叫（さけ）んだ。",
+        "en": "To the limit of"
+      }
+    ],
+    "notes": "～の限界まで"
+  },
+  {
+    "pattern": "～に即（そく）して",
+    "meaning": "In line with; in keeping with",
+    "level": "N1",
+    "structure": "名+に即して",
+    "examples": [
+      {
+        "jp": "現実（げんじつ）に即して考（かんが）える。",
+        "en": "In line with; in keeping with"
+      }
+    ],
+    "notes": "～に合わせて"
+  },
+  {
+    "pattern": "～を踏（ふ）まえて",
+    "meaning": "Based on; keeping in mind",
+    "level": "N1",
+    "structure": "名+を踏まえて",
+    "examples": [
+      {
+        "jp": "過去（かこ）のデータ（でーた）を踏まえて、計画（けいかく）を立（た）てる。",
+        "en": "Based on; keeping in mind"
+      }
+    ],
+    "notes": "～を前提として"
+  },
+  {
+    "pattern": "～を経（へ）て",
+    "meaning": "Through; after",
+    "level": "N1",
+    "structure": "名+を経て",
+    "examples": [
+      {
+        "jp": "３年（さんねん）の準備期間（じゅんびきかん）を経て、開店（かいてん）した。",
+        "en": "Through; after"
+      }
+    ],
+    "notes": "～を通って / ～の後に"
+  },
+  {
+    "pattern": "～ゆえ",
+    "meaning": "Because of",
+    "level": "N1",
+    "structure": "普通形/名+ゆえ",
+    "examples": [
+      {
+        "jp": "悪天候（あくてんこう）ゆえ、試合（しあい）は中止（ちゅうし）だ。",
+        "en": "Because of"
+      }
+    ],
+    "notes": "～だから"
+  },
+  {
+    "pattern": "～ずくめ",
+    "meaning": "Completely covered in; full of",
+    "level": "N1",
+    "structure": "名+ずくめ",
+    "examples": [
+      {
+        "jp": "今年（ことし）はいいことずくめだった。",
+        "en": "Completely covered in; full of"
+      }
+    ],
+    "notes": "～ばかり（全体がそうである）"
+  },
+  {
+    "pattern": "～まみれ",
+    "meaning": "Covered in (dirt, sweat)",
+    "level": "N1",
+    "structure": "名+まみれ",
+    "examples": [
+      {
+        "jp": "彼（かれ）は泥（どろ）まみれになって働（はたら）いた。",
+        "en": "Covered in (dirt, sweat)"
+      }
+    ],
+    "notes": "～が表面全体についている（汚い）"
+  },
+  {
+    "pattern": "～ぐるみ",
+    "meaning": "Involving the whole",
+    "level": "N1",
+    "structure": "名+ぐるみ",
+    "examples": [
+      {
+        "jp": "町（まち）ぐるみで子供（こども）を育（そだ）てる。",
+        "en": "Involving the whole"
+      }
+    ],
+    "notes": "～全体で"
+  },
+  {
+    "pattern": "～並（なみ）",
+    "meaning": "On par with; equivalent to",
+    "level": "N1",
+    "structure": "名+並み",
+    "examples": [
+      {
+        "jp": "彼（かれ）はプロ並みの腕前（うでまえ）だ。",
+        "en": "On par with; equivalent to"
+      }
+    ],
+    "notes": "～と同じくらい"
+  },
+  {
+    "pattern": "～にかまけて",
+    "meaning": "Being too busy with",
+    "level": "N1",
+    "structure": "名+にかまけて",
+    "examples": [
+      {
+        "jp": "仕事（しごと）にかまけて、家族（かぞく）を放置（ほうち）した。",
+        "en": "Being too busy with"
+      }
+    ],
+    "notes": "～に気を取られて他をおろそかにする"
+  },
+  {
+    "pattern": "～に照（て）らして",
+    "meaning": "In light of; according to",
+    "level": "N1",
+    "structure": "名+に照らして",
+    "examples": [
+      {
+        "jp": "法律（ほうりつ）に照らして処分（しょぶん）する。",
+        "en": "In light of; according to"
+      }
+    ],
+    "notes": "～と比べ合わせて基準とする"
+  },
+  {
+    "pattern": "～に則（のっと）って",
+    "meaning": "In accordance with",
+    "level": "N1",
+    "structure": "名+に則って",
+    "examples": [
+      {
+        "jp": "規則（きそく）に則って行動（こうどう）する。",
+        "en": "In accordance with"
+      }
+    ],
+    "notes": "～を基準として従う"
+  },
+  {
+    "pattern": "～を控（ひか）えて",
+    "meaning": "Refraining from; ahead of",
+    "level": "N1",
+    "structure": "名+を控えて",
+    "examples": [
+      {
+        "jp": "卒業（そつぎょう）を控えて、準備（じゅんび）が忙（いそが）しい。",
+        "en": "Refraining from; ahead of"
+      }
+    ],
+    "notes": "～を間近に待って"
+  },
+  {
+    "pattern": "～にまつわる",
+    "meaning": "Associated with; related to",
+    "level": "N1",
+    "structure": "名+にまつわる",
+    "examples": [
+      {
+        "jp": "これはお茶（ちゃ）にまつわる話（はなし）です。",
+        "en": "Associated with; related to"
+      }
+    ],
+    "notes": "～に関係する"
+  },
+  {
+    "pattern": "～を機（き）に",
+    "meaning": "Taking the opportunity",
+    "level": "N1",
+    "structure": "名+を機に",
+    "examples": [
+      {
+        "jp": "引（ひ）っ越（こ）しを機に、家具（かぐ）を新（あたら）しくした。",
+        "en": "Taking the opportunity"
+      }
+    ],
+    "notes": "～をきっかけにして"
+  },
+  {
+    "pattern": "～なくしては",
+    "meaning": "Without",
+    "level": "N1",
+    "structure": "名+なくしては",
+    "examples": [
+      {
+        "jp": "皆様（みなさま）の協力（きょうりょく）なくしては、成功（せいこう）しません。",
+        "en": "Without"
+      }
+    ],
+    "notes": "～がなければ"
+  },
+  {
+    "pattern": "～ばこそ",
+    "meaning": "Only because",
+    "level": "N1",
+    "structure": "ば形+ばこそ",
+    "examples": [
+      {
+        "jp": "愛（あい）していればこそ、厳（きび）しくするのだ。",
+        "en": "Only because"
+      }
+    ],
+    "notes": "まさに～だから"
+  },
+  {
+    "pattern": "～とあって",
+    "meaning": "Due to the fact that",
+    "level": "N1",
+    "structure": "普通形+とあって",
+    "examples": [
+      {
+        "jp": "休日（きゅうじつ）とあって、道（みち）が混（こ）んでいる。",
+        "en": "Due to the fact that"
+      }
+    ],
+    "notes": "～という特別な状況なので"
+  },
+  {
+    "pattern": "～とあれば",
+    "meaning": "If it is the case that",
+    "level": "N1",
+    "structure": "普通形+とあれば",
+    "examples": [
+      {
+        "jp": "家族（かぞく）のためとあれば、何（なに）でもする。",
+        "en": "If it is the case that"
+      }
+    ],
+    "notes": "～という特別な条件なら"
+  },
+  {
+    "pattern": "～てはかなわない",
+    "meaning": "Can't stand; intolerable",
+    "level": "N1",
+    "structure": "て形+はかなわない",
+    "examples": [
+      {
+        "jp": "毎日（まいにち）残業（ざんぎょう）ではかなわない。",
+        "en": "Can't stand; intolerable"
+      }
+    ],
+    "notes": "～ては我慢できない"
+  },
+  {
+    "pattern": "～に際して",
+    "meaning": "When; on the occasion of",
+    "level": "N2",
+    "structure": "名/動辞書形+に際して",
+    "examples": [
+      {
+        "jp": "出発（しゅっぱつ）に際して、挨拶（あいさつ）します。",
+        "en": "When; on the occasion of"
+      }
+    ],
+    "notes": "～する時に"
+  },
+  {
+    "pattern": "～たとたん",
+    "meaning": "As soon as",
+    "level": "N2",
+    "structure": "動た形+とたん",
+    "examples": [
+      {
+        "jp": "窓（まど）を開（あ）けたとたん、風（かぜ）が吹（ふ）いた。",
+        "en": "As soon as"
+      }
+    ],
+    "notes": "～した直後に"
+  },
+  {
+    "pattern": "～つつある",
+    "meaning": "In the process of",
+    "level": "N2",
+    "structure": "動ます形+つつある",
+    "examples": [
+      {
+        "jp": "景気（けいき）は回復（かいふく）しつつある。",
+        "en": "In the process of"
+      }
+    ],
+    "notes": "変化が進行中である"
+  },
+  {
+    "pattern": "～つつ（も）",
+    "meaning": "Although / While",
+    "level": "N2",
+    "structure": "動ます形+つつ",
+    "examples": [
+      {
+        "jp": "悪いと知（し）りつつ、食（た）べてしまう。",
+        "en": "Although / While"
+      }
+    ],
+    "notes": "～けれども / ～しながら"
+  },
+  {
+    "pattern": "～ばかりに",
+    "meaning": "Simply because",
+    "level": "N2",
+    "structure": "普通形+ばかりに",
+    "examples": [
+      {
+        "jp": "嘘（うそ）をついたばかりに、怒（おこ）られた。",
+        "en": "Simply because"
+      }
+    ],
+    "notes": "～が原因で悪い結果になる"
+  },
+  {
+    "pattern": "～わけがない",
+    "meaning": "There is no way",
+    "level": "N2",
+    "structure": "普通形+わけがない",
+    "examples": [
+      {
+        "jp": "彼（かれ）が嘘（うそ）をつくわけがない。",
+        "en": "There is no way"
+      }
+    ],
+    "notes": "絶対に～ない"
+  },
+  {
+    "pattern": "～どころではない",
+    "meaning": "Out of the question",
+    "level": "N2",
+    "structure": "名/動辞書形+どころではない",
+    "examples": [
+      {
+        "jp": "忙（いそが）しくて、遊（あそ）ぶどころではない。",
+        "en": "Out of the question"
+      }
+    ],
+    "notes": "～できる状況ではない"
+  },
+  {
+    "pattern": "～からいうと",
+    "meaning": "From the standpoint of",
+    "level": "N2",
+    "structure": "名+からいうと",
+    "examples": [
+      {
+        "jp": "実力（じつりょく）からいうと、彼（かれ）が一番（いちばん）だ。",
+        "en": "From the standpoint of"
+      }
+    ],
+    "notes": "～の点から判断すると"
+  },
+  {
+    "pattern": "～さえ～ば",
+    "meaning": "If only; as long as",
+    "level": "N2",
+    "structure": "名+さえ+動ば形など",
+    "examples": [
+      {
+        "jp": "薬（くすり）を飲（の）みさえすれば、治（なお）る。",
+        "en": "If only; as long as"
+      }
+    ],
+    "notes": "～という条件だけで十分"
+  },
+  {
+    "pattern": "～ぬきで",
+    "meaning": "Without",
+    "level": "N2",
+    "structure": "名+ぬきで",
+    "examples": [
+      {
+        "jp": "冗談（じょうだん）ぬきで、真面目（まじめ）に話（はな）そう。",
+        "en": "Without"
+      }
+    ],
+    "notes": "～を省いて"
+  },
+  {
+    "pattern": "～にすぎない",
+    "meaning": "Merely; nothing more than",
+    "level": "N2",
+    "structure": "普通形+にすぎない",
+    "examples": [
+      {
+        "jp": "私（わたし）は社員（しゃいん）にすぎない。",
+        "en": "Merely; nothing more than"
+      }
+    ],
+    "notes": "ただ～だけだ"
+  },
+  {
+    "pattern": "～反面（はんめん）",
+    "meaning": "On the other hand",
+    "level": "N2",
+    "structure": "普通形+反面",
+    "examples": [
+      {
+        "jp": "都会（とかい）は便利（べんり）な反面、物価（ぶっか）が高（たか）い。",
+        "en": "On the other hand"
+      }
+    ],
+    "notes": "逆の面もある"
+  },
+  {
+    "pattern": "～ものなら",
+    "meaning": "If I could",
+    "level": "N2",
+    "structure": "動可能形+ものなら",
+    "examples": [
+      {
+        "jp": "戻（もど）れるものなら、過去（かこ）に戻（もど）りたい。",
+        "en": "If I could"
+      }
+    ],
+    "notes": "できれば（実際は無理）"
+  },
+  {
+    "pattern": "～を契機（けいき）に",
+    "meaning": "With... as a turning point",
+    "level": "N2",
+    "structure": "名+を契機に",
+    "examples": [
+      {
+        "jp": "病気（びょうき）を契機に、タバコをやめた。",
+        "en": "With... as a turning point"
+      }
+    ],
+    "notes": "～をきっかけに"
+  },
+  {
+    "pattern": "～あげく",
+    "meaning": "In the end (bad outcome)",
+    "level": "N2",
+    "structure": "た形/名の+あげく",
+    "examples": [
+      {
+        "jp": "悩（なや）んだあげく、買（か）わなかった。",
+        "en": "In the end (bad outcome)"
+      }
+    ],
+    "notes": "色々した結果（悪い）"
+  },
+  {
+    "pattern": "～にあたって",
+    "meaning": "Prior to; on the occasion of",
+    "level": "N2",
+    "structure": "動辞書形/名+にあたって",
+    "examples": [
+      {
+        "jp": "新学期（しんがっき）にあたって、目標（もくひょう）を立（た）てる。",
+        "en": "Prior to; on the occasion of"
+      }
+    ],
+    "notes": "～する前に準備として"
+  },
+  {
+    "pattern": "～に伴（ともな）って",
+    "meaning": "Along with; as",
+    "level": "N2",
+    "structure": "動辞書形/名+に伴って",
+    "examples": [
+      {
+        "jp": "人口（じんこう）の減少（げんしょう）に伴って、学校（がっこう）が減（へ）る。",
+        "en": "Along with; as"
+      }
+    ],
+    "notes": "～と一緒に変化する"
+  },
+  {
+    "pattern": "～とともに",
+    "meaning": "Together with; at the same time",
+    "level": "N2",
+    "structure": "動辞書形/名/い/な/名+とともに",
+    "examples": [
+      {
+        "jp": "年（とし）をとるとともに、体力（たいりょく）が落（お）ちる。",
+        "en": "Together with; at the same time"
+      }
+    ],
+    "notes": "～と一緒に / 同時に"
+  },
+  {
+    "pattern": "～に決（き）まっている",
+    "meaning": "Definitely; bound to",
+    "level": "N2",
+    "structure": "普通形+に決まっている",
+    "examples": [
+      {
+        "jp": "こんな難（むずか）しい問題（もんだい）、失敗（しっぱい）するに決まっている。",
+        "en": "Definitely; bound to"
+      }
+    ],
+    "notes": "絶対に～だ"
+  },
+  {
+    "pattern": "～に違（ちが）いない",
+    "meaning": "Without a doubt; must be",
+    "level": "N2",
+    "structure": "普通形+に違いない",
+    "examples": [
+      {
+        "jp": "犯人（はんにん）は彼（かれ）に違いない。",
+        "en": "Without a doubt; must be"
+      }
+    ],
+    "notes": "きっと～だ"
+  },
+  {
+    "pattern": "～にほかならない",
+    "meaning": "Nothing but",
+    "level": "N2",
+    "structure": "名+にほかならない",
+    "examples": [
+      {
+        "jp": "成功（せいこう）は努力（どりょく）の結果（けっか）にほかならない。",
+        "en": "Nothing but"
+      }
+    ],
+    "notes": "絶対に～だ / ～以外ではない"
+  },
+  {
+    "pattern": "～にしては",
+    "meaning": "For; considering",
+    "level": "N2",
+    "structure": "普通形+にしては",
+    "examples": [
+      {
+        "jp": "初（はじ）めてにしては、上手（じょうず）だ。",
+        "en": "For; considering"
+      }
+    ],
+    "notes": "～という事実から予想されることと違う"
+  },
+  {
+    "pattern": "～にしても",
+    "meaning": "Even if",
+    "level": "N2",
+    "structure": "普通形+にしても",
+    "examples": [
+      {
+        "jp": "遅（おそ）れるにしても、連絡（れんらく）するべきだ。",
+        "en": "Even if"
+      }
+    ],
+    "notes": "たとえ～であっても"
+  },
+  {
+    "pattern": "～にしたら",
+    "meaning": "From the perspective of",
+    "level": "N2",
+    "structure": "名+にしたら",
+    "examples": [
+      {
+        "jp": "親（おや）にしたら、子供（こども）の成長（せいちょう）は嬉（うれ）しい。",
+        "en": "From the perspective of"
+      }
+    ],
+    "notes": "～の立場になってみれば"
+  },
+  {
+    "pattern": "～としたら",
+    "meaning": "If it were the case that",
+    "level": "N2",
+    "structure": "普通形+としたら",
+    "examples": [
+      {
+        "jp": "明日（あした）世界（せかい）が終（お）わるとしたら、何（なに）をする？",
+        "en": "If it were the case that"
+      }
+    ],
+    "notes": "もし～と仮定したら"
+  },
+  {
+    "pattern": "～となると",
+    "meaning": "When it comes to",
+    "level": "N2",
+    "structure": "普通形+となると",
+    "examples": [
+      {
+        "jp": "海外赴任（かいがいふにん）となると、準備（じゅんび）が大変（たいへん）だ。",
+        "en": "When it comes to"
+      }
+    ],
+    "notes": "もし～という状況になれば"
+  },
+  {
+    "pattern": "～ゆえに",
+    "meaning": "Therefore; because of",
+    "level": "N2",
+    "structure": "普通形+ゆえ（に）",
+    "examples": [
+      {
+        "jp": "貧（まず）しさゆえに、学校（がっこう）に行（い）けなかった。",
+        "en": "Therefore; because of"
+      }
+    ],
+    "notes": "～だから（硬い表現）"
+  },
+  {
+    "pattern": "～からには",
+    "meaning": "Now that; since",
+    "level": "N2",
+    "structure": "普通形+からには",
+    "examples": [
+      {
+        "jp": "約束（やくそく）したからには、守（まも）らなければならない。",
+        "en": "Now that; since"
+      }
+    ],
+    "notes": "～のだから当然"
+  },
+  {
+    "pattern": "～以上（いじょう）は",
+    "meaning": "Now that; since",
+    "level": "N2",
+    "structure": "普通形+以上は",
+    "examples": [
+      {
+        "jp": "引（ひ）き受（う）けた以上は、最後（さいご）までやる。",
+        "en": "Now that; since"
+      }
+    ],
+    "notes": "～のだから当然"
+  },
+  {
+    "pattern": "～上（うえ）は",
+    "meaning": "Now that; since",
+    "level": "N2",
+    "structure": "動辞書形/た形+上は",
+    "examples": [
+      {
+        "jp": "こうなった上は、戦（たたか）うしかない。",
+        "en": "Now that; since"
+      }
+    ],
+    "notes": "～のだから当然（硬い表現）"
+  },
+  {
+    "pattern": "～て以来（いらい）",
+    "meaning": "Since then",
+    "level": "N2",
+    "structure": "て形+以来",
+    "examples": [
+      {
+        "jp": "日本（にほん）に来（き）て以来、毎日（まいにち）納豆（なっとう）を食（た）べている。",
+        "en": "Since then"
+      }
+    ],
+    "notes": "～てからずっと"
+  },
+  {
+    "pattern": "～てはじめて",
+    "meaning": "Not until; only after",
+    "level": "N2",
+    "structure": "て形+はじめて",
+    "examples": [
+      {
+        "jp": "病気（びょうき）になってはじめて、健康（けんこう）のありがたみが分（わ）かる。",
+        "en": "Not until; only after"
+      }
+    ],
+    "notes": "～を経験した後でやっと"
+  },
+  {
+    "pattern": "～てからでないと",
+    "meaning": "Unless; not until",
+    "level": "N2",
+    "structure": "て形+からでないと",
+    "examples": [
+      {
+        "jp": "親（おや）に相談（そうだん）してからでないと、決（き）められない。",
+        "en": "Unless; not until"
+      }
+    ],
+    "notes": "～した後でなければ"
+  },
+  {
+    "pattern": "～てしかたがない",
+    "meaning": "Can't help but; terribly",
+    "level": "N2",
+    "structure": "て形+しかたがない",
+    "examples": [
+      {
+        "jp": "暑（あつ）くてしかたがない。",
+        "en": "Can't help but; terribly"
+      }
+    ],
+    "notes": "非常に～だ"
+  },
+  {
+    "pattern": "～てたまらない",
+    "meaning": "Unbearably; dying to",
+    "level": "N2",
+    "structure": "て形+たまらない",
+    "examples": [
+      {
+        "jp": "水（みず）が飲（の）みたくてたまらない。",
+        "en": "Unbearably; dying to"
+      }
+    ],
+    "notes": "非常に～だ"
+  },
+  {
+    "pattern": "～てならない",
+    "meaning": "Can't help but feel",
+    "level": "N2",
+    "structure": "て形+ならない",
+    "examples": [
+      {
+        "jp": "故郷（こきょう）の家族（かぞく）が心配（しんぱい）でならない。",
+        "en": "Can't help but feel"
+      }
+    ],
+    "notes": "非常に～だ（自然に沸き起こる感情）"
+  },
+  {
+    "pattern": "～ないではいられない",
+    "meaning": "Can't help but",
+    "level": "N2",
+    "structure": "ない形+ではいられない",
+    "examples": [
+      {
+        "jp": "その話（はなし）を聞（き）いて、笑（わら）わないではいられなかった。",
+        "en": "Can't help but"
+      }
+    ],
+    "notes": "どうしても～してしまう"
+  },
+  {
+    "pattern": "～ずにはいられない",
+    "meaning": "Can't help but",
+    "level": "N2",
+    "structure": "動ない形（ない取る）+ずにはいられない",
+    "examples": [
+      {
+        "jp": "泣（な）かずにはいられない。",
+        "en": "Can't help but"
+      }
+    ],
+    "notes": "どうしても～してしまう（硬い）"
+  },
+  {
+    "pattern": "～ざるを得（え）ない",
+    "meaning": "Have no choice but to",
+    "level": "N2",
+    "structure": "動ない形（ない取る）+ざるを得ない",
+    "examples": [
+      {
+        "jp": "雨（あめ）なので、中止（ちゅうし）せざるを得ない。",
+        "en": "Have no choice but to"
+      }
+    ],
+    "notes": "したくないが、しなければならない"
+  },
+  {
+    "pattern": "～わけにはいかない",
+    "meaning": "Cannot afford to; must not",
+    "level": "N2",
+    "structure": "動辞書形+わけにはいかない",
+    "examples": [
+      {
+        "jp": "明日（あした）は試験（しけん）だから、遊（あそ）ぶわけにはいかない。",
+        "en": "Cannot afford to; must not"
+      }
+    ],
+    "notes": "社会的な理由で～できない"
+  },
+  {
+    "pattern": "～代（か）わりに",
+    "meaning": "Instead of; in place of",
+    "level": "N2",
+    "structure": "名+の/動辞書形+かわりに",
+    "examples": [
+      {
+        "jp": "私（わたし）の代わりに、彼（かれ）が出席（しゅっせき）する。",
+        "en": "Instead of; in place of"
+      }
+    ],
+    "notes": "～の代理として"
+  },
+  {
+    "pattern": "～にかわって",
+    "meaning": "On behalf of",
+    "level": "N2",
+    "structure": "名+にかわって",
+    "examples": [
+      {
+        "jp": "社長（しゃちょう）にかわって、ご挨拶（あいさつ）します。",
+        "en": "On behalf of"
+      }
+    ],
+    "notes": "～の代理として"
+  },
+  {
+    "pattern": "～はともかく",
+    "meaning": "Setting aside",
+    "level": "N2",
+    "structure": "名+はともかく",
+    "examples": [
+      {
+        "jp": "値段（ねだん）はともかく、味（あじ）は美味（おい）しい。",
+        "en": "Setting aside"
+      }
+    ],
+    "notes": "～は今は問題にしないで"
+  },
+  {
+    "pattern": "～はもとより",
+    "meaning": "Not to mention",
+    "level": "N2",
+    "structure": "名+はもとより",
+    "examples": [
+      {
+        "jp": "彼（かれ）は英語（えいご）はもとより、フランス語（ご）も話（はな）せる。",
+        "en": "Not to mention"
+      }
+    ],
+    "notes": "～はもちろん"
+  },
+  {
+    "pattern": "～ばかりか",
+    "meaning": "Not only... but also",
+    "level": "N2",
+    "structure": "普通形+ばかりか",
+    "examples": [
+      {
+        "jp": "彼（かれ）は遅刻（ちこく）したばかりか、謝（あやま）りもしない。",
+        "en": "Not only... but also"
+      }
+    ],
+    "notes": "～だけでなく、さらに"
+  },
+  {
+    "pattern": "～のみならず",
+    "meaning": "Not only... but also",
+    "level": "N2",
+    "structure": "普通形+のみならず",
+    "examples": [
+      {
+        "jp": "日本（にほん）のみならず、海外（かいがい）でも人気（にんき）だ。",
+        "en": "Not only... but also"
+      }
+    ],
+    "notes": "～だけでなく（硬い表現）"
+  },
+  {
+    "pattern": "～に限（かぎ）って",
+    "meaning": "Only when; specifically",
+    "level": "N2",
+    "structure": "名+に限って",
+    "examples": [
+      {
+        "jp": "急（いそ）いでいる時（とき）に限って、電車（でんしゃ）が遅（おく）れる。",
+        "en": "Only when; specifically"
+      }
+    ],
+    "notes": "～の時に不運なことが起きる"
+  },
+  {
+    "pattern": "～に限（かぎ）り",
+    "meaning": "Limited to",
+    "level": "N2",
+    "structure": "名+に限り",
+    "examples": [
+      {
+        "jp": "本日（ほんじつ）に限り、半額（はんがく）です。",
+        "en": "Limited to"
+      }
+    ],
+    "notes": "～だけ特別に"
+  },
+  {
+    "pattern": "～に限（かぎ）らず",
+    "meaning": "Not limited to",
+    "level": "N2",
+    "structure": "名+に限らず",
+    "examples": [
+      {
+        "jp": "若者（わかもの）に限らず、お年寄（としよ）りもスマホを使（つか）う。",
+        "en": "Not limited to"
+      }
+    ],
+    "notes": "～だけでなく"
+  },
+  {
+    "pattern": "～を問（と）わず",
+    "meaning": "Regardless of",
+    "level": "N2",
+    "structure": "名+を問わず",
+    "examples": [
+      {
+        "jp": "年齢（ねんれい）を問わず、参加（さんか）できます。",
+        "en": "Regardless of"
+      }
+    ],
+    "notes": "～に関係なく"
+  },
+  {
+    "pattern": "～にかかわらず",
+    "meaning": "Regardless of",
+    "level": "N2",
+    "structure": "名/動辞書形+ない形+にかかわらず",
+    "examples": [
+      {
+        "jp": "天気（てんき）にかかわらず、試合（しあい）は行（おこな）う。",
+        "en": "Regardless of"
+      }
+    ],
+    "notes": "～に関係なく"
+  },
+  {
+    "pattern": "～にもかかわらず",
+    "meaning": "Despite; although",
+    "level": "N2",
+    "structure": "普通形+にもかかわらず",
+    "examples": [
+      {
+        "jp": "雨（あめ）にもかかわらず、多（おお）くの人（ひと）が来（き）た。",
+        "en": "Despite; although"
+      }
+    ],
+    "notes": "～なのに"
+  },
+  {
+    "pattern": "～をこめて",
+    "meaning": "With (emotion/effort)",
+    "level": "N2",
+    "structure": "名+をこめて",
+    "examples": [
+      {
+        "jp": "感謝（かんしゃ）をこめて、プレゼントを贈（おく）る。",
+        "en": "With (emotion/effort)"
+      }
+    ],
+    "notes": "～の気持ちを入れて"
+  },
+  {
+    "pattern": "～を通（つう）じて",
+    "meaning": "Throughout; via",
+    "level": "N2",
+    "structure": "名+を通じて",
+    "examples": [
+      {
+        "jp": "一年（いちねん）を通じて、暖（あたた）かい。",
+        "en": "Throughout; via"
+      }
+    ],
+    "notes": "～の期間ずっと / ～を媒介にして"
+  },
+  {
+    "pattern": "～をめぐって",
+    "meaning": "Concerning; surrounding",
+    "level": "N2",
+    "structure": "名+をめぐって",
+    "examples": [
+      {
+        "jp": "遺産（いさん）をめぐって、争（あらそ）う。",
+        "en": "Concerning; surrounding"
+      }
+    ],
+    "notes": "～について議論や争いをする"
+  },
+  {
+    "pattern": "～をもとに",
+    "meaning": "Based on",
+    "level": "N2",
+    "structure": "名+をもとに",
+    "examples": [
+      {
+        "jp": "事実（じじつ）をもとに、映画（えいが）を作（つく）る。",
+        "en": "Based on"
+      }
+    ],
+    "notes": "～を素材・基礎にして"
+  },
+  {
+    "pattern": "～に基（もと）づいて",
+    "meaning": "Based on; in accordance with",
+    "level": "N2",
+    "structure": "名+に基づいて",
+    "examples": [
+      {
+        "jp": "法律（ほうりつ）に基づいて、判断（はんだん）する。",
+        "en": "Based on; in accordance with"
+      }
+    ],
+    "notes": "～を基準にして"
+  },
+  {
+    "pattern": "～に沿（そ）って",
+    "meaning": "Along with; in accordance with",
+    "level": "N2",
+    "structure": "名+に沿って",
+    "examples": [
+      {
+        "jp": "マニュアルに沿って、作業（さぎょう）を進（すす）める。",
+        "en": "Along with; in accordance with"
+      }
+    ],
+    "notes": "～に合わせて"
+  },
+  {
+    "pattern": "～のもとで",
+    "meaning": "Under (someone's guidance/supervision)",
+    "level": "N2",
+    "structure": "名+のもとで",
+    "examples": [
+      {
+        "jp": "厳（きび）しい先生（せんせい）のもとで、練習（れんしゅう）した。",
+        "en": "Under (someone's guidance/supervision)"
+      }
+    ],
+    "notes": "～の影響・指導の下で"
+  },
+  {
+    "pattern": "～向（む）け",
+    "meaning": "Intended for",
+    "level": "N2",
+    "structure": "名+向け",
+    "examples": [
+      {
+        "jp": "これは子供（こども）向けの番組（ばんぐみ）です。",
+        "en": "Intended for"
+      }
+    ],
+    "notes": "～を対象にした"
+  },
+  {
+    "pattern": "～次第（しだい）",
+    "meaning": "As soon as",
+    "level": "N2",
+    "structure": "動ます形+次第",
+    "examples": [
+      {
+        "jp": "準備（じゅんび）ができ次第、出発（しゅっぱつ）します。",
+        "en": "As soon as"
+      }
+    ],
+    "notes": "～したらすぐに"
+  },
+  {
+    "pattern": "～次第（しだい）で",
+    "meaning": "Depending on",
+    "level": "N2",
+    "structure": "名+次第で",
+    "examples": [
+      {
+        "jp": "努力（どりょく）次第で、結果（けっか）は変（か）わる。",
+        "en": "Depending on"
+      }
+    ],
+    "notes": "～によって決まる"
+  },
+  {
+    "pattern": "～次第（しだい）だ",
+    "meaning": "Therefore; as a result",
+    "level": "N2",
+    "structure": "普通形+次第だ",
+    "examples": [
+      {
+        "jp": "こうして、日本（にほん）に来（き）た次第です。",
+        "en": "Therefore; as a result"
+      }
+    ],
+    "notes": "～という理由・事情だ"
+  },
+  {
+    "pattern": "～に応（おう）じて",
+    "meaning": "Depending on; in accordance with",
+    "level": "N2",
+    "structure": "名+に応じて",
+    "examples": [
+      {
+        "jp": "予算（よさん）に応じて、ホテルを選（えら）ぶ。",
+        "en": "Depending on; in accordance with"
+      }
+    ],
+    "notes": "～に合わせて変化する"
+  },
+  {
+    "pattern": "～にこたえて",
+    "meaning": "In response to",
+    "level": "N2",
+    "structure": "名+にこたえて",
+    "examples": [
+      {
+        "jp": "ファン（ふぁん）の期待（きたい）にこたえて、歌（うた）う。",
+        "en": "In response to"
+      }
+    ],
+    "notes": "～の希望通りに"
+  },
+  {
+    "pattern": "～に比（くら）べて",
+    "meaning": "Compared to",
+    "level": "N2",
+    "structure": "名/普通形+の+に比べて",
+    "examples": [
+      {
+        "jp": "去年（きょねん）に比べて、今年（ことし）は暑（あつ）い。",
+        "en": "Compared to"
+      }
+    ],
+    "notes": "～と比較して"
+  },
+  {
+    "pattern": "～に反（はん）して",
+    "meaning": "Contrary to",
+    "level": "N2",
+    "structure": "名+に反して",
+    "examples": [
+      {
+        "jp": "予想（よそう）に反して、テストは簡単（かんたん）だった。",
+        "en": "Contrary to"
+      }
+    ],
+    "notes": "～とは逆の事態になる"
+  },
+  {
+    "pattern": "～一方（いっぽう）だ",
+    "meaning": "Continuously doing; keeping doing",
+    "level": "N2",
+    "structure": "動辞書形+一方だ",
+    "examples": [
+      {
+        "jp": "借金（しゃっきん）は増（ふ）える一方だ。",
+        "en": "Continuously doing; keeping doing"
+      }
+    ],
+    "notes": "どんどん～していく"
+  },
+  {
+    "pattern": "～ながら（も）",
+    "meaning": "Although; despite",
+    "level": "N2",
+    "structure": "動ます形/名/形+ながら",
+    "examples": [
+      {
+        "jp": "狭（せま）いながらも、楽（たの）しい我（わ）が家（や）だ。",
+        "en": "Although; despite"
+      }
+    ],
+    "notes": "～けれども"
+  },
+  {
+    "pattern": "～ものの",
+    "meaning": "Although; but",
+    "level": "N2",
+    "structure": "普通形+ものの",
+    "examples": [
+      {
+        "jp": "買（か）ったものの、使（つか）っていない。",
+        "en": "Although; but"
+      }
+    ],
+    "notes": "～けれども"
+  },
+  {
+    "pattern": "～から見（み）ると",
+    "meaning": "From the perspective of",
+    "level": "N2",
+    "structure": "名+から見ると",
+    "examples": [
+      {
+        "jp": "外国人（がいこくじん）から見ると、不思議（ふしぎ）だ。",
+        "en": "From the perspective of"
+      }
+    ],
+    "notes": "～の視点から判断すると"
+  },
+  {
+    "pattern": "～からして",
+    "meaning": "Judging from",
+    "level": "N2",
+    "structure": "名+からして",
+    "examples": [
+      {
+        "jp": "タイトルからして、面白（おもしろ）そうだ。",
+        "en": "Judging from"
+      }
+    ],
+    "notes": "～という一つの例から判断して"
+  },
+  {
+    "pattern": "～からすると",
+    "meaning": "Judging from",
+    "level": "N2",
+    "structure": "名+からすると",
+    "examples": [
+      {
+        "jp": "あの様子（ようす）からすると、彼（かれ）は怒（おこ）っている。",
+        "en": "Judging from"
+      }
+    ],
+    "notes": "～から判断すると"
+  },
+  {
+    "pattern": "～に言（い）わせれば",
+    "meaning": "If you ask...; in... opinion",
+    "level": "N2",
+    "structure": "名+に言わせれば",
+    "examples": [
+      {
+        "jp": "私（わたし）に言わせれば、それは間違（まちが）いだ。",
+        "en": "If you ask...; in... opinion"
+      }
+    ],
+    "notes": "～の意見では"
+  },
+  {
+    "pattern": "～上（うえ）で",
+    "meaning": "Upon; after",
+    "level": "N2",
+    "structure": "動た形/名の+上で",
+    "examples": [
+      {
+        "jp": "確認（かくにん）した上で、お返事（へんじ）します。",
+        "en": "Upon; after"
+      }
+    ],
+    "notes": "～した後で"
+  },
+  {
+    "pattern": "～上（うえ）に",
+    "meaning": "Not only... but also",
+    "level": "N2",
+    "structure": "普通形+上に",
+    "examples": [
+      {
+        "jp": "彼（かれ）は優（やさ）しい上に、かっこいい。",
+        "en": "Not only... but also"
+      }
+    ],
+    "notes": "～だけでなくさらに"
+  },
+  {
+    "pattern": "～どころか",
+    "meaning": "Far from; let alone",
+    "level": "N2",
+    "structure": "普通形+どころか",
+    "examples": [
+      {
+        "jp": "貯金（ちょきん）どころか、借金（しゃっきん）がある。",
+        "en": "Far from; let alone"
+      }
+    ],
+    "notes": "～とは全く違って"
+  },
+  {
+    "pattern": "～あまり",
+    "meaning": "Because of too much...",
+    "level": "N2",
+    "structure": "普通形+あまり/名の+あまり",
+    "examples": [
+      {
+        "jp": "驚（おどろ）きのあまり、声（こえ）が出（で）なかった。",
+        "en": "Because of too much..."
+      }
+    ],
+    "notes": "～すぎる結果"
+  },
+  {
+    "pattern": "～恐（おそ）れがある",
+    "meaning": "There is a fear/risk that",
+    "level": "N2",
+    "structure": "動辞書形/名+恐れがある",
+    "examples": [
+      {
+        "jp": "台風（たいふう）が来（く）る恐れがある。",
+        "en": "There is a fear/risk that"
+      }
+    ],
+    "notes": "～という悪い可能性がある"
+  },
+  {
+    "pattern": "～まい",
+    "meaning": "Will not; intend not to",
+    "level": "N2",
+    "structure": "動辞書形+まい",
+    "examples": [
+      {
+        "jp": "二度（にど）と嘘（うそ）はつくまい。",
+        "en": "Will not; intend not to"
+      }
+    ],
+    "notes": "～ないだろう / 絶対に～しない"
+  },
+  {
+    "pattern": "～相違（そうい）ない",
+    "meaning": "Without a doubt",
+    "level": "N2",
+    "structure": "普通形+相違ない",
+    "examples": [
+      {
+        "jp": "犯人（はんにん）は彼（かれ）に相違ない。",
+        "en": "Without a doubt"
+      }
+    ],
+    "notes": "きっと～だ（硬い表現）"
+  },
+  {
+    "pattern": "～べきだ",
+    "meaning": "Should; ought to",
+    "level": "N2",
+    "structure": "動辞書形+べきだ",
+    "examples": [
+      {
+        "jp": "約束（やくそく）は守（まも）るべきだ。",
+        "en": "Should; ought to"
+      }
+    ],
+    "notes": "～するのが当然だ"
+  },
+  {
+    "pattern": "～ことだ",
+    "meaning": "Should (advice)",
+    "level": "N2",
+    "structure": "動辞書形/ない形+ことだ",
+    "examples": [
+      {
+        "jp": "合格（ごうかく）したいなら、勉強（べんきょう）することだ。",
+        "en": "Should (advice)"
+      }
+    ],
+    "notes": "～した方がいい（忠告）"
+  },
+  {
+    "pattern": "～ものだ",
+    "meaning": "It is natural that",
+    "level": "N2",
+    "structure": "動辞書形/ない形+ものだ",
+    "examples": [
+      {
+        "jp": "人（ひと）の心（こころ）は変（か）わるものだ。",
+        "en": "It is natural that"
+      }
+    ],
+    "notes": "～するのが本来の性質だ"
+  },
+  {
+    "pattern": "～というものだ",
+    "meaning": "That's what you call",
+    "level": "N2",
+    "structure": "普通形+というものだ",
+    "examples": [
+      {
+        "jp": "自分（じぶん）だけ助（たす）かるのは、勝手（かって）というものだ。",
+        "en": "That's what you call"
+      }
+    ],
+    "notes": "まさに～だ"
+  },
+  {
+    "pattern": "～ことはない",
+    "meaning": "There is no need to",
+    "level": "N2",
+    "structure": "動辞書形+ことはない",
+    "examples": [
+      {
+        "jp": "君（きみ）が謝（あやま）ることはない。",
+        "en": "There is no need to"
+      }
+    ],
+    "notes": "～する必要はない"
+  },
+  {
+    "pattern": "～わけだ",
+    "meaning": "For that reason; no wonder",
+    "level": "N2",
+    "structure": "普通形+わけだ",
+    "examples": [
+      {
+        "jp": "寒（さむ）いわけだ。雪（ゆき）が降（ふ）っている。",
+        "en": "For that reason; no wonder"
+      }
+    ],
+    "notes": "理由が分かって納得する"
+  },
+  {
+    "pattern": "～わけではない",
+    "meaning": "It doesn't mean that",
+    "level": "N2",
+    "structure": "普通形+わけではない",
+    "examples": [
+      {
+        "jp": "全部（ぜんぶ）が嫌（いや）なわけではない。",
+        "en": "It doesn't mean that"
+      }
+    ],
+    "notes": "部分的に否定する"
+  },
+  {
+    "pattern": "～っこない",
+    "meaning": "No chance of; absolutely impossible",
+    "level": "N2",
+    "structure": "動ます形+っこない",
+    "examples": [
+      {
+        "jp": "こんな重（おも）い荷物（にもつ）、持（も）てっこない。",
+        "en": "No chance of; absolutely impossible"
+      }
+    ],
+    "notes": "絶対に～できない"
+  },
+  {
+    "pattern": "～かねない",
+    "meaning": "Might happen (bad result)",
+    "level": "N2",
+    "structure": "動ます形+かねない",
+    "examples": [
+      {
+        "jp": "休（やす）まないと、倒（たお）れかねない。",
+        "en": "Might happen (bad result)"
+      }
+    ],
+    "notes": "～という悪い結果になるかもしれない"
+  },
+  {
+    "pattern": "～かねる",
+    "meaning": "Unable to do (polite refusal)",
+    "level": "N2",
+    "structure": "動ます形+かねる",
+    "examples": [
+      {
+        "jp": "ご要望（ようぼう）にはお応（こた）えしかねます。",
+        "en": "Unable to do (polite refusal)"
+      }
+    ],
+    "notes": "～できない（丁寧な断り）"
+  },
+  {
+    "pattern": "～がたい",
+    "meaning": "Hard to; difficult to",
+    "level": "N2",
+    "structure": "動ます形+がたい",
+    "examples": [
+      {
+        "jp": "彼（かれ）の行動（こうどう）は理解（りかい）しがたい。",
+        "en": "Hard to; difficult to"
+      }
+    ],
+    "notes": "～するのが難しい"
+  },
+  {
+    "pattern": "～げ",
+    "meaning": "Looks like; seems",
+    "level": "N2",
+    "structure": "い形/な形/動ます形+げ",
+    "examples": [
+      {
+        "jp": "彼（かれ）は悲（かな）しげな顔（かお）をしている。",
+        "en": "Looks like; seems"
+      }
+    ],
+    "notes": "～そうに見える"
+  },
+  {
+    "pattern": "～っぽい",
+    "meaning": "-ish; like",
+    "level": "N2",
+    "structure": "名/動ます形/い形+っぽい",
+    "examples": [
+      {
+        "jp": "この牛乳（ぎゅうにゅう）は水（みず）っぽい。",
+        "en": "-ish; like"
+      }
+    ],
+    "notes": "～の性質を強く持っている"
+  },
+  {
+    "pattern": "～がち",
+    "meaning": "Tend to; apt to",
+    "level": "N2",
+    "structure": "名/動ます形+がち",
+    "examples": [
+      {
+        "jp": "最近（さいきん）、風邪（かぜ）をひきがちだ。",
+        "en": "Tend to; apt to"
+      }
+    ],
+    "notes": "～することが多い（マイナス）"
+  },
+  {
+    "pattern": "～気味（ぎみ）",
+    "meaning": "Slightly; a touch of",
+    "level": "N2",
+    "structure": "名/動ます形+気味",
+    "examples": [
+      {
+        "jp": "今日（きょう）は少（すこ）し風邪（かぜ）気味だ。",
+        "en": "Slightly; a touch of"
+      }
+    ],
+    "notes": "少（すこ）し～の傾向（けいこう）がある"
+  },
+  {
+    "pattern": "～だらけ",
+    "meaning": "Full of; covered with",
+    "level": "N2",
+    "structure": "名+だらけ",
+    "examples": [
+      {
+        "jp": "彼（かれ）の部屋（へや）はゴミだらけだ。",
+        "en": "Full of; covered with"
+      }
+    ],
+    "notes": "～がいっぱいある（マイナス）"
+  },
+  {
+    "pattern": "～っぱなし",
+    "meaning": "Leave something on/running",
+    "level": "N2",
+    "structure": "動ます形+っぱなし",
+    "examples": [
+      {
+        "jp": "水（みず）を出（だ）しっぱなしにするな。",
+        "en": "Leave something on/running"
+      }
+    ],
+    "notes": "～の状態でそのままにする"
+  },
+  {
+    "pattern": "～きり",
+    "meaning": "Only; just",
+    "level": "N2",
+    "structure": "名/動た形+きり",
+    "examples": [
+      {
+        "jp": "彼（かれ）に会（あ）ったのは、一回（いっかい）きりだ。",
+        "en": "Only; just"
+      }
+    ],
+    "notes": "～だけ / ～したままで"
+  },
+  {
+    "pattern": "～ふりをする",
+    "meaning": "Pretend to",
+    "level": "N2",
+    "structure": "普通形+ふりをする",
+    "examples": [
+      {
+        "jp": "分（わ）かったふりをする。",
+        "en": "Pretend to"
+      }
+    ],
+    "notes": "実際は違うのに～の態度をとる"
+  }
+]

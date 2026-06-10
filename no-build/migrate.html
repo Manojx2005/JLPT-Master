@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Migrate Data to Firebase</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <!-- Local Data -->
+    <script src="data.js"></script>
+    <script src="features.js"></script>
+</head>
+<body>
+    <h1>Database Migration Tool</h1>
+    <p>Click the button below to upload the local arrays to your Firebase Realtime Database.</p>
+    <button id="migrateBtn" style="padding:10px 20px; font-size: 16px;">Migrate to Firebase</button>
+    <div id="status" style="margin-top: 20px; font-family: monospace;"></div>
+
+    <script>
+        // Firebase config copied from features.js
+        var firebaseConfig = {
+            apiKey: "AIzaSyBsgPvl13XX0lLBvzmXQN17rFbRGfg8rE8",
+            authDomain: "jlpt-master-4cbf2.firebaseapp.com",
+            databaseURL: "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com",
+            projectId: "jlpt-master-4cbf2",
+            storageBucket: "jlpt-master-4cbf2.firebasestorage.app",
+            messagingSenderId: "99961338444",
+            appId: "1:99961338444:web:3e65e14c73c9e43b8d52e9",
+            measurementId: "G-8EGR4EPGXN"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+
+        document.getElementById('migrateBtn').addEventListener('click', function() {
+            var btn = this;
+            var statusDiv = document.getElementById('status');
+            btn.disabled = true;
+            statusDiv.innerHTML = "Starting migration...<br>";
+
+            var p1 = Promise.resolve();
+            var p2 = Promise.resolve();
+
+            if (typeof JLPT_VOCAB !== 'undefined') {
+                statusDiv.innerHTML += "Uploading JLPT_VOCAB (" + JLPT_VOCAB.length + " items)...<br>";
+                p1 = db.ref('global_jlpt_vocab').set(JLPT_VOCAB).then(() => {
+                    statusDiv.innerHTML += "<span style='color:green'>JLPT_VOCAB uploaded successfully!</span><br>";
+                }).catch(e => {
+                    statusDiv.innerHTML += "<span style='color:red'>JLPT_VOCAB upload failed: " + e.message + "</span><br>";
+                });
+            }
+
+            if (typeof GRAMMAR_DATA !== 'undefined') {
+                statusDiv.innerHTML += "Uploading GRAMMAR_DATA (" + GRAMMAR_DATA.length + " items)...<br>";
+                p2 = db.ref('global_grammar').set(GRAMMAR_DATA).then(() => {
+                    statusDiv.innerHTML += "<span style='color:green'>GRAMMAR_DATA uploaded successfully!</span><br>";
+                }).catch(e => {
+                    statusDiv.innerHTML += "<span style='color:red'>GRAMMAR_DATA upload failed: " + e.message + "</span><br>";
+                });
+            }
+
+            Promise.all([p1, p2]).then(() => {
+                statusDiv.innerHTML += "<strong>Migration Complete!</strong>";
+            });
+        });
+    </script>
+</body>
+</html>
