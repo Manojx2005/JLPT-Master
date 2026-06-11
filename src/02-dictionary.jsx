@@ -195,11 +195,25 @@ function DictionaryTab(props) {
             var isExpanded = expandedIdx === idx;
 
             var finalMeanings = res.meanings;
+            var needsTranslation = false;
+            var sourceToTranslate = res.meanings;
+
             if (res.source === 'offline' && res.originalItem) {
-                finalMeanings = [getVocabMeaning(res.originalItem, props.appLang)];
+                var meaningStr = getVocabMeaning(res.originalItem, props.appLang);
+                finalMeanings = [meaningStr];
+                
+                if (props.appLang !== 'en' && (meaningStr === res.originalItem.english || meaningStr === res.originalItem.correct)) {
+                    needsTranslation = true;
+                    sourceToTranslate = [meaningStr];
+                }
             } else if (res.source === 'jisho' && props.appLang !== 'en') {
+                needsTranslation = true;
+                sourceToTranslate = res.meanings;
+            }
+
+            if (needsTranslation) {
                 var allCached = true;
-                finalMeanings = res.meanings.map(function(m) {
+                finalMeanings = sourceToTranslate.map(function(m) {
                     var ck = props.appLang + '___' + m;
                     if (window.TRANSLATION_CACHE && window.TRANSLATION_CACHE[ck]) {
                         return window.TRANSLATION_CACHE[ck];
@@ -210,9 +224,10 @@ function DictionaryTab(props) {
                 
                 if (!allCached && !res._isTranslating) {
                     res._isTranslating = true;
-                    Promise.all(res.meanings.map(function(m) {
+                    Promise.all(sourceToTranslate.map(function(m) {
                         return translateText(m, props.appLang);
                     })).then(function() {
+                        res._isTranslating = false;
                         setResults([].concat(results));
                     });
                 }
@@ -440,8 +455,31 @@ function DictionaryTab(props) {
    ----------------------------------------------------------------- */
 function SavedTab(props) {
     var words = props.savedWords || [];
+    var _render = useState(0);
+    var render = _render[0], setRender = _render[1];
 
     var listEls = words.map(function (w, idx) {
+        if (props.appLang && props.appLang !== 'en') {
+            var rawMeanings = (w.meanings && Array.isArray(w.meanings) && w.meanings.length > 0) ? w.meanings : [];
+            if (rawMeanings.length === 0 && (w.correct || w.english)) {
+                rawMeanings = [w.correct || w.english];
+            }
+            var needsTranslation = false;
+            rawMeanings.forEach(function(m) {
+                if (m && window.TRANSLATION_CACHE && !window.TRANSLATION_CACHE[props.appLang + '___' + m]) {
+                    needsTranslation = true;
+                }
+            });
+            if (needsTranslation && !w._isTranslating) {
+                w._isTranslating = true;
+                Promise.all(rawMeanings.map(function(m) { return translateText(m, props.appLang); }))
+                    .then(function() { 
+                        w._isTranslating = false;
+                        setRender(function(r) { return r + 1; }); 
+                    });
+            }
+        }
+
         return createElement('div', { key: idx, className: 'dict-result', style: { marginBottom: '16px' } },
             createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' } },
                 createElement('div', { className: 'dict-result__word', style: { marginBottom: 0 } }, w.word),
@@ -458,7 +496,10 @@ function SavedTab(props) {
                 createElement('span', { className: 'dict-result__label' }, 'JLPT'),
                 createElement('span', { className: 'dict-result__tag' }, (w.level || w.jlpt))
             ) : null,
-            createElement('div', { style: { marginTop: 12 } }, getVocabMeaning(w, props.appLang))
+            createElement('div', { className: 'dict-result__row', style: { marginTop: 12 } },
+                createElement('span', { className: 'dict-result__label' }, 'Meaning'),
+                createElement('span', null, getVocabMeaning(w, props.appLang))
+            )
         );
     });
 

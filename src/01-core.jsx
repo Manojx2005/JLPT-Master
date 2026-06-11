@@ -258,8 +258,24 @@ if (typeof CUSTOM_DICT !== 'undefined') {
 function getVocabMeaning(q, lang) {
     if (lang === 'vn' && q.meaning_vn) return q.meaning_vn;
     if (lang === 'my' && q.meaning_my) return q.meaning_my;
-    if (q.meanings && Array.isArray(q.meanings) && q.meanings.length > 0) return q.meanings.join('; ');
-    return q.correct || q.english || '';
+    
+    var meanings = [];
+    if (q.meanings && Array.isArray(q.meanings) && q.meanings.length > 0) {
+        meanings = q.meanings;
+    } else {
+        var fallback = q.correct || q.english || '';
+        if (fallback) meanings = [fallback];
+    }
+
+    if (lang && lang !== 'en' && window.TRANSLATION_CACHE) {
+        var cached = meanings.map(function(m) {
+            var ck = lang + '___' + m;
+            return window.TRANSLATION_CACHE[ck] || m;
+        });
+        return cached.join('; ');
+    }
+
+    return meanings.join('; ');
 }
 
 /* =================================================================
