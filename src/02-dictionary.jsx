@@ -1,7 +1,7 @@
 import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
-import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchJisho, searchKanji, searchMockDict, t } from './01-core.jsx';
+import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchJisho, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
 
 /* =================================================================
    JLPT Master — Dictionary & Saved words
