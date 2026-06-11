@@ -258,7 +258,8 @@ if (typeof CUSTOM_DICT !== 'undefined') {
 function getVocabMeaning(q, lang) {
     if (lang === 'vn' && q.meaning_vn) return q.meaning_vn;
     if (lang === 'my' && q.meaning_my) return q.meaning_my;
-    return q.correct || q.english;
+    if (q.meanings && Array.isArray(q.meanings) && q.meanings.length > 0) return q.meanings.join('; ');
+    return q.correct || q.english || '';
 }
 
 /* =================================================================

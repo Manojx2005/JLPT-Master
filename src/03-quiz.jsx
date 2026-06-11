@@ -479,7 +479,7 @@ function QuizTab(props) {
                             onToggle: function () { props.toggleSavedWord(a.question); }
                         }) : null,
                         a.question.reading ? createElement('span', { className: 'wrong-review-item__reading', style: { marginLeft: 'auto' } }, '(' + a.question.reading + ')') : null,
-                        createElement('span', { className: 'quiz-level-tag' }, a.question.level)
+                        (a.question.level || a.question.jlpt) ? createElement('span', { className: 'quiz-level-tag' }, (a.question.level || a.question.jlpt)) : null
                     ),
                     createElement('div', { className: 'wrong-review-item__answers' },
                         createElement('div', { className: 'wrong-review-item__your-answer' },
@@ -632,7 +632,7 @@ function QuizTab(props) {
                 'Question ',
                 createElement('strong', null, qIndex + 1),
                 ' / ' + quiz.length,
-                q.level ? createElement('span', { className: 'quiz-level-tag' }, q.level) : null
+                (q.level || q.jlpt) ? createElement('span', { className: 'quiz-level-tag' }, (q.level || q.jlpt)) : null
             ),
             createElement('div', { className: timerClass }, formatTime(timeLeft))
         ),

@@ -454,9 +454,9 @@ function SavedTab(props) {
                 createElement('span', { className: 'dict-result__label' }, 'Reading'),
                 createElement('span', null, w.reading)
             ) : null,
-            w.level ? createElement('div', { className: 'dict-result__row' },
+            (w.level || w.jlpt) ? createElement('div', { className: 'dict-result__row' },
                 createElement('span', { className: 'dict-result__label' }, 'JLPT'),
-                createElement('span', { className: 'dict-result__tag' }, w.level)
+                createElement('span', { className: 'dict-result__tag' }, (w.level || w.jlpt))
             ) : null,
             createElement('div', { style: { marginTop: 12 } }, getVocabMeaning(w, props.appLang))
         );
