@@ -52,10 +52,12 @@ function KanjiTab(props) {
         setResults([]);
 
         var promises = uniqueKanji.map(async function (k) {
+            // Kick off both requests concurrently instead of waiting for
+            // the kanji data before starting the stroke-order SVG fetch.
+            var svgPromise = fetchKanjiSvg(k);
             var data = await searchKanji(k);
             if (!data) return null;
-            var svg = await fetchKanjiSvg(k);
-            data.svg = svg;
+            data.svg = await svgPromise;
             return data;
         });
         var dataArray = await Promise.all(promises);

@@ -25,19 +25,22 @@ function KanjiBreakdown(props) {
         
         var fetchAll = async function() {
             setLoading(true);
-            var results = [];
             // Remove duplicates
             var uniqueKanjis = kanjis.filter(function(item, pos) {
                 return kanjis.indexOf(item) === pos;
             });
-            for (var i = 0; i < uniqueKanjis.length; i++) {
-                var k = uniqueKanjis[i];
-                var svg = await fetchKanjiSvg(k);
+            // Fetch every kanji in parallel, and run the data + SVG
+            // requests for each kanji concurrently rather than sequentially.
+            var promises = uniqueKanjis.map(async function (k) {
+                var svgPromise = fetchKanjiSvg(k);
                 var data = await searchKanji(k);
+                var svg = await svgPromise;
                 if (svg || data) {
-                    results.push({ kanji: k, svg: svg, data: data });
+                    return { kanji: k, svg: svg, data: data };
                 }
-            }
+                return null;
+            });
+            var results = (await Promise.all(promises)).filter(function (r) { return r !== null; });
             setKanjiData(results);
             setLoading(false);
         };
