@@ -303,29 +303,88 @@ function shuffleArray(arr) {
 }
 
 window.TRANSLATION_CACHE = {};
-async function translateText(text, targetLang) {
-    if (targetLang === 'en' || !targetLang) return text;
-    var cacheKey = targetLang + '___' + text;
-    if (window.TRANSLATION_CACHE[cacheKey]) return window.TRANSLATION_CACHE[cacheKey];
+var _translationQueue = [];
+var _isTranslatingQueue = false;
 
-    try {
-        var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=' + targetLang + '&dt=t&q=' + encodeURIComponent(text);
-        var resp = await fetch(url);
-        var data = await resp.json();
-        var translated = '';
-        if (data && data[0]) {
-            for (var i = 0; i < data[0].length; i++) {
-                if (data[0][i][0]) translated += data[0][i][0];
+async function processTranslationQueue() {
+    if (_isTranslatingQueue || _translationQueue.length === 0) return;
+    _isTranslatingQueue = true;
+
+    while (_translationQueue.length > 0) {
+        var batch = [];
+        var targetLang = _translationQueue[0].targetLang;
+        
+        for (var i = 0; i < _translationQueue.length; i++) {
+            if (_translationQueue[i].targetLang === targetLang) {
+                batch.push(_translationQueue[i]);
+                _translationQueue.splice(i, 1);
+                i--;
+                if (batch.length >= 20) break;
             }
         }
-        if (translated) {
-            window.TRANSLATION_CACHE[cacheKey] = translated;
-            return translated;
+
+        var missingBatch = [];
+        for (var i = 0; i < batch.length; i++) {
+            var item = batch[i];
+            if (window.TRANSLATION_CACHE[item.cacheKey]) {
+                item.resolve(window.TRANSLATION_CACHE[item.cacheKey]);
+            } else {
+                missingBatch.push(item);
+            }
         }
-    } catch (e) {
-        console.warn('Translation failed for:', text, e);
+
+        if (missingBatch.length > 0) {
+            var joinedText = missingBatch.map(function(b) { return b.text; }).join('\n');
+            try {
+                var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=' + targetLang + '&dt=t&q=' + encodeURIComponent(joinedText);
+                var resp = await fetch(url);
+                var data = await resp.json();
+                var translated = '';
+                if (data && data[0]) {
+                    for (var i = 0; i < data[0].length; i++) {
+                        if (data[0][i][0]) translated += data[0][i][0];
+                    }
+                }
+                
+                var splitTranslated = translated.split('\n');
+                
+                if (splitTranslated.length === missingBatch.length) {
+                    for (var i = 0; i < missingBatch.length; i++) {
+                        var t = splitTranslated[i].trim();
+                        if (!t) t = missingBatch[i].text;
+                        window.TRANSLATION_CACHE[missingBatch[i].cacheKey] = t;
+                        missingBatch[i].resolve(t);
+                    }
+                } else {
+                    console.warn('Translation line count mismatch', splitTranslated.length, missingBatch.length);
+                    for (var i = 0; i < missingBatch.length; i++) {
+                        window.TRANSLATION_CACHE[missingBatch[i].cacheKey] = missingBatch[i].text;
+                        missingBatch[i].resolve(missingBatch[i].text);
+                    }
+                }
+            } catch (e) {
+                console.warn('Translation batch failed:', e);
+                for (var i = 0; i < missingBatch.length; i++) {
+                    window.TRANSLATION_CACHE[missingBatch[i].cacheKey] = missingBatch[i].text;
+                    missingBatch[i].resolve(missingBatch[i].text);
+                }
+            }
+        }
+        
+        await new Promise(function(r) { setTimeout(r, 100); });
     }
-    return text;
+    _isTranslatingQueue = false;
+}
+
+function translateText(text, targetLang) {
+    if (targetLang === 'en' || !targetLang) return Promise.resolve(text);
+    var cacheKey = targetLang + '___' + text;
+    if (window.TRANSLATION_CACHE[cacheKey]) return Promise.resolve(window.TRANSLATION_CACHE[cacheKey]);
+
+    return new Promise(function(resolve) {
+        _translationQueue.push({ text: text, targetLang: targetLang, cacheKey: cacheKey, resolve: resolve });
+        processTranslationQueue();
+    });
 }
 
 async function translateToEnglishQuery(text) {
