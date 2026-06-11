@@ -8,6 +8,7 @@ import { ConjugationTab, DashboardTab, FlashcardTab, GrammarTab, KanjiTab, Leade
 import { GrammarQuizTab, HeaderLoginWidget, LanguageSelector, MockExamTab, PDFExamTab } from './05-exams.jsx';
 import { MultiplayerTab } from './06-multiplayer.jsx';
 import { ReviewsTab } from './08-reviews.jsx';
+import { PrivacyTab } from './09-legal.jsx';
 
 /* =================================================================
    JLPT Master — Root App component, ErrorBoundary, and mount logic
@@ -16,6 +17,41 @@ import { ReviewsTab } from './08-reviews.jsx';
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
+
+/* Navigation icons: inline monochrome stroke SVGs (Lucide-style).
+   Replaces emoji icons for consistent weight and theming via currentColor. */
+var NAV_ICON_PATHS = {
+    dict: ['M12 7v14', 'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z'],
+    kanji: ['m5 8 6 6', 'm4 14 6-6 2-3', 'M2 5h12', 'M7 2h1', 'm22 22-5-10-5 10', 'M14 18h6'],
+    grammar: ['m6 16 6-12 6 12', 'M8 12h8', 'm16 20 2 2 4-4'],
+    grammarquiz: ['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z', 'M14 2v4a2 2 0 0 0 2 2h4', 'm9 15 2 2 4-4'],
+    quiz: ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', 'M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z', 'M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'],
+    pdfexam: ['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z', 'M14 2v4a2 2 0 0 0 2 2h4', 'M16 13H8', 'M16 17H8', 'M10 9H8'],
+    mockexam: ['M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z', 'M22 10v6', 'M6 12.5V16a6 3 0 0 0 12 0v-3.5'],
+    flash: ['M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z', 'm22 12.18-9.17 4.16a2 2 0 0 1-1.66 0L2 12.18', 'm22 17.18-9.17 4.16a2 2 0 0 1-1.66 0L2 17.18'],
+    conj: ['M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8', 'M21 3v5h-5', 'M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16', 'M3 21v-5h5'],
+    multi: ['M14.5 17.5 3 6V3h3l11.5 11.5', 'm13 19 6-6', 'm16 16 4 4', 'm19 21 2-2', 'M9.5 6.5 21 18v3h-3L6.5 9.5', 'm5 14-3 3 3 3', 'm3 21 2-2'],
+    dash: ['M3 3v16a2 2 0 0 0 2 2h16', 'M18 17V9', 'M13 17V5', 'M8 17v-3'],
+    leader: ['M6 9H4.5a2.5 2.5 0 0 1 0-5H6', 'M18 9h1.5a2.5 2.5 0 0 0 0-5H18', 'M4 22h16', 'M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22', 'M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22', 'M18 2H6v7a6 6 0 0 0 12 0V2z'],
+    saved: ['m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z'],
+    reviews: ['M7.9 20A9 9 0 1 0 4 16.1L2 22z'],
+    custom: ['M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7', 'M18.4 2.6a2.1 2.1 0 0 1 3 3L13 14l-4 1 1-4z'],
+    privacy: ['M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'],
+    more: ['M5 12h.01', 'M12 12h.01', 'M19 12h.01']
+};
+
+function navIcon(id, size) {
+    var paths = NAV_ICON_PATHS[id];
+    if (!paths) return null;
+    return createElement('svg', {
+        width: size || 18, height: size || 18, viewBox: '0 0 24 24',
+        fill: 'none', stroke: 'currentColor', strokeWidth: 2,
+        strokeLinecap: 'round', strokeLinejoin: 'round',
+        'aria-hidden': true, style: { display: 'block' }
+    }, paths.map(function (d, i) {
+        return createElement('path', { key: i, d: d });
+    }));
+}
 
 function App() {
     // --- State ---
@@ -334,7 +370,7 @@ function App() {
             title: t(tabItem.full, appLang),
             'data-tooltip': t(tabItem.full, appLang),
         },
-            createElement('span', { className: 'nav-tab__icon' }, tabItem.label),
+            createElement('span', { className: 'nav-tab__icon' }, navIcon(tabItem.id) || tabItem.label),
             createElement('span', { className: 'nav-tab__text' }, t(tabItem.full, appLang)),
             badge
         );
@@ -387,6 +423,7 @@ function App() {
     if (tab === 'mockexam') activeTab = createElement(MockExamTab, { appLang: appLang });
     if (tab === 'multi') activeTab = createElement(MultiplayerTab, { questions: allQuestions, appLang: appLang });
     if (tab === 'reviews') activeTab = createElement(ReviewsTab, { appLang: appLang });
+    if (tab === 'privacy') activeTab = createElement(PrivacyTab, { appLang: appLang });
 
     if (tab === 'custom') activeTab = createElement(CustomTab, {
         onAdd: addQuestion,
@@ -435,7 +472,7 @@ function App() {
                 'aria-label': item.short,
             },
                 createElement('span', { className: 'bottom-nav__icon' },
-                    item.label,
+                    navIcon(item.id, 20) || item.label,
                     showBadge ? createElement('span', { className: 'bottom-nav__badge' },
                         srsDueCount > 9 ? '9+' : srsDueCount) : null
                 ),
@@ -464,12 +501,19 @@ function App() {
                         setMoreSheetOpen(false);
                     }
                 },
-                    createElement('span', { className: 'more-sheet__icon' }, tabItem.label),
+                    createElement('span', { className: 'more-sheet__icon' }, navIcon(tabItem.id, 22) || tabItem.label),
                     createElement('span', { className: 'more-sheet__label' }, t(tabItem.full, appLang))
                 );
             })
         )
     );
+
+    // Title shown in the page header for the active tab
+    var activeTabMeta = { full: 'JLPT Master' };
+    for (var ti = 0; ti < tabs.length; ti++) {
+        if (tabs[ti].id === tab) { activeTabMeta = tabs[ti]; break; }
+    }
+    if (tab === 'privacy') activeTabMeta = { full: 'Privacy Policy' };
 
     // --- Render the App Shell ---
     return createElement('div', { className: 'app-wrapper' },
@@ -506,40 +550,53 @@ function App() {
         ),
         // Main Content Area
         createElement('main', { className: 'app-main' },
-            // Header with controls
-            createElement('header', { className: 'app-header' },
-                createElement('div', { className: 'app-controls-bar' },
-                    currentStreak > 0
-                        ? createElement('div', { className: 'desktop-only' },
-                            createElement('span', { className: 'app-controls-bar__streak-badge' },
-                                '🔥 ' + currentStreak + ' day streak'))
-                        : null,
-                    createElement('div', { className: 'app-controls-bar__actions' },
-                        createElement('button', {
-                            className: 'ctrl-btn' + (showFurigana ? ' ctrl-btn--active' : ''),
-                            onClick: function () { setShowFurigana(!showFurigana); },
-                            title: 'Furigana ' + (showFurigana ? 'ON' : 'OFF')
-                        }, 'あ'),
-                        createElement('button', {
-                            className: 'ctrl-btn',
-                            onClick: function () { setAutoPronounce(!autoPronounce); },
-                            title: 'Auto-Pronounce ' + (autoPronounce ? 'ON' : 'OFF')
-                        }, autoPronounce ? '🔊' : '🔇'),
-                        createElement(LanguageSelector, {
-                            value: appLang,
-                            onChange: function (newLang) { setAppLang(newLang); }
-                        }),
-                        createElement(ThemeToggle, { isLight: isLightMode, onToggle: toggleTheme }),
-                        createElement(HeaderLoginWidget, null)
-                    )
+            // Slim contextual page header: page title left, controls right.
+            createElement('header', { className: 'page-header' },
+                createElement('div', { className: 'page-header__heading' },
+                    createElement('h1', { className: 'page-header__title' },
+                        t(activeTabMeta.full, appLang)),
+                    createElement('p', { className: 'page-header__sub' },
+                        'JLPT Master \u00b7 ' + JLPT_VOCAB.length + ' words' +
+                        (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : ''))
                 ),
-                createElement('div', { className: 'desktop-only', style: { paddingBottom: '8px' } },
-                    createElement('h1', { className: 'app-header__title', style: { margin: '0' } }, 'JLPT Master'),
-                    createElement('p', { className: 'app-header__sub', style: { margin: '0' } }, 'Your Premium Japanese Study Companion \u2022 ' + JLPT_VOCAB.length + ' Words')
+                createElement('div', { className: 'app-controls-bar__actions page-header__actions' },
+                    createElement('button', {
+                        className: 'ctrl-btn' + (showFurigana ? ' ctrl-btn--active' : ''),
+                        onClick: function () { setShowFurigana(!showFurigana); },
+                        title: 'Furigana ' + (showFurigana ? 'ON' : 'OFF')
+                    }, '\u3042'),
+                    createElement('button', {
+                        className: 'ctrl-btn' + (autoPronounce ? ' ctrl-btn--active' : ''),
+                        onClick: function () { setAutoPronounce(!autoPronounce); },
+                        title: 'Auto-Pronounce ' + (autoPronounce ? 'ON' : 'OFF')
+                    }, autoPronounce ? '\uD83D\uDD0A' : '\uD83D\uDD07'),
+                    createElement(LanguageSelector, {
+                        value: appLang,
+                        onChange: function (newLang) { setAppLang(newLang); }
+                    }),
+                    createElement(ThemeToggle, { isLight: isLightMode, onToggle: toggleTheme }),
+                    createElement(HeaderLoginWidget, null)
                 )
             ),
             // Active tab content with transition
-            createElement('div', { className: 'tab-content ' + tabAnim }, activeTab)
+            createElement('div', { className: 'tab-content ' + tabAnim }, activeTab),
+            // Footer: brand close + legal links
+            createElement('footer', { className: 'app-footer' },
+                createElement('span', { className: 'app-footer__copy' },
+                    '\u00a9 ' + new Date().getFullYear() + ' JLPT Master'),
+                createElement('nav', { className: 'app-footer__links', 'aria-label': 'Legal' },
+                    createElement('button', {
+                        className: 'app-footer__link',
+                        onClick: function () { switchTab('privacy'); }
+                    }, 'Privacy Policy'),
+                    createElement('span', { className: 'app-footer__dot' }, '\u00b7'),
+                    createElement('button', {
+                        className: 'app-footer__link',
+                        onClick: function () { switchTab('privacy'); }
+                    }, 'Terms of Use')
+                ),
+                createElement('span', { className: 'app-footer__jp', lang: 'ja' }, '\u65e5\u672c\u8a9e\u80fd\u529b\u8a66\u9a13\u5bfe\u7b56')
+            )
         )
     );
 }

@@ -128,7 +128,7 @@ function GrammarQuizTab(props) {
 
     if (phase === 'setup') {
         return createElement('div', { className: 'glass-card' },
-            createElement('h2', { className: 'section-title' }, '📝 ' + t('Grammar Test', props.appLang)),
+            createElement('h2', { className: 'section-title' }, t('Grammar Test', props.appLang)),
             createElement('p', { className: 'section-desc' }, 'Test your grammar knowledge.'),
             createElement('h3', { className: 'setup-label' }, 'Select Level'),
             createElement(LevelSelector, {
@@ -735,7 +735,7 @@ function SharedExamTab(props) {
             ),
 
             createElement('div', { className: 'exam-results-summary' },
-                createElement('h2', { className: 'section-title', style: { marginBottom: 8 } }, '📋 Exam Complete'),
+                createElement('h2', { className: 'section-title', style: { marginBottom: 8 } }, 'Exam Complete'),
                 createElement('div', { className: 'exam-results-stats' },
                     createElement('div', { className: 'exam-stat' },
                         createElement('div', { className: 'exam-stat__value' }, totalAnswered + '/' + totalQ),
@@ -967,7 +967,7 @@ function SharedExamTab(props) {
                     createElement('span', null, '')
                 ),
 
-                createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, '📋 ' + examData.title),
+                createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, examData.title),
                 createElement('p', { className: 'section-desc' },
                     'Found ' + examData.sections.length + ' sections with ' + examData.totalQuestions + ' questions total.'
                 ),
@@ -1004,7 +1004,7 @@ function SharedExamTab(props) {
                     createElement('span', null, '📄 ' + fileName),
                     createElement('span', null, '')
                 ),
-                createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, '📝 Vocabulary Mode'),
+                createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, 'Vocabulary Mode'),
                 createElement('p', { className: 'section-desc' },
                     'No structured exam found. Found ' + vocabMatches.length + ' JLPT vocabulary words — generating a vocab quiz instead.'
                 ),
@@ -1409,21 +1409,21 @@ function LanguageSelector(props) {
                 .lang-selector-btn .arrow.up { transform: rotate(180deg); }
                 .lang-dropdown {
                     position: absolute; top: 100%; right: 0; margin-top: 8px;
-                    background: #1e1e2d; border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 12px; padding: 8px; min-width: 120px;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000;
+                    background: var(--bg-elevated); border: 1px solid var(--border-glass);
+                    border-radius: 8px; padding: 8px; min-width: 120px;
+                    box-shadow: var(--shadow-lg); z-index: 1000;
                     display: flex; flex-direction: column; gap: 4px;
                     animation: fadeInDown 0.2s ease-out;
                 }
                 @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
                 .lang-option {
-                    background: transparent; border: none; color: #e2e8f0;
-                    padding: 8px 12px; border-radius: 8px; font-size: 0.9rem;
+                    background: transparent; border: none; color: var(--text-secondary);
+                    padding: 8px 12px; border-radius: 6px; font-size: 0.9rem;
                     cursor: pointer; text-align: left; transition: all 0.2s ease;
                 }
-                .lang-option:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+                .lang-option:hover { background: var(--bg-hover); color: var(--text-primary); }
                 .lang-option.active {
-                    background: linear-gradient(135deg, #6366f1, #a855f7);
+                    background: var(--primary);
                     color: white; font-weight: bold;
                 }
             `;

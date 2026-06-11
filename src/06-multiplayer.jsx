@@ -183,7 +183,7 @@ function MultiplayerTab(props) {
 
     if (state.phase === 'lobby') {
         return createElement('div', { className: 'glass-card', style: { overflow: 'visible' } },
-            createElement('h2', { className: 'section-title' }, '⚔️ Multiplayer Quiz'),
+            createElement('h2', { className: 'section-title' }, 'Multiplayer Quiz'),
             createElement('p', { className: 'section-desc' }, 'Race against your friends or find a public match!'),
             state.error ? createElement('div', { style: { color: 'var(--accent-red)', marginBottom: 15 } }, state.error) : null,
             

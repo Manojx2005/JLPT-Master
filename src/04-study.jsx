@@ -155,7 +155,7 @@ function KanjiTab(props) {
     }
 
     return createElement('div', { className: 'glass-card', key: 'kanji' },
-        createElement('h2', { className: 'section-title' }, '✍️ ' + t('Kanji Search', props.appLang)),
+        createElement('h2', { className: 'section-title' }, t('Kanji Search', props.appLang)),
         createElement('p', { className: 'section-desc' }, 'Enter a Kanji or a Japanese word to see detailed information for all Kanji used in it.'),
 
         createElement('div', { className: 'input-row' },
@@ -277,7 +277,7 @@ function LeaderboardTab(props) {
 
     return createElement('div', { className: 'glass-card leaderboard-container' },
         createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' } },
-            createElement('h2', { className: 'section-title', style: { margin: 0 } }, '🏆 ' + t('Global Leaderboard', props.appLang)),
+            createElement('h2', { className: 'section-title', style: { margin: 0 } }, t('Global Leaderboard', props.appLang)),
             createElement('button', { className: 'btn btn--outline', onClick: loadData, disabled: state.loading }, state.loading ? '↻ Loading...' : '↻ Refresh')
         ),
         
@@ -514,7 +514,7 @@ function DashboardTab(props) {
     }
 
     return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, '📊 ' + t('Dashboard', props.appLang)),
+        createElement('h2', { className: 'section-title' }, t('Dashboard', props.appLang)),
 
         insightsSection,
         rankCard,
@@ -954,7 +954,7 @@ function ConjugationTab(props) {
     });
 
     return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, '🔄 ' + t('Conjugation Practice', props.appLang)),
+        createElement('h2', { className: 'section-title' }, t('Conjugation Practice', props.appLang)),
         createElement('p', { className: 'section-desc' }, 'Master Japanese verb conjugations. Select forms to practice and test yourself.'),
 
         createElement('h3', { className: 'setup-label' }, 'Level'),
@@ -1059,7 +1059,7 @@ function GrammarTab(props) {
     });
 
     return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, '📐 ' + t('Grammar Reference', props.appLang)),
+        createElement('h2', { className: 'section-title' }, t('Grammar Reference', props.appLang)),
         createElement('p', { className: 'section-desc' }, 'Essential Japanese grammar points organized by JLPT level.'),
 
         createElement('div', { className: 'level-selector' }, levelBtns),

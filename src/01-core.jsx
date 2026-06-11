@@ -768,20 +768,36 @@ if (window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== 
    REACT COMPONENTS
    ================================================================= */
 
+/* Inline stroke icon helper for core controls (moon / sun / speaker) */
+function coreIcon(paths, size) {
+    return createElement('svg', {
+        width: size || 18, height: size || 18, viewBox: '0 0 24 24',
+        fill: 'none', stroke: 'currentColor', strokeWidth: 2,
+        strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true,
+        style: { display: 'block' }
+    }, paths.map(function (d, i) { return createElement('path', { key: i, d: d }); }));
+}
+
+var ICON_MOON = ['M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z'];
+var ICON_SUN = ['M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', 'M12 2v2', 'M12 20v2', 'm4.93 4.93 1.41 1.41', 'm17.66 17.66 1.41 1.41', 'M2 12h2', 'M20 12h2', 'm6.34 17.66-1.41 1.41', 'm19.07 4.93-1.41 1.41'];
+var ICON_SPEAKER = ['M11 5 6 9H2v6h4l5 4z', 'M15.54 8.46a5 5 0 0 1 0 7.07', 'M19.07 4.93a10 10 0 0 1 0 14.14'];
+
 function ThemeToggle(props) {
     return createElement('button', {
         className: 'theme-toggle-btn',
         onClick: props.onToggle,
-        title: 'Toggle Light/Dark Mode'
-    }, props.isLight ? '🌙' : '☀️');
+        title: 'Toggle Light/Dark Mode',
+        'aria-label': 'Toggle Light/Dark Mode'
+    }, coreIcon(props.isLight ? ICON_MOON : ICON_SUN));
 }
 
 function AudioButton(props) {
     return createElement('button', {
         className: 'audio-btn' + (props.audioUrl ? ' audio-btn--native' : ''),
         onClick: function (e) { e.stopPropagation(); playAudio(props.text, props.audioUrl); },
-        title: props.audioUrl ? 'Listen (Native Speaker)' : 'Listen (TTS)'
-    }, '🔊');
+        title: props.audioUrl ? 'Listen (Native Speaker)' : 'Listen (TTS)',
+        'aria-label': 'Pronounce word'
+    }, coreIcon(ICON_SPEAKER, 14));
 }
 
 function SaveButton(props) {

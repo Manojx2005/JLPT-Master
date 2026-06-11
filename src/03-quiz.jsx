@@ -408,7 +408,7 @@ function QuizTab(props) {
     // =============== PHASE: SETUP ===============
     if (phase === 'setup') {
         return createElement('div', { className: 'glass-card', key: 'quiz-setup' },
-            createElement('h2', { className: 'section-title' }, '\uD83C\uDFAF ' + t('Vocab Test', props.appLang)),
+            createElement('h2', { className: 'section-title' }, t('Vocab Test', props.appLang)),
             createElement('p', { className: 'section-desc' }, 'Configure your exam, then test your knowledge under time pressure.'),
 
             // Level filter buttons

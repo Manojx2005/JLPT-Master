@@ -385,7 +385,7 @@ function DictionaryTab(props) {
     if (dailyWord && !results && !loading) {
         dailyWordEl = createElement('div', { className: 'daily-word-card' },
             createElement('div', { className: 'daily-word-card__header' },
-                createElement('span', { className: 'daily-word-card__label' }, '📅 Word of the Day'),
+                createElement('span', { className: 'daily-word-card__label' }, t('Word of the Day', props.appLang)),
                 createElement(AudioButton, { text: dailyWord.word })
             ),
             createElement('div', { className: 'daily-word-card__word' }, dailyWord.word),
@@ -420,7 +420,7 @@ function DictionaryTab(props) {
 
     // --- Render the Dictionary Tab ---
     return createElement('div', { className: 'glass-card', key: 'dict' },
-        createElement('h2', { className: 'section-title' }, '\uD83D\uDCD6 ' + t('Dictionary Search', props.appLang)),
+        createElement('h2', { className: 'section-title' }, t('Dictionary Search', props.appLang)),
         createElement('p', { className: 'section-desc' },
             'Search any Japanese word in English, Kanji, Hiragana, or Katakana. Powered by Jisho.org with ' + MOCK_DICT.length + ' words available offline.'
         ),
@@ -514,7 +514,7 @@ function SavedTab(props) {
     var fileInputRef = React.useRef(null);
 
     return createElement('div', { className: 'glass-card', key: 'saved' },
-        createElement('h2', { className: 'section-title' }, '⭐ ' + t('Saved Words', props.appLang)),
+        createElement('h2', { className: 'section-title' }, t('Saved Words', props.appLang)),
         createElement('p', { className: 'section-desc' }, 'Review your starred vocabulary. ' + words.length + ' word' + (words.length !== 1 ? 's' : '') + ' saved.'),
 
         // Import/Export toolbar
