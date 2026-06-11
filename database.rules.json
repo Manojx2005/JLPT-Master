@@ -44,6 +44,24 @@
       }
     },
 
+    // App reviews & ratings. Anyone can read; a signed-in user may append a
+    // new review (append-only — existing entries cannot be edited or deleted),
+    // and each entry is shape-checked so bots can't inject arbitrary fields.
+    "app_reviews": {
+      ".read": true,
+      "$entryId": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['rating'])",
+        "uid":       { ".validate": "newData.isString() && newData.val().length <= 128" },
+        "name":      { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "avatar":    { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "rating":    { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 5" },
+        "text":      { ".validate": "newData.isString() && newData.val().length <= 1000" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "$other":    { ".validate": false }
+      }
+    },
+
     // Multiplayer rooms. Any signed-in player can read/join/create a room.
     // Within a room, a player may only write their OWN player node, while
     // room-level fields (state, questions, host) stay editable for gameplay.

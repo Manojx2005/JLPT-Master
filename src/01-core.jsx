@@ -198,7 +198,26 @@ var UI_TRANSLATIONS = {
     'Kanji': { vn: 'Chữ Hán', my: 'Kanji', ja: '漢字' },
     'Vocab Test': { vn: 'Kiểm tra Từ vựng', my: 'ဝေါဟာရ စာမေးပွဲ', ja: '単語テスト' },
     'Saved': { vn: 'Đã lưu', my: 'သိမ်းဆည်းထားသည်', ja: '保存済み' },
-    'Add': { vn: 'Thêm', my: 'ထည့်မည်', ja: '追加' }
+    'Add': { vn: 'Thêm', my: 'ထည့်မည်', ja: '追加' },
+    'Reviews': { vn: 'Đánh giá', my: 'သုံးသပ်ချက်များ', ja: 'レビュー' },
+    'Reviews & Ratings': { vn: 'Đánh giá & Xếp hạng', my: 'သုံးသပ်ချက်နှင့် အဆင့်သတ်မှတ်ချက်', ja: 'レビューと評価' },
+    'See what learners think — and share your own experience.': { vn: 'Xem người học nghĩ gì — và chia sẻ trải nghiệm của bạn.', my: 'သင်ယူသူများ ဘယ်လိုထင်မြင်လဲ ကြည့်ပါ — သင့်အတွေ့အကြုံကိုလည်း မျှဝေပါ။', ja: '学習者の声をチェックして、あなたの感想も共有しましょう。' },
+    'Refresh': { vn: 'Làm mới', my: 'ပြန်လည်စတင်မည်', ja: '更新' },
+    'Loading…': { vn: 'Đang tải…', my: 'ဖွင့်နေသည်…', ja: '読み込み中…' },
+    'review': { vn: 'đánh giá', my: 'သုံးသပ်ချက်', ja: '件のレビュー' },
+    'reviews': { vn: 'đánh giá', my: 'သုံးသပ်ချက်များ', ja: '件のレビュー' },
+    'No reviews yet': { vn: 'Chưa có đánh giá', my: 'သုံးသပ်ချက် မရှိသေးပါ', ja: 'まだレビューがありません' },
+    'Write a review': { vn: 'Viết đánh giá', my: 'သုံးသပ်ချက်ရေးမည်', ja: 'レビューを書く' },
+    'Your rating': { vn: 'Đánh giá của bạn', my: 'သင့်အဆင့်သတ်မှတ်ချက်', ja: 'あなたの評価' },
+    'Share your thoughts about JLPT Master (optional)…': { vn: 'Chia sẻ cảm nghĩ của bạn về JLPT Master (tùy chọn)…', my: 'JLPT Master အကြောင်း သင့်အမြင်ကို မျှဝေပါ (ရွေးချယ်နိုင်)…', ja: 'JLPT Masterについての感想をどうぞ（任意）…' },
+    'Submitting…': { vn: 'Đang gửi…', my: 'တင်ပို့နေသည်…', ja: '送信中…' },
+    'Submit Review': { vn: 'Gửi đánh giá', my: 'သုံးသပ်ချက်တင်မည်', ja: 'レビューを送信' },
+    'Sign in to leave a review.': { vn: 'Đăng nhập để để lại đánh giá.', my: 'သုံးသပ်ချက်ပေးရန် အကောင့်ဝင်ပါ။', ja: 'レビューを投稿するにはサインインしてください。' },
+    'Sign in with Google': { vn: 'Đăng nhập bằng Google', my: 'Google ဖြင့် အကောင့်ဝင်မည်', ja: 'Googleでサインイン' },
+    'Continue as Guest': { vn: 'Tiếp tục với tư cách Khách', my: 'ဧည့်သည်အဖြစ် ဆက်လက်မည်', ja: 'ゲストとして続行' },
+    'Could not load reviews:': { vn: 'Không thể tải đánh giá:', my: 'သုံးသပ်ချက်များ မဖွင့်နိုင်ပါ:', ja: 'レビューを読み込めませんでした：' },
+    'Loading reviews…': { vn: 'Đang tải đánh giá…', my: 'သုံးသပ်ချက်များ ဖွင့်နေသည်…', ja: 'レビューを読み込み中…' },
+    'No reviews yet — be the first to leave one!': { vn: 'Chưa có đánh giá — hãy là người đầu tiên!', my: 'သုံးသပ်ချက် မရှိသေးပါ — ပထမဆုံးဖြစ်အောင် ရေးလိုက်ပါ!', ja: 'まだレビューがありません — 最初の一人になりましょう！' }
 };
 
 function t(englishText, lang) {

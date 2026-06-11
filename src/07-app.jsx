@@ -7,6 +7,7 @@ import { CustomTab, QuizTab } from './03-quiz.jsx';
 import { ConjugationTab, DashboardTab, FlashcardTab, GrammarTab, KanjiTab, LeaderboardTab } from './04-study.jsx';
 import { GrammarQuizTab, HeaderLoginWidget, LanguageSelector, MockExamTab, PDFExamTab } from './05-exams.jsx';
 import { MultiplayerTab } from './06-multiplayer.jsx';
+import { ReviewsTab } from './08-reviews.jsx';
 
 /* =================================================================
    JLPT Master — Root App component, ErrorBoundary, and mount logic
@@ -231,7 +232,7 @@ function App() {
     var allQuestions = JLPT_VOCAB.concat(customQs);
 
     // Tab order — used for directional slide transitions
-    var TAB_ORDER = ['dict', 'kanji', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'conj', 'multi', 'dash', 'leader', 'saved', 'custom'];
+    var TAB_ORDER = ['dict', 'kanji', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'conj', 'multi', 'dash', 'leader', 'saved', 'reviews', 'custom'];
 
     // SRS due count for Flashcards badge
     var srsDueCount = useMemo(function () {
@@ -306,6 +307,7 @@ function App() {
         { id: 'dash', label: '📊', full: 'Dashboard' },
         { id: 'leader', label: '🏆', full: 'Leaderboard' },
         { id: 'saved', label: '⭐', full: 'Saved' },
+        { id: 'reviews', label: '💬', full: 'Reviews' },
         { id: 'custom', label: '✏️', full: 'Add' },
     ];
 
@@ -384,6 +386,7 @@ function App() {
     if (tab === 'pdfexam') activeTab = createElement(PDFExamTab, { appLang: appLang });
     if (tab === 'mockexam') activeTab = createElement(MockExamTab, { appLang: appLang });
     if (tab === 'multi') activeTab = createElement(MultiplayerTab, { questions: allQuestions, appLang: appLang });
+    if (tab === 'reviews') activeTab = createElement(ReviewsTab, { appLang: appLang });
 
     if (tab === 'custom') activeTab = createElement(CustomTab, {
         onAdd: addQuestion,
