@@ -112,8 +112,30 @@ function CountSelector(props) {
    Shows after answering each question with the context, example, etc.
    ----------------------------------------------------------------- */
 function ExampleReveal(props) {
+    var _render = useState(0);
+    var render = _render[0], setRender = _render[1];
+
     if (!props.visible || !props.question) return null;
     var q = props.question;
+
+    if (props.appLang && props.appLang !== 'en') {
+        var rawMeanings = (q.meanings && Array.isArray(q.meanings) && q.meanings.length > 0) ? q.meanings : [];
+        if (rawMeanings.length === 0 && (q.correct || q.english)) rawMeanings = [q.correct || q.english];
+        var needsTranslation = false;
+        rawMeanings.forEach(function(m) {
+            if (m && window.TRANSLATION_CACHE && !window.TRANSLATION_CACHE[props.appLang + '___' + m]) {
+                needsTranslation = true;
+            }
+        });
+        if (needsTranslation && !q._isTranslatingExample) {
+            q._isTranslatingExample = true;
+            Promise.all(rawMeanings.map(function(m) { return translateText(m, props.appLang); }))
+                .then(function() { 
+                    q._isTranslatingExample = false;
+                    setRender(function(r) { return r + 1; }); 
+                });
+        }
+    }
 
     var children = [];
 
@@ -126,22 +148,28 @@ function ExampleReveal(props) {
 
     // Word and Actions
     children.push(
-        createElement('div', { key: 'word-actions', style: { display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center', marginTop: 12 } },
+        createElement('div', { key: 'word-actions', style: { display: 'flex', gap: 8, marginBottom: 4, alignItems: 'center', marginTop: 12 } },
             createElement('strong', { style: { fontSize: '1.4rem' } }, q.word),
             createElement(AudioButton, { text: q.word }),
             props.onToggleSave ? createElement(SaveButton, { isSaved: props.isSaved, onToggle: props.onToggleSave }) : null
         )
     );
 
-    // Show correct answer if the user got it wrong
-    if (!props.wasCorrect) {
+    // Reading
+    if (q.reading && q.reading !== q.word) {
         children.push(
-            createElement('div', { key: 'answer', className: 'example-reveal__correct-answer' },
-                'Correct answer: ',
-                createElement('strong', null, getVocabMeaning(q, props.appLang))
+            createElement('div', { key: 'reading', style: { fontSize: '1rem', color: 'var(--text-muted)', marginBottom: 8 } },
+                '(' + q.reading + ')'
             )
         );
     }
+
+    // Meaning (always show for context)
+    children.push(
+        createElement('div', { key: 'meaning', style: { fontSize: '1.1rem', marginBottom: 12 } },
+            getVocabMeaning(q, props.appLang)
+        )
+    );
 
     // Nuance / context
     if (q.nuance) {
