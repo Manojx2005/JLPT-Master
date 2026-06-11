@@ -196,20 +196,24 @@ function LeaderboardTab(props) {
 
     function loadData() {
         if (typeof LEADERBOARD_API === 'undefined') return;
+        // Always compare against the CURRENT profile id. The state value
+        // captured in this closure goes stale after Google sign-in/out,
+        // which made "Your Rank" track the old anonymous id.
+        var freshProfile = LEADERBOARD_API.getProfile();
         setState({ users: [], loading: true, error: null, myRank: -1 });
         LEADERBOARD_API.fetchLeaderboard().then(function(users) {
             var myRank = -1;
             users.forEach(function(u, idx) {
                 u.rank = idx + 1;
-                if (u.id === profile.id) {
+                if (freshProfile && u.id === freshProfile.id) {
                     u.isMe = true;
                     myRank = u.rank;
                 }
             });
             // If the user isn't in the list yet, add them to the bottom visually
-            if (myRank === -1 && profile) {
+            if (myRank === -1 && freshProfile) {
                 var myXp = PROGRESS.getTotalStats().xp || 0;
-                var me = { id: profile.id, name: profile.name, avatar: profile.avatar, xp: myXp, isMe: true, rank: users.length + 1 };
+                var me = { id: freshProfile.id, name: freshProfile.name, avatar: freshProfile.photoURL || freshProfile.avatar, xp: myXp, isMe: true, rank: users.length + 1 };
                 users.push(me);
                 myRank = me.rank;
             }
@@ -221,8 +225,14 @@ function LeaderboardTab(props) {
 
     useEffect(function() {
         if (typeof LEADERBOARD_API !== 'undefined') {
-            LEADERBOARD_API.syncScore(PROGRESS.getTotalStats().xp || 0);
-            loadData();
+            // Wait for our own score write to land, then fetch the list —
+            // fetching in parallel raced the write and showed stale XP/rank.
+            var sync = LEADERBOARD_API.syncScore(PROGRESS.getTotalStats().xp || 0);
+            if (sync && typeof sync.then === 'function') {
+                sync.then(loadData, loadData);
+            } else {
+                loadData();
+            }
         }
 
         // Listen for Auth profile updates
@@ -317,7 +327,7 @@ function LeaderboardTab(props) {
                 createElement('div', { className: 'podium-step' }, createElement('span', null, '2'))
             ),
             top3[0] && createElement('div', { className: 'podium-item podium-gold' },
-                createElement('div', { className: 'podium-avatar' }, top3[0].avatar),
+                createElement('div', { className: 'podium-avatar' }, renderAvatar(top3[0].avatar)),
                 createElement('div', { className: 'podium-name' }, top3[0].name),
                 createElement('div', { className: 'podium-xp' }, top3[0].xp.toLocaleString() + ' XP'),
                 createElement('div', { className: 'podium-step' }, createElement('span', null, '1'))
@@ -342,7 +352,7 @@ function LeaderboardTab(props) {
             rest.map(function(u) {
                 return createElement('div', { key: u.id, className: 'leaderboard-row' + (u.isMe ? ' leaderboard-row--me' : '') },
                     createElement('div', { className: 'leaderboard-row__rank' }, u.rank),
-                    createElement('div', { className: 'leaderboard-row__avatar' }, u.avatar),
+                    createElement('div', { className: 'leaderboard-row__avatar' }, renderAvatar(u.avatar)),
                     createElement('div', { className: 'leaderboard-row__name' }, u.name + (u.isMe ? ' (You)' : '')),
                     createElement('div', { className: 'leaderboard-row__xp' }, u.xp.toLocaleString() + ' XP')
                 );

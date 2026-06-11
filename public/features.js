@@ -1267,6 +1267,9 @@ var LEADERBOARD_API = (function () {
                 var users = [];
                 for (var key in data) {
                     if (Object.prototype.hasOwnProperty.call(data, key)) {
+                        // Skip abandoned 0-XP anonymous profiles so the board
+                        // only shows players who have actually earned XP
+                        if (!data[key].xp) continue;
                         users.push({
                             id: key,
                             name: data[key].name || 'Anonymous',
@@ -1290,7 +1293,9 @@ var LEADERBOARD_API = (function () {
             lastUpdated: Date.now()
         };
 
-        fetch(url, {
+        // Return the promise so callers can wait for the write to land
+        // before re-fetching the leaderboard (avoids stale rank display).
+        return fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
