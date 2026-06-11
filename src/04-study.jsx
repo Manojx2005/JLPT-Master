@@ -1,7 +1,7 @@
 import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
-import { AnimatedCounter, AudioButton, SaveButton, getVocabMeaning, playAudio, sanitizeHTML, shuffleArray, t } from './01-core.jsx';
+import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchKanji, shuffleArray, t } from './01-core.jsx';
 
 /* =================================================================
    JLPT Master — Study tools (Kanji, Leaderboard, Dashboard, Flashcards, Conjugation, Grammar)

@@ -736,4 +736,4 @@ function Toast(props) {
 
 
 
-export { loadJSON, sanitizeHTML, AnimatedCounter, UI_TRANSLATIONS, t, _localDataMissing, MOCK_DICT, getVocabMeaning, shuffleArray, levenshteinDistance, formatTime, generateOptions, searchMockDict, playAudio, playTTS, ThemeToggle, AudioButton, SaveButton, Toast };
+export { loadJSON, sanitizeHTML, AnimatedCounter, UI_TRANSLATIONS, t, _localDataMissing, MOCK_DICT, getVocabMeaning, shuffleArray, levenshteinDistance, formatTime, generateOptions, searchMockDict, searchJisho, searchKanji, fetchKanjiSvg, playAudio, playTTS, ThemeToggle, AudioButton, SaveButton, Toast };
