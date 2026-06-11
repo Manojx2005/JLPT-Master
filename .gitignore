@@ -1,5 +1,5 @@
 node_modules/
-vite-react/dist/
+dist/
 .DS_Store
 Thumbs.db
 *.log
