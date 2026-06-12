@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">JLPT Master</string>
+    <string name="title_activity_main">JLPT Master</string>
+    <string name="package_name">com.jlptmaster.app</string>
+    <string name="custom_url_scheme">com.jlptmaster.app</string>
+</resources>

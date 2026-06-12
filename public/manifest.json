@@ -1,15 +1,19 @@
 {
   "name": "JLPT Master",
   "short_name": "JLPT Master",
+  "description": "Premium Japanese Language Study Companion — dictionary, kanji, kana, writing practice, and JLPT N5–N1 exams.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#17140F",
   "theme_color": "#E25C44",
-  "description": "Premium Japanese Language Study Companion",
+  "lang": "en",
+  "categories": ["education", "books", "productivity"],
   "icons": [
     {
       "src": "./icon.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }

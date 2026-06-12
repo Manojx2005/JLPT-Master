@@ -5,6 +5,15 @@ import { App, ErrorBoundary } from './07-app.jsx';
 import { _localDataMissing } from './01-core.jsx';
 const createElement = React.createElement;
 
+// Register the PWA service worker in production web builds (makes the app
+// installable + offline-capable). Skipped in dev so it never interferes with
+// Vite HMR. Harmless inside the Capacitor shell.
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+    });
+}
+
 var root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mountApp() {
