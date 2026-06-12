@@ -471,6 +471,18 @@ function SavedTab(props) {
     var _render = useState(0);
     var render = _render[0], setRender = _render[1];
 
+    var _syncState = useState('idle'); // 'idle' | 'syncing' | 'done' | 'error' | 'not-logged-in'
+    var syncState = _syncState[0], setSyncState = _syncState[1];
+
+    function handleSyncSaved() {
+        if (!props.onSyncSaved || syncState === 'syncing') return;
+        setSyncState('syncing');
+        Promise.resolve(props.onSyncSaved()).then(function (status) {
+            setSyncState(status === 'ok' ? 'done' : status === 'not-logged-in' ? 'not-logged-in' : 'error');
+            setTimeout(function () { setSyncState('idle'); }, 3000);
+        });
+    }
+
     var listEls = words.map(function (w, idx) {
         if (props.appLang && props.appLang !== 'en') {
             var rawMeanings = (w.meanings && Array.isArray(w.meanings) && w.meanings.length > 0) ? w.meanings : [];
@@ -531,7 +543,18 @@ function SavedTab(props) {
         createElement('p', { className: 'section-desc' }, 'Review your starred vocabulary. ' + words.length + ' word' + (words.length !== 1 ? 's' : '') + ' saved.'),
 
         // Import/Export toolbar
-        words.length > 0 || props.onImport ? createElement('div', { className: 'saved-toolbar' },
+        words.length > 0 || props.onImport || props.onSyncSaved ? createElement('div', { className: 'saved-toolbar' },
+            props.onSyncSaved ? createElement('button', {
+                className: 'btn btn--small btn--primary',
+                onClick: handleSyncSaved,
+                disabled: syncState === 'syncing',
+                title: 'Download saved words from your account on other devices'
+            },
+                syncState === 'syncing' ? '↻ Syncing…'
+                : syncState === 'done' ? '✓ Synced'
+                : syncState === 'not-logged-in' ? '⚠ Sign in first'
+                : syncState === 'error' ? '⚠ Retry'
+                : '☁ Sync Saved Words') : null,
             words.length > 0 && props.onExport ? createElement('button', {
                 className: 'btn btn--small btn--outline',
                 onClick: props.onExport

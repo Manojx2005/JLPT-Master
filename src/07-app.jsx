@@ -319,6 +319,20 @@ function App() {
         return done.then(function () { return 'ok'; }).catch(function () { return 'error'; });
     }
 
+    // Manual sync for saved words only (used by the button in the Saved tab).
+    // Downloads + merges + uploads; resolves to a status string for the UI.
+    function syncSavedWordsNow() {
+        if (typeof CLOUD_SYNC_API === 'undefined' || !CLOUD_SYNC_API.isLoggedIn()) {
+            return Promise.resolve('not-logged-in');
+        }
+        return CLOUD_SYNC_API.syncSavedWords(savedWordsRef.current)
+            .then(function (merged) {
+                setSavedWords(merged);
+                return 'ok';
+            })
+            .catch(function () { return 'error'; });
+    }
+
     function addQuestion(q) {
         setCustomQs(function (prev) { return prev.concat([q]); });
     }
@@ -493,6 +507,7 @@ function App() {
         onExport: exportSavedWords,
         onExportPDF: exportSavedWordsPDF,
         onImport: importSavedWords,
+        onSyncSaved: syncSavedWordsNow,
         appLang: appLang
     });
     if (tab === 'quiz') activeTab = createElement(QuizTab, {

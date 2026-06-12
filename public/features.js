@@ -1391,14 +1391,26 @@ var CLOUD_SYNC_API = (function() {
         });
     }
 
+    // Resolves to true on a confirmed write, false otherwise. Never rejects,
+    // so fire-and-forget callers are safe; callers that care can check the bool.
     function _put(key, data) {
         var uid = _getUid();
-        if (!uid) return Promise.resolve();
+        if (!uid) return Promise.resolve(false);
         return fetch(BASE + uid + '/' + key + '.json', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        }).catch(function(err) { console.error('Cloud sync [' + key + '] failed:', err); });
+        }).then(function(res) {
+            if (!res.ok) {
+                console.error('Cloud sync [' + key + '] rejected: HTTP ' + res.status +
+                    ' — check Firebase Realtime Database rules allow writes to user_data.');
+                return false;
+            }
+            return true;
+        }).catch(function(err) {
+            console.error('Cloud sync [' + key + '] failed:', err);
+            return false;
+        });
     }
 
     // Resolves to the cloud object, or null when the account genuinely has no
@@ -1491,13 +1503,43 @@ var CLOUD_SYNC_API = (function() {
         return out;
     }
 
+    // Firebase Realtime DB sometimes returns an array as an object keyed by
+    // index ({0:.., 1:..}); coerce either shape into a plain array.
+    function _toArray(v) {
+        if (Array.isArray(v)) return v;
+        if (v && typeof v === 'object') {
+            return Object.keys(v).map(function(k) { return v[k]; }).filter(function(x) { return x != null; });
+        }
+        return [];
+    }
+
     function _mergeWords(local, cloud) {
-        if (!Array.isArray(cloud)) return local || [];
+        var cloudArr = _toArray(cloud);
         var out = (local || []).slice();
-        cloud.forEach(function(cw) {
-            if (!out.some(function(lw) { return lw.word === cw.word; })) out.push(cw);
+        cloudArr.forEach(function(cw) {
+            if (cw && !out.some(function(lw) { return lw.word === cw.word; })) out.push(cw);
         });
         return out;
+    }
+
+    // Focused two-way sync for saved words only. Resolves to the merged array
+    // (and writes it back to the cloud). Rejects on download/permission failure
+    // so the UI can show a clear error instead of silently doing nothing.
+    function syncSavedWords(localWords) {
+        var uid = _getUid();
+        if (!uid) return Promise.reject(new Error('not-logged-in'));
+        localWords = localWords || [];
+        return fetch(BASE + uid + '/saved_words.json').then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }).then(function(cloudWords) {
+            var merged = _mergeWords(localWords, cloudWords);
+            _initialSyncDone = true;
+            return _put('saved_words', merged).then(function(ok) {
+                if (!ok) throw new Error('write-denied');
+                return merged;
+            });
+        });
     }
 
     // ── called once after login ─────────────────────────────────────
@@ -1575,7 +1617,8 @@ var CLOUD_SYNC_API = (function() {
         uploadSRS:        uploadSRS,
         uploadProgress:   uploadProgress,
         uploadCustomQs:   uploadCustomQs,
-        syncOnLogin:      syncOnLogin
+        syncOnLogin:      syncOnLogin,
+        syncSavedWords:   syncSavedWords
     };
 })();
 
