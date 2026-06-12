@@ -1354,14 +1354,42 @@ var LEADERBOARD_API = (function () {
 var CLOUD_SYNC_API = (function() {
     var BASE = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/user_data/";
 
+    // Authoritative UID, captured directly from the Firebase auth user object
+    // by THIS module's own observer — never read back out of localStorage,
+    // so it does not depend on any other module's observer running first.
+    var _uid = null;
+    var _loginHandlers = [];
+
     function _getUid() {
-        if (typeof LEADERBOARD_API === 'undefined') return null;
-        var profile = LEADERBOARD_API.getProfile();
-        if (!profile || profile.id.startsWith('user_')) return null;
-        return profile.id;
+        return _uid;
     }
 
-    function isLoggedIn() { return _getUid() !== null; }
+    function isLoggedIn() { return _uid !== null; }
+
+    // Register a handler that runs whenever a Google login is detected (and
+    // immediately, if the user is already authenticated when it registers).
+    // The handler is guaranteed to see isLoggedIn() === true.
+    function onLogin(handler) {
+        if (typeof handler !== 'function') return;
+        _loginHandlers.push(handler);
+        if (_uid) { try { handler(_uid); } catch (e) { console.error(e); } }
+    }
+
+    // Own auth observer — registered when this module loads, before React mounts.
+    if (typeof AUTH !== 'undefined') {
+        AUTH.onAuthStateChanged(function(user) {
+            var newUid = user ? user.uid : null;
+            var changed = newUid !== _uid;
+            _uid = newUid;
+            // Only fire handlers on an actual login transition to a new user,
+            // not on token refreshes that re-emit the same uid.
+            if (_uid && changed) {
+                _loginHandlers.forEach(function(h) {
+                    try { h(_uid); } catch (e) { console.error(e); }
+                });
+            }
+        });
+    }
 
     function _put(key, data) {
         var uid = _getUid();
@@ -1463,21 +1491,34 @@ var CLOUD_SYNC_API = (function() {
     // ── called once after login ─────────────────────────────────────
     // localData  = { savedWords, customQs }
     // callbacks  = { setSavedWords, setCustomQs }
+    function _refreshUI() {
+        // Tell the React layer that synced data landed so XP/streak/saved
+        // lists re-render with the merged values.
+        if (typeof window !== 'undefined' && typeof window.dispatchProfileUpdate === 'function') {
+            window.dispatchProfileUpdate();
+        }
+    }
+
     function syncOnLogin(localData, callbacks) {
         if (!isLoggedIn()) return;
-        _getAll().then(function(cloud) {
+        localData = localData || {};
+        callbacks = callbacks || {};
+        var localSaved = localData.savedWords || [];
+        var localCustom = localData.customQs || [];
+
+        return _getAll().then(function(cloud) {
             if (!cloud) {
                 // First login on any device — push everything up
-                uploadSavedWords(localData.savedWords);
+                uploadSavedWords(localSaved);
                 uploadSRS();
                 uploadProgress();
-                uploadCustomQs(localData.customQs);
+                uploadCustomQs(localCustom);
                 return;
             }
 
             // Saved words
-            var mergedSaved = _mergeWords(localData.savedWords, cloud.saved_words);
-            if (mergedSaved.length !== (localData.savedWords || []).length) callbacks.setSavedWords(mergedSaved);
+            var mergedSaved = _mergeWords(localSaved, cloud.saved_words);
+            if (mergedSaved.length !== localSaved.length && callbacks.setSavedWords) callbacks.setSavedWords(mergedSaved);
             _put('saved_words', mergedSaved);
 
             // SRS
@@ -1494,17 +1535,22 @@ var CLOUD_SYNC_API = (function() {
             if (mergedProg) {
                 try { localStorage.setItem('jlpt_progress', JSON.stringify(mergedProg)); } catch(e) {}
                 _put('progress', mergedProg);
+                // Push the merged XP to the leaderboard so rank reflects the pulled progress
+                if (typeof LEADERBOARD_API !== 'undefined') LEADERBOARD_API.syncScore(mergedProg.xp || 0);
             }
 
             // Custom questions
-            var mergedCustom = _mergeWords(localData.customQs, cloud.custom_questions);
-            if (mergedCustom.length !== (localData.customQs || []).length) callbacks.setCustomQs(mergedCustom);
+            var mergedCustom = _mergeWords(localCustom, cloud.custom_questions);
+            if (mergedCustom.length !== localCustom.length && callbacks.setCustomQs) callbacks.setCustomQs(mergedCustom);
             _put('custom_questions', mergedCustom);
+
+            _refreshUI();
         });
     }
 
     return {
         isLoggedIn:       isLoggedIn,
+        onLogin:          onLogin,
         uploadSavedWords: uploadSavedWords,
         uploadSRS:        uploadSRS,
         uploadProgress:   uploadProgress,

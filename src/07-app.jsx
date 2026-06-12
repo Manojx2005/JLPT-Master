@@ -228,11 +228,13 @@ function App() {
         }
     }, [savedWords]);
 
-    // On login: pull all cloud data, merge with local, push merged result back up
+    // On login: pull all cloud data, merge with local, push merged result back up.
+    // onLogin guarantees the UID is captured before this runs (no observer race)
+    // and fires immediately if the user is already authenticated on page load —
+    // which is the case for returning users.
     useEffect(function () {
-        if (typeof AUTH === 'undefined' || typeof CLOUD_SYNC_API === 'undefined') return;
-        AUTH.onAuthStateChanged(function (user) {
-            if (!user) return; // logout — keep local data as-is
+        if (typeof CLOUD_SYNC_API === 'undefined') return;
+        CLOUD_SYNC_API.onLogin(function () {
             CLOUD_SYNC_API.syncOnLogin(
                 { savedWords: savedWordsRef.current, customQs: customQsRef.current },
                 { setSavedWords: setSavedWords, setCustomQs: setCustomQs }
