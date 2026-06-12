@@ -1287,27 +1287,28 @@ var LEADERBOARD_API = (function () {
 
     function syncScore(xp) {
         var profile = _loadProfile();
-        var url = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/leaderboard/" + profile.id + ".json";
+        // Leaderboard rules require auth.uid === $uid, so only Google-signed-in
+        // users (real uid) can write — anonymous user_ ids are skipped.
+        if (!profile.id || profile.id.indexOf('user_') === 0) return Promise.resolve();
+        var db = (typeof firebase !== 'undefined' && firebase.database) ? firebase.database() : null;
+        if (!db) return Promise.resolve();
 
         // Always derive XP from the authoritative localStorage store so that
         // callers (including direct console calls) cannot inject an arbitrary value.
         var authoritative = (typeof PROGRESS !== 'undefined') ? PROGRESS.getTotalStats().xp : xp;
         var validatedXp = Math.max(0, Math.floor(Number(authoritative) || 0));
 
+        // Only fields the leaderboard rules allow (name, avatar, xp).
         var payload = {
             name: profile.name,
             avatar: profile.photoURL || profile.avatar,
-            xp: validatedXp,
-            lastUpdated: Date.now()
+            xp: validatedXp
         };
 
-        // Return the promise so callers can wait for the write to land
-        // before re-fetching the leaderboard (avoids stale rank display).
-        return fetch(url, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).catch(function(err) { console.error("Failed to sync score", err); });
+        // SDK write attaches the signed-in user's auth token. Return the promise
+        // so callers can wait for the write before re-fetching the board.
+        return db.ref('leaderboard/' + profile.id).set(payload)
+            .catch(function(err) { console.error("Failed to sync score", err); });
     }
 
     // Sync with Firebase Authentication state
@@ -1352,7 +1353,6 @@ var LEADERBOARD_API = (function () {
       Keys: saved_words, srs, progress, custom_questions
    ================================================================= */
 var CLOUD_SYNC_API = (function() {
-    var BASE = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/user_data/";
 
     // Authoritative UID, captured directly from the Firebase auth user object
     // by THIS module's own observer — never read back out of localStorage,
@@ -1391,37 +1391,36 @@ var CLOUD_SYNC_API = (function() {
         });
     }
 
+    // Use the authenticated Firebase SDK (not REST) so writes carry the signed-in
+    // user's token — required by security rules that gate user_data on auth.uid.
+    function _db() {
+        return (typeof firebase !== 'undefined' && firebase.database) ? firebase.database() : null;
+    }
+
     // Resolves to true on a confirmed write, false otherwise. Never rejects,
     // so fire-and-forget callers are safe; callers that care can check the bool.
     function _put(key, data) {
         var uid = _getUid();
-        if (!uid) return Promise.resolve(false);
-        return fetch(BASE + uid + '/' + key + '.json', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(function(res) {
-            if (!res.ok) {
-                console.error('Cloud sync [' + key + '] rejected: HTTP ' + res.status +
-                    ' — check Firebase Realtime Database rules allow writes to user_data.');
+        var db = _db();
+        if (!uid || !db) return Promise.resolve(false);
+        return db.ref('user_data/' + uid + '/' + key).set(data)
+            .then(function() { return true; })
+            .catch(function(err) {
+                console.error('Cloud sync [' + key + '] rejected: ' + (err && err.message) +
+                    ' — check Realtime Database rules allow auth.uid writes to user_data/$uid.');
                 return false;
-            }
-            return true;
-        }).catch(function(err) {
-            console.error('Cloud sync [' + key + '] failed:', err);
-            return false;
-        });
+            });
     }
 
     // Resolves to the cloud object, or null when the account genuinely has no
-    // data yet. REJECTS on a network/HTTP failure so callers never mistake a
-    // failed download for an empty account (which would wipe cloud data).
+    // data yet. REJECTS on a failure so callers never mistake a failed download
+    // for an empty account (which would wipe cloud data).
     function _getAll() {
         var uid = _getUid();
-        if (!uid) return Promise.reject(new Error('not-logged-in'));
-        return fetch(BASE + uid + '.json').then(function(res) {
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return res.json(); // Firebase returns null for an empty path
+        var db = _db();
+        if (!uid || !db) return Promise.reject(new Error('not-logged-in'));
+        return db.ref('user_data/' + uid).once('value').then(function(snap) {
+            return snap.val(); // null when the path has no data yet
         });
     }
 
@@ -1527,13 +1526,11 @@ var CLOUD_SYNC_API = (function() {
     // so the UI can show a clear error instead of silently doing nothing.
     function syncSavedWords(localWords) {
         var uid = _getUid();
-        if (!uid) return Promise.reject(new Error('not-logged-in'));
+        var db = _db();
+        if (!uid || !db) return Promise.reject(new Error('not-logged-in'));
         localWords = localWords || [];
-        return fetch(BASE + uid + '/saved_words.json').then(function(res) {
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return res.json();
-        }).then(function(cloudWords) {
-            var merged = _mergeWords(localWords, cloudWords);
+        return db.ref('user_data/' + uid + '/saved_words').once('value').then(function(snap) {
+            var merged = _mergeWords(localWords, snap.val());
             _initialSyncDone = true;
             return _put('saved_words', merged).then(function(ok) {
                 if (!ok) throw new Error('write-denied');
