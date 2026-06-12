@@ -10,6 +10,7 @@ import { MultiplayerTab } from './06-multiplayer.jsx';
 import { ReviewsTab } from './08-reviews.jsx';
 import { PrivacyTab } from './09-legal.jsx';
 import { KanaTab } from './11-kana.jsx';
+import { KanjiWritingTab } from './12-writing.jsx';
 
 /* =================================================================
    JLPT Master — Root App component, ErrorBoundary, and mount logic
@@ -25,6 +26,7 @@ var NAV_ICON_PATHS = {
     dict: ['M12 7v14', 'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z'],
     kanji: ['m5 8 6 6', 'm4 14 6-6 2-3', 'M2 5h12', 'M7 2h1', 'm22 22-5-10-5 10', 'M14 18h6'],
     kana: ['M4 5h16', 'M9 3v2', 'M7 9c0 4-1 8-4 10', 'M7 9c2 0 6 .5 6 4 0 2-1 3-2.5 3S8 18 8 16.5c0-2 2-3 5-3 3 0 5 1.5 5 4', 'M20 9h-5'],
+    writing: ['M12 19l7-7 3 3-7 7-3-3z', 'M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z', 'M2 2l7.586 7.586', 'M11 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'],
     grammar: ['m6 16 6-12 6 12', 'M8 12h8', 'm16 20 2 2 4-4'],
     grammarquiz: ['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z', 'M14 2v4a2 2 0 0 0 2 2h4', 'm9 15 2 2 4-4'],
     quiz: ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', 'M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z', 'M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'],
@@ -317,7 +319,7 @@ function App() {
     var allQuestions = JLPT_VOCAB.concat(customQs);
 
     // Tab order — used for directional slide transitions
-    var TAB_ORDER = ['dict', 'kanji', 'kana', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'conj', 'multi', 'dash', 'leader', 'saved', 'reviews', 'custom'];
+    var TAB_ORDER = ['dict', 'kanji', 'kana', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'writing', 'conj', 'multi', 'dash', 'leader', 'saved', 'reviews', 'custom'];
 
     // SRS due count for Flashcards badge
     var srsDueCount = useMemo(function () {
@@ -464,6 +466,7 @@ function App() {
         { id: 'mockexam', label: '🎓', full: 'Mock Exam' },
         { header: 'Practice', id: 'header_practice' },
         { id: 'flash', label: '🃏', full: 'Flashcards' },
+        { id: 'writing', label: '🖌️', full: 'Kanji Writing Practice' },
         { id: 'conj', label: '🔄', full: 'Conjugation' },
         { id: 'multi', label: '⚔️', full: 'Multiplayer' },
         { header: 'Track', id: 'header_track' },
@@ -523,6 +526,7 @@ function App() {
         showFurigana: showFurigana
     });
     if (tab === 'kana') activeTab = createElement(KanaTab, { appLang: appLang });
+    if (tab === 'writing') activeTab = createElement(KanjiWritingTab, { appLang: appLang, savedWords: savedWords });
     if (tab === 'conj') activeTab = createElement(ConjugationTab, { appLang: appLang });
     if (tab === 'grammar') activeTab = createElement(GrammarTab, { appLang: appLang });
     if (tab === 'dash') activeTab = createElement(DashboardTab, { setTab: switchTab, appLang: appLang });

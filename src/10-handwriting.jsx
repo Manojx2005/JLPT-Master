@@ -241,4 +241,4 @@ function HandwritingInput(props) {
     );
 }
 
-export { HandwritingInput };
+export { HandwritingInput, recognizeStrokes };

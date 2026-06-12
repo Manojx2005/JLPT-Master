@@ -258,7 +258,39 @@ var UI_TRANSLATIONS = {
     'Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.': { vn: 'Tra cứu bất kỳ từ tiếng Nhật nào bằng tiếng Anh, kanji, hiragana hoặc katakana — sử dụng Jotoba.', my: 'အင်္ဂလိပ်၊ kanji၊ hiragana သို့မဟုတ် katakana ဖြင့် ဂျပန်စကားလုံးကို ရှာဖွေပါ — Jotoba သုံးထားသည်။', ja: '英語・漢字・ひらがな・カタカナで日本語の単語を検索（Jotoba を利用）。' },
     'words available offline.': { vn: 'từ có sẵn ngoại tuyến.', my: 'စကားလုံးများ အော့ဖ်လိုင်းတွင် ရရှိနိုင်သည်။', ja: '語をオフラインで利用可能。' },
     'Results from Jotoba': { vn: 'Kết quả từ Jotoba', my: 'Jotoba မှ ရလဒ်များ', ja: 'Jotoba からの結果' },
-    'Results from Local & Jotoba': { vn: 'Kết quả từ Cục bộ & Jotoba', my: 'Local နှင့် Jotoba မှ ရလဒ်များ', ja: 'ローカルと Jotoba からの結果' }
+    'Results from Local & Jotoba': { vn: 'Kết quả từ Cục bộ & Jotoba', my: 'Local နှင့် Jotoba မှ ရလဒ်များ', ja: 'ローカルと Jotoba からの結果' },
+
+    // --- Kanji writing practice ---
+    'Undo': { vn: 'Hoàn tác', my: 'နောက်ပြန်', ja: '元に戻す' },
+    'Kanji Writing Practice': { vn: 'Luyện viết Kanji', my: 'Kanji ရေးသားလေ့ကျင့်ခြင်း', ja: '漢字書き取り練習' },
+    'Draw kanji by hand and get instant feedback. Recall mode hides the character; Trace mode shows a guide to copy.': { vn: 'Viết kanji bằng tay và nhận phản hồi ngay. Chế độ Nhớ lại ẩn ký tự; chế độ Đồ lại hiển thị mẫu để chép theo.', my: 'Kanji ကို လက်ဖြင့်ရေးပြီး ချက်ချင်းတုံ့ပြန်ချက်ရယူပါ။ Recall မုဒ်သည် စာလုံးကိုဖုံးကွယ်ပြီး Trace မုဒ်သည် ကူးရန်လမ်းညွှန်ပြသည်။', ja: '漢字を手書きして即フィードバック。リコールモードは文字を隠し、なぞりモードはお手本を表示します。' },
+    'Recall': { vn: 'Nhớ lại', my: 'ပြန်စဉ်းစား', ja: 'リコール' },
+    'Trace': { vn: 'Đồ lại', my: 'ကူးရေး', ja: 'なぞり' },
+    'Start Practice': { vn: 'Bắt đầu luyện', my: 'လေ့ကျင့်မှုစမည်', ja: '練習を始める' },
+    'Preparing your writing set…': { vn: 'Đang chuẩn bị bộ luyện viết…', my: 'ရေးသားလေ့ကျင့်စရာများ ပြင်ဆင်နေသည်…', ja: '書き取りセットを準備中…' },
+    'No kanji available for this selection. Try another level.': { vn: 'Không có kanji cho lựa chọn này. Hãy thử cấp độ khác.', my: 'ဤရွေးချယ်မှုအတွက် kanji မရှိပါ။ အခြားအဆင့်စမ်းကြည့်ပါ။', ja: 'この選択では漢字がありません。別のレベルをお試しください。' },
+    'Trace this kanji': { vn: 'Đồ lại kanji này', my: 'ဤ kanji ကိုကူးပါ', ja: 'この漢字をなぞる' },
+    'Write the kanji for:': { vn: 'Viết kanji cho:', my: 'ဤအတွက် kanji ရေးပါ:', ja: '次の漢字を書く:' },
+    'Checking…': { vn: 'Đang kiểm tra…', my: 'စစ်ဆေးနေသည်…', ja: '判定中…' },
+    'Correct!': { vn: 'Chính xác!', my: 'မှန်ပါသည်!', ja: '正解！' },
+    'Not recognized — try again or reveal the answer.': { vn: 'Không nhận dạng được — thử lại hoặc xem đáp án.', my: 'မသိရှိပါ — ထပ်စမ်းပါ သို့မဟုတ် အဖြေကိုကြည့်ပါ။', ja: '認識できません — もう一度試すか答えを表示してください。' },
+    'Reveal answer': { vn: 'Xem đáp án', my: 'အဖြေပြရန်', ja: '答えを見る' },
+    'I wrote it right': { vn: 'Tôi viết đúng', my: 'မှန်အောင်ရေးခဲ့သည်', ja: '正しく書けた' },
+    'Skip': { vn: 'Bỏ qua', my: 'ကျော်မည်', ja: 'スキップ' },
+    'Check': { vn: 'Kiểm tra', my: 'စစ်ဆေးမည်', ja: '判定' },
+
+    // --- Leaderboard profile editing ---
+    'Edit Profile': { vn: 'Sửa hồ sơ', my: 'ပရိုဖိုင်ပြင်ရန်', ja: 'プロフィール編集' },
+    'Display name': { vn: 'Tên hiển thị', my: 'ပြသမည့်အမည်', ja: '表示名' },
+    'Choose an avatar': { vn: 'Chọn ảnh đại diện', my: 'avatar ရွေးပါ', ja: 'アバターを選択' },
+    'Upload photo': { vn: 'Tải ảnh lên', my: 'ဓာတ်ပုံတင်ရန်', ja: '写真をアップロード' },
+    'Use Google photo': { vn: 'Dùng ảnh Google', my: 'Google ဓာတ်ပုံသုံးရန်', ja: 'Googleの写真を使う' },
+    'Save': { vn: 'Lưu', my: 'သိမ်းမည်', ja: '保存' },
+    'Cancel': { vn: 'Hủy', my: 'ပယ်ဖျက်မည်', ja: 'キャンセル' },
+    'Sign Out': { vn: 'Đăng xuất', my: 'ထွက်မည်', ja: 'サインアウト' },
+    'Reset to Google': { vn: 'Đặt lại theo Google', my: 'Google သို့ပြန်သတ်မှတ်', ja: 'Googleに戻す' },
+    'Show your real Google name and photo again': { vn: 'Hiển thị lại tên và ảnh Google thật của bạn', my: 'သင့်စစ်မှန်သော Google အမည်နှင့်ဓာတ်ပုံကို ပြန်ပြရန်', ja: '本当のGoogleの名前と写真を再表示' },
+    'Your custom name and photo are shown publicly instead of your Google identity.': { vn: 'Tên và ảnh tùy chỉnh của bạn sẽ hiển thị công khai thay cho danh tính Google.', my: 'သင့် Google အထောက်အထားအစား စိတ်ကြိုက်အမည်နှင့်ဓာတ်ပုံကို အများမြင်အောင်ပြသပါမည်။', ja: 'Googleの情報の代わりに、設定した名前と写真が公開されます。' }
 };
 
 function t(englishText, lang) {

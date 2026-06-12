@@ -5607,6 +5607,100 @@ a, button, .btn, .nav-tab, .bottom-nav__item, .quiz-option,
     .kana-quiz__prompt { font-size: 3.5rem; }
 }
 
+/* --- Kanji writing practice ----------------------------------------------- */
+.writing-pad {
+    position: relative;
+    border-radius: 14px;
+    background: #fff;
+    border: 2px dashed #bbb;
+    overflow: hidden;
+    box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.08);
+}
+.writing-pad__canvas {
+    position: relative;
+    z-index: 1;
+    display: block;
+    touch-action: none;
+    cursor: crosshair;
+    width: 100%;
+    height: 100%;
+}
+/* Faint kanji guide for Trace mode, sitting behind the ink layer */
+.writing-guide {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+}
+.writing-guide svg { width: 100%; height: 100%; }
+.writing-guide svg path {
+    fill: none;
+    stroke: #c2c2c2;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.writing-prompt {
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--border-glass);
+    margin-top: 6px;
+}
+.writing-prompt__label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+.writing-prompt__meaning {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.writing-prompt__reading {
+    font-family: var(--font-jp);
+    color: var(--primary);
+    margin-top: 4px;
+    font-size: 1.05rem;
+}
+
+.writing-status {
+    text-align: center;
+    margin-top: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.writing-status--ok { color: var(--accent-green, #2ecc71); }
+.writing-status--bad { color: var(--accent-red, #e74c3c); }
+
+.writing-answer { margin-top: 16px; }
+
+/* --- Leaderboard avatar picker -------------------------------------------- */
+.avatar-pick {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--border-glass);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 1.35rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+.avatar-pick:hover { transform: scale(1.1); border-color: var(--primary); }
+.avatar-pick--active {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
 /* --- Footer ---------------------------------------------------------------- */
 .app-footer {
     display: flex;

@@ -254,6 +254,55 @@ function LeaderboardTab(props) {
     var _editName = useState(profile ? profile.name : '');
     var editName = _editName[0], setEditName = _editName[1];
 
+    var _editAvatar = useState(profile ? (profile.customPhoto || profile.avatar || '👤') : '👤');
+    var editAvatar = _editAvatar[0], setEditAvatar = _editAvatar[1];
+
+    var fileRef = useRef(null);
+
+    var AVATAR_EMOJIS = ['🦊', '🐯', '🐼', '🐻', '🐶', '🐱', '🐰', '🦁', '🐸', '🐵', '🐧', '🦉', '🐲', '🌸', '⛩️', '🍣', '🗻', '🎌', '👻', '👤'];
+
+    // Open the editor, seeding the fields from the current profile.
+    function openEditor() {
+        var p = LEADERBOARD_API.getProfile();
+        setEditName(p.name || '');
+        setEditAvatar(p.customPhoto || p.avatar || '👤');
+        setIsEditing(true);
+    }
+
+    // Read an uploaded image, center-crop to a square and downscale to a
+    // tiny data URL so the leaderboard avatar stays small.
+    function handleAvatarUpload(e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+            var img = new Image();
+            img.onload = function () {
+                var size = 96;
+                var canvas = document.createElement('canvas');
+                canvas.width = size; canvas.height = size;
+                var ctx = canvas.getContext('2d');
+                var min = Math.min(img.width, img.height);
+                ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
+                setEditAvatar(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Revert a signed-in user to their real Google name + photo.
+    function handleResetIdentity() {
+        if (typeof LEADERBOARD_API.resetIdentity !== 'function') return;
+        LEADERBOARD_API.resetIdentity();
+        var p = LEADERBOARD_API.getProfile();
+        setProfile(p);
+        setEditName(p.name || '');
+        setEditAvatar(p.customPhoto || p.photoURL || p.avatar || '👤');
+        setIsEditing(false);
+        loadData();
+    }
+
     function loadData() {
         if (typeof LEADERBOARD_API === 'undefined') return;
         // Always compare against the CURRENT profile id. The state value
@@ -313,7 +362,7 @@ function LeaderboardTab(props) {
 
     function saveProfile() {
         if (!editName.trim()) return;
-        LEADERBOARD_API.updateProfile(editName.trim(), profile.avatar);
+        LEADERBOARD_API.updateProfile(editName.trim(), editAvatar);
         setProfile(LEADERBOARD_API.getProfile());
         setIsEditing(false);
         loadData();
@@ -332,7 +381,8 @@ function LeaderboardTab(props) {
     }
 
     function renderAvatar(avatar) {
-        if (avatar && avatar.startsWith('http')) {
+        // Render real images (Google photo URL or uploaded data URL); emojis as text.
+        if (avatar && (avatar.startsWith('http') || avatar.startsWith('data:'))) {
             return createElement('img', { src: avatar, style: { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' } });
         }
         return avatar || '👤';
@@ -343,7 +393,9 @@ function LeaderboardTab(props) {
 
     // Profile render helper
     var isGoogleLinked = profile && profile.id && !profile.id.startsWith('user_');
-    var profileImg = renderAvatar(profile ? profile.photoURL || profile.avatar : null);
+    var effAvatar = profile ? (typeof LEADERBOARD_API.effectiveAvatar === 'function' ? LEADERBOARD_API.effectiveAvatar(profile) : (profile.customPhoto || profile.photoURL || profile.avatar)) : null;
+    var profileImg = renderAvatar(effAvatar);
+    var hasCustomIdentity = profile && (profile.nameLocked || profile.customPhoto);
 
     return createElement('div', { className: 'glass-card leaderboard-container' },
         createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' } },
@@ -353,11 +405,46 @@ function LeaderboardTab(props) {
         
         // Profile Edit Section
         createElement('div', { style: { padding: '15px', background: 'rgba(0,0,0,0.1)', borderRadius: '12px', marginBottom: '30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-            isEditing ? createElement('div', { style: { display: 'flex', gap: '10px', alignItems: 'center', flex: 1, flexWrap: 'wrap' } },
-                createElement('div', { style: { width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', background: '#fff', borderRadius: '50%' } }, profileImg),
-                createElement('input', { type: 'text', className: 'search-input', value: editName, onChange: function(e) { setEditName(e.target.value); }, style: { flex: 1, padding: '8px', minWidth: '150px' }, placeholder: 'Your Name', disabled: isGoogleLinked }),
-                !isGoogleLinked && createElement('button', { className: 'btn btn--primary', onClick: saveProfile }, 'Save'),
-                createElement('button', { className: 'btn', onClick: function() { setIsEditing(false); setEditName(profile.name); } }, 'Cancel')
+            isEditing ? createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '14px', flex: 1, width: '100%' } },
+                // Live preview + name input
+                createElement('div', { style: { display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' } },
+                    createElement('div', { style: { width: '56px', height: '56px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', background: '#fff', borderRadius: '50%', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' } }, renderAvatar(editAvatar)),
+                    createElement('input', { type: 'text', className: 'search-input', value: editName, onChange: function(e) { setEditName(e.target.value); }, style: { flex: 1, padding: '10px', minWidth: '160px' }, placeholder: t('Display name', props.appLang), maxLength: 24 })
+                ),
+                // Emoji avatar picker
+                createElement('div', null,
+                    createElement('div', { style: { fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px' } }, t('Choose an avatar', props.appLang)),
+                    createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
+                        AVATAR_EMOJIS.map(function(em) {
+                            return createElement('button', {
+                                key: em,
+                                onClick: function() { setEditAvatar(em); },
+                                className: 'avatar-pick' + (editAvatar === em ? ' avatar-pick--active' : ''),
+                            }, em);
+                        }),
+                        // Upload custom photo
+                        createElement('button', {
+                            className: 'avatar-pick',
+                            title: t('Upload photo', props.appLang),
+                            onClick: function() { if (fileRef.current) fileRef.current.click(); }
+                        }, '📷'),
+                        // Use Google photo (only if signed in and one exists)
+                        isGoogleLinked && profile.photoURL ? createElement('button', {
+                            className: 'avatar-pick' + (editAvatar === profile.photoURL ? ' avatar-pick--active' : ''),
+                            title: t('Use Google photo', props.appLang),
+                            onClick: function() { setEditAvatar(profile.photoURL); },
+                            style: { padding: 0, overflow: 'hidden' }
+                        }, createElement('img', { src: profile.photoURL, style: { width: '100%', height: '100%', objectFit: 'cover' } })) : null
+                    ),
+                    createElement('input', { ref: fileRef, type: 'file', accept: 'image/*', style: { display: 'none' }, onChange: handleAvatarUpload })
+                ),
+                // Actions
+                createElement('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
+                    createElement('button', { className: 'btn btn--primary', onClick: saveProfile }, t('Save', props.appLang)),
+                    createElement('button', { className: 'btn btn--outline', onClick: function() { setIsEditing(false); setEditName(profile.name); } }, t('Cancel', props.appLang)),
+                    (isGoogleLinked && hasCustomIdentity) ? createElement('button', { className: 'btn btn--outline', onClick: handleResetIdentity, title: t('Show your real Google name and photo again', props.appLang) }, '↺ ' + t('Reset to Google', props.appLang)) : null
+                ),
+                isGoogleLinked ? createElement('div', { style: { fontSize: '0.78rem', color: 'var(--text-muted)' } }, t('Your custom name and photo are shown publicly instead of your Google identity.', props.appLang)) : null
             ) : createElement('div', { style: { display: 'flex', gap: '15px', alignItems: 'center', flex: 1, flexWrap: 'wrap' } },
                 createElement('div', { style: { fontSize: '2.5rem', background: '#fff', borderRadius: '50%', width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', overflow: 'hidden' } }, profileImg),
                 createElement('div', { style: { flex: 1, minWidth: '120px' } },
@@ -380,10 +467,10 @@ function LeaderboardTab(props) {
                             : syncState === 'error' ? '⚠ Retry Sync'
                             : '☁ Sync Now')
                         : null,
+                    createElement('button', { className: 'btn btn--outline', onClick: openEditor }, '✎ ' + t('Edit Profile', props.appLang)),
                     isGoogleLinked
-                        ? createElement('button', { className: 'btn btn--outline', onClick: handleGoogleLogout }, 'Sign Out')
-                        : createElement('button', { className: 'btn btn--primary', onClick: handleGoogleLogin, style: { background: '#4285F4', color: '#fff', border: 'none' } }, 'Sign in with Google'),
-                    !isGoogleLinked && createElement('button', { className: 'btn btn--outline', onClick: function() { setIsEditing(true); } }, 'Edit Local Profile')
+                        ? createElement('button', { className: 'btn btn--outline', onClick: handleGoogleLogout }, t('Sign Out', props.appLang))
+                        : createElement('button', { className: 'btn btn--primary', onClick: handleGoogleLogin, style: { background: '#4285F4', color: '#fff', border: 'none' } }, t('Sign in with Google', props.appLang))
                 )
             )
         ),

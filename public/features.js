@@ -1255,11 +1255,38 @@ var LEADERBOARD_API = (function () {
 
     function updateProfile(name, avatar) {
         var profile = _loadProfile();
-        if (name) profile.name = name;
-        if (avatar) profile.avatar = avatar;
+        if (name) {
+            profile.name = name;
+            // Mark the name as user-chosen so the auth listener stops
+            // overwriting it with the Google display name on each load.
+            profile.nameLocked = true;
+        }
+        if (avatar) {
+            // Custom avatar (emoji, image URL, or uploaded data URL). Takes
+            // precedence over the Google photo for display + leaderboard.
+            profile.customPhoto = avatar;
+            profile.avatar = avatar;
+        }
         _saveProfile(profile);
         // Force an update to Firebase to sync the new name/avatar
         syncScore(PROGRESS.getTotalStats().xp);
+    }
+
+    // Revert a signed-in user back to their real Google name + photo by
+    // clearing the custom overrides. Lets people undo a privacy alias.
+    function resetIdentity() {
+        var profile = _loadProfile();
+        profile.nameLocked = false;
+        profile.customPhoto = null;
+        if (profile.googleName) profile.name = profile.googleName;
+        _saveProfile(profile);
+        syncScore(PROGRESS.getTotalStats().xp);
+    }
+
+    // The avatar actually shown / synced: custom override wins, then the
+    // Google photo, then the emoji fallback.
+    function effectiveAvatar(profile) {
+        return profile.customPhoto || profile.photoURL || profile.avatar || '👤';
     }
 
     function fetchLeaderboard() {
@@ -1299,9 +1326,10 @@ var LEADERBOARD_API = (function () {
         var validatedXp = Math.max(0, Math.floor(Number(authoritative) || 0));
 
         // Only fields the leaderboard rules allow (name, avatar, xp).
+        // Custom overrides win so a user's chosen alias/photo shows publicly.
         var payload = {
             name: profile.name,
-            avatar: profile.photoURL || profile.avatar,
+            avatar: effectiveAvatar(profile),
             xp: validatedXp
         };
 
@@ -1316,10 +1344,13 @@ var LEADERBOARD_API = (function () {
         AUTH.onAuthStateChanged(function(user) {
             var profile = _loadProfile();
             if (user) {
-                // If the user logs in, link their Google data to the local profile
+                // If the user logs in, link their Google data to the local profile.
                 profile.id = user.uid;
-                profile.name = user.displayName || profile.name;
-                profile.photoURL = user.photoURL; // Prefer photoURL over emoji avatar
+                // Keep the real Google identity around for optional revert…
+                profile.googleName = user.displayName || profile.googleName || '';
+                profile.photoURL = user.photoURL || null;
+                // …but never overwrite a name the user deliberately customized.
+                if (!profile.nameLocked) profile.name = user.displayName || profile.name;
                 _saveProfile(profile);
             } else {
                 // If they log out, we can revert to an anonymous ID so they don't overwrite the signed-in user's data
@@ -1342,6 +1373,8 @@ var LEADERBOARD_API = (function () {
     return {
         getProfile: getProfile,
         updateProfile: updateProfile,
+        resetIdentity: resetIdentity,
+        effectiveAvatar: effectiveAvatar,
         fetchLeaderboard: fetchLeaderboard,
         syncScore: syncScore
     };
