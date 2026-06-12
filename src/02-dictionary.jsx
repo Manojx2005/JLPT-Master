@@ -2,6 +2,7 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchJisho, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
+import { HandwritingInput } from './10-handwriting.jsx';
 
 /* =================================================================
    JLPT Master — Dictionary & Saved words
@@ -95,6 +96,9 @@ function DictionaryTab(props) {
 
     var _searchSource = useState('');
     var searchSource = _searchSource[0], setSearchSource = _searchSource[1]; // 'jisho' or 'offline'
+
+    var _showDraw = useState(false);
+    var showDraw = _showDraw[0], setShowDraw = _showDraw[1]; // Handwriting panel visibility
 
     /**
      * Performs the dictionary search.
@@ -436,12 +440,21 @@ function DictionaryTab(props) {
                 onKeyDown: handleKey,
             }),
             createElement('button', {
+                className: 'btn btn--outline',
+                title: 'Draw a kanji to search',
+                onClick: function () { setShowDraw(!showDraw); },
+            }, '\u270d\ufe0f'),
+            createElement('button', {
                 id: 'dict-search-btn',
                 className: 'btn btn--primary',
                 onClick: doSearch,
                 disabled: loading,
             }, loading ? 'Searching\u2026' : 'Search')
         ),
+        showDraw ? createElement(HandwritingInput, {
+            onSelect: function (char) { setQuery(function (q) { return q + char; }); },
+            onClose: function () { setShowDraw(false); }
+        }) : null,
         historyEls,  // Search history chips
         loadingEl,   // Loading indicator
         dailyWordEl, // Daily word card

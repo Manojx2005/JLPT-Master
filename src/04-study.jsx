@@ -2,6 +2,7 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchKanji, shuffleArray, t } from './01-core.jsx';
+import { HandwritingInput } from './10-handwriting.jsx';
 
 /* =================================================================
    JLPT Master — Study tools (Kanji, Leaderboard, Dashboard, Flashcards, Conjugation, Grammar)
@@ -26,6 +27,9 @@ function KanjiTab(props) {
 
     var _error = useState('');
     var error = _error[0], setError = _error[1];
+
+    var _showDraw = useState(false);
+    var showDraw = _showDraw[0], setShowDraw = _showDraw[1]; // Handwriting panel visibility
 
     var doSearch = useCallback(async function () {
         var q = query.trim();
@@ -168,11 +172,20 @@ function KanjiTab(props) {
                 onKeyDown: handleKey,
             }),
             createElement('button', {
+                className: 'btn btn--outline',
+                title: 'Draw a kanji to search',
+                onClick: function () { setShowDraw(!showDraw); },
+            }, '✍️'),
+            createElement('button', {
                 className: 'btn btn--primary',
                 onClick: doSearch,
                 disabled: loading,
             }, loading ? 'Searching\u2026' : 'Search')
         ),
+        showDraw ? createElement(HandwritingInput, {
+            onSelect: function (char) { setQuery(function (q) { return q + char; }); },
+            onClose: function () { setShowDraw(false); }
+        }) : null,
         resultEls.length > 0 ? createElement('div', null, resultEls) : null,
         errorEl
     );
