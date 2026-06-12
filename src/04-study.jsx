@@ -371,7 +371,7 @@ function LeaderboardTab(props) {
                 createElement('div', { className: 'podium-step' }, createElement('span', null, '1'))
             ),
             top3[2] && createElement('div', { className: 'podium-item podium-bronze' },
-                createElement('div', { className: 'podium-avatar' }, top3[2].avatar),
+                createElement('div', { className: 'podium-avatar' }, renderAvatar(top3[2].avatar)),
                 createElement('div', { className: 'podium-name' }, top3[2].name),
                 createElement('div', { className: 'podium-xp' }, top3[2].xp.toLocaleString() + ' XP'),
                 createElement('div', { className: 'podium-step' }, createElement('span', null, '3'))
