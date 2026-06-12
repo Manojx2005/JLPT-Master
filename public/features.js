@@ -76,6 +76,7 @@ var SRS = (function () {
 
         store[wordKey] = card;
         _save(store);
+        if (typeof CLOUD_SYNC_API !== 'undefined') CLOUD_SYNC_API.uploadSRS();
         return card;
     }
 
@@ -230,6 +231,7 @@ var PROGRESS = (function () {
 
         _save(store);
         if (typeof LEADERBOARD_API !== 'undefined') LEADERBOARD_API.syncScore(store.xp);
+        if (typeof CLOUD_SYNC_API !== 'undefined') CLOUD_SYNC_API.uploadProgress();
     }
 
     /**
@@ -247,6 +249,7 @@ var PROGRESS = (function () {
 
         _save(store);
         if (typeof LEADERBOARD_API !== 'undefined') LEADERBOARD_API.syncScore(store.xp);
+        if (typeof CLOUD_SYNC_API !== 'undefined') CLOUD_SYNC_API.uploadProgress();
     }
 
     /**
@@ -1344,43 +1347,170 @@ var LEADERBOARD_API = (function () {
 })();
 
 /* =================================================================
-   8. SAVED WORDS SYNC — Firebase cloud backup for saved vocabulary
+   8. CLOUD SYNC API — Full progress sync for Google-authenticated users
+      Stores under: user_data/{uid}/{key}.json
+      Keys: saved_words, srs, progress, custom_questions
    ================================================================= */
-var SAVED_WORDS_API = (function() {
-    var BASE_URL = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/saved_words/";
+var CLOUD_SYNC_API = (function() {
+    var BASE = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/user_data/";
 
     function _getUid() {
         if (typeof LEADERBOARD_API === 'undefined') return null;
         var profile = LEADERBOARD_API.getProfile();
-        // Only sync for Google-authenticated users (not anonymous user_ ids)
         if (!profile || profile.id.startsWith('user_')) return null;
         return profile.id;
     }
 
-    function isLoggedIn() {
-        return _getUid() !== null;
-    }
+    function isLoggedIn() { return _getUid() !== null; }
 
-    function upload(words) {
+    function _put(key, data) {
         var uid = _getUid();
         if (!uid) return Promise.resolve();
-        return fetch(BASE_URL + uid + '.json', {
+        return fetch(BASE + uid + '/' + key + '.json', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(Array.isArray(words) ? words : [])
-        }).catch(function(err) { console.error('Failed to upload saved words:', err); });
+            body: JSON.stringify(data)
+        }).catch(function(err) { console.error('Cloud sync [' + key + '] failed:', err); });
     }
 
-    function download() {
+    function _getAll() {
         var uid = _getUid();
-        if (!uid) return Promise.resolve([]);
-        return fetch(BASE_URL + uid + '.json')
+        if (!uid) return Promise.resolve(null);
+        return fetch(BASE + uid + '.json')
             .then(function(res) { return res.json(); })
-            .then(function(data) { return Array.isArray(data) ? data : []; })
-            .catch(function() { return []; });
+            .catch(function() { return null; });
     }
 
-    return { isLoggedIn: isLoggedIn, upload: upload, download: download };
+    // ── upload helpers (called after each local write) ──────────────
+    function uploadSavedWords(words) {
+        _put('saved_words', Array.isArray(words) ? words : []);
+    }
+
+    function uploadSRS() {
+        try { _put('srs', JSON.parse(localStorage.getItem('jlpt_srs') || '{}')); } catch(e) {}
+    }
+
+    function uploadProgress() {
+        try {
+            var d = JSON.parse(localStorage.getItem('jlpt_progress') || 'null');
+            if (d) _put('progress', d);
+        } catch(e) {}
+    }
+
+    function uploadCustomQs(qs) {
+        _put('custom_questions', Array.isArray(qs) ? qs : []);
+    }
+
+    // ── merge helpers ───────────────────────────────────────────────
+    function _mergeSRS(local, cloud) {
+        if (!cloud || typeof cloud !== 'object') return local;
+        var out = Object.assign({}, local);
+        for (var k in cloud) {
+            if (!Object.prototype.hasOwnProperty.call(cloud, k)) continue;
+            var lc = out[k], cc = cloud[k];
+            if (!lc || cc.reviewCount > lc.reviewCount || cc.nextReview > lc.nextReview) {
+                out[k] = cc;
+            }
+        }
+        return out;
+    }
+
+    function _mergeProgress(local, cloud) {
+        if (!cloud) return local;
+        if (!local) return cloud;
+        var out = JSON.parse(JSON.stringify(local));
+        out.xp = Math.max(local.xp || 0, cloud.xp || 0);
+        out.totalReviews = Math.max(local.totalReviews || 0, cloud.totalReviews || 0);
+        if (cloud.firstUseDate && cloud.firstUseDate < (local.firstUseDate || '9999')) {
+            out.firstUseDate = cloud.firstUseDate;
+        }
+        // daily stats — per-day max
+        var ds = Object.assign({}, local.dailyStats || {});
+        for (var date in (cloud.dailyStats || {})) {
+            if (!Object.prototype.hasOwnProperty.call(cloud.dailyStats, date)) continue;
+            var cd = cloud.dailyStats[date], ld = ds[date];
+            if (!ld) { ds[date] = cd; continue; }
+            ds[date] = {
+                wordsReviewed:  Math.max(ld.wordsReviewed  || 0, cd.wordsReviewed  || 0),
+                quizzesTaken:   Math.max(ld.quizzesTaken   || 0, cd.quizzesTaken   || 0),
+                correctAnswers: Math.max(ld.correctAnswers  || 0, cd.correctAnswers  || 0),
+                totalAnswers:   Math.max(ld.totalAnswers    || 0, cd.totalAnswers    || 0),
+                newWords:       Math.max(ld.newWords        || 0, cd.newWords        || 0)
+            };
+        }
+        out.dailyStats = ds;
+        // quiz history — merge & dedup, keep newest 50
+        var hist = (local.quizHistory || []).slice();
+        (cloud.quizHistory || []).forEach(function(cq) {
+            if (!hist.some(function(lq) {
+                return lq.date === cq.date && lq.score === cq.score && lq.total === cq.total;
+            })) hist.push(cq);
+        });
+        hist.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+        out.quizHistory = hist.slice(-50);
+        return out;
+    }
+
+    function _mergeWords(local, cloud) {
+        if (!Array.isArray(cloud)) return local || [];
+        var out = (local || []).slice();
+        cloud.forEach(function(cw) {
+            if (!out.some(function(lw) { return lw.word === cw.word; })) out.push(cw);
+        });
+        return out;
+    }
+
+    // ── called once after login ─────────────────────────────────────
+    // localData  = { savedWords, customQs }
+    // callbacks  = { setSavedWords, setCustomQs }
+    function syncOnLogin(localData, callbacks) {
+        if (!isLoggedIn()) return;
+        _getAll().then(function(cloud) {
+            if (!cloud) {
+                // First login on any device — push everything up
+                uploadSavedWords(localData.savedWords);
+                uploadSRS();
+                uploadProgress();
+                uploadCustomQs(localData.customQs);
+                return;
+            }
+
+            // Saved words
+            var mergedSaved = _mergeWords(localData.savedWords, cloud.saved_words);
+            if (mergedSaved.length !== (localData.savedWords || []).length) callbacks.setSavedWords(mergedSaved);
+            _put('saved_words', mergedSaved);
+
+            // SRS
+            var localSRS = {};
+            try { localSRS = JSON.parse(localStorage.getItem('jlpt_srs') || '{}'); } catch(e) {}
+            var mergedSRS = _mergeSRS(localSRS, cloud.srs);
+            try { localStorage.setItem('jlpt_srs', JSON.stringify(mergedSRS)); } catch(e) {}
+            _put('srs', mergedSRS);
+
+            // Progress / XP
+            var localProg = null;
+            try { localProg = JSON.parse(localStorage.getItem('jlpt_progress') || 'null'); } catch(e) {}
+            var mergedProg = _mergeProgress(localProg, cloud.progress);
+            if (mergedProg) {
+                try { localStorage.setItem('jlpt_progress', JSON.stringify(mergedProg)); } catch(e) {}
+                _put('progress', mergedProg);
+            }
+
+            // Custom questions
+            var mergedCustom = _mergeWords(localData.customQs, cloud.custom_questions);
+            if (mergedCustom.length !== (localData.customQs || []).length) callbacks.setCustomQs(mergedCustom);
+            _put('custom_questions', mergedCustom);
+        });
+    }
+
+    return {
+        isLoggedIn:       isLoggedIn,
+        uploadSavedWords: uploadSavedWords,
+        uploadSRS:        uploadSRS,
+        uploadProgress:   uploadProgress,
+        uploadCustomQs:   uploadCustomQs,
+        syncOnLogin:      syncOnLogin
+    };
 })();
 
 /* =================================================================

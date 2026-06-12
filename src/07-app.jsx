@@ -65,10 +65,15 @@ function App() {
         return loadJSON('jlpt_custom_questions', []);
     });
     var customQs = _customQs[0], setCustomQs = _customQs[1]; // User-added custom questions
+    var customQsRef = useRef(customQs);
 
-    // Persist custom questions so they survive page reloads
+    // Persist custom questions and keep cloud in sync
     useEffect(function () {
+        customQsRef.current = customQs;
         try { localStorage.setItem('jlpt_custom_questions', JSON.stringify(customQs)); } catch (e) {}
+        if (typeof CLOUD_SYNC_API !== 'undefined' && CLOUD_SYNC_API.isLoggedIn()) {
+            CLOUD_SYNC_API.uploadCustomQs(customQs);
+        }
     }, [customQs]);
 
     var _isLightMode = useState(function () {
@@ -218,40 +223,22 @@ function App() {
     useEffect(function () {
         savedWordsRef.current = savedWords;
         localStorage.setItem('jlpt_saved', JSON.stringify(savedWords));
-        // Keep Firebase in sync while the user is logged in
-        if (typeof SAVED_WORDS_API !== 'undefined' && SAVED_WORDS_API.isLoggedIn()) {
-            SAVED_WORDS_API.upload(savedWords);
+        if (typeof CLOUD_SYNC_API !== 'undefined' && CLOUD_SYNC_API.isLoggedIn()) {
+            CLOUD_SYNC_API.uploadSavedWords(savedWords);
         }
     }, [savedWords]);
 
-    // On login: download cloud words and merge with whatever is already local
+    // On login: pull all cloud data, merge with local, push merged result back up
     useEffect(function () {
-        if (typeof AUTH === 'undefined' || typeof SAVED_WORDS_API === 'undefined') return;
+        if (typeof AUTH === 'undefined' || typeof CLOUD_SYNC_API === 'undefined') return;
         AUTH.onAuthStateChanged(function (user) {
-            if (!user) return; // logout — keep local words as-is
-            SAVED_WORDS_API.download().then(function (cloudWords) {
-                var local = savedWordsRef.current;
-                if (!cloudWords || cloudWords.length === 0) {
-                    // Nothing in the cloud yet — push local words up
-                    if (local.length > 0) SAVED_WORDS_API.upload(local);
-                    return;
-                }
-                // Merge: start with local, add any cloud-only words
-                var merged = local.slice();
-                cloudWords.forEach(function (cw) {
-                    var exists = merged.some(function (lw) { return lw.word === cw.word; });
-                    if (!exists) merged.push(cw);
-                });
-                // Only update state (and trigger the upload above) if something was added
-                if (merged.length !== local.length) {
-                    setSavedWords(merged);
-                } else {
-                    // Local already has everything; make sure cloud is current too
-                    SAVED_WORDS_API.upload(local);
-                }
-            });
+            if (!user) return; // logout — keep local data as-is
+            CLOUD_SYNC_API.syncOnLogin(
+                { savedWords: savedWordsRef.current, customQs: customQsRef.current },
+                { setSavedWords: setSavedWords, setCustomQs: setCustomQs }
+            );
         });
-    }, []); // register once — savedWordsRef gives access to current list
+    }, []); // register once — refs give access to current values
 
     // --- Keyboard Shortcuts ---
     useEffect(function () {
