@@ -1344,7 +1344,47 @@ var LEADERBOARD_API = (function () {
 })();
 
 /* =================================================================
-   8. MULTIPLAYER API — Firebase Realtime Database Integration
+   8. SAVED WORDS SYNC — Firebase cloud backup for saved vocabulary
+   ================================================================= */
+var SAVED_WORDS_API = (function() {
+    var BASE_URL = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/saved_words/";
+
+    function _getUid() {
+        if (typeof LEADERBOARD_API === 'undefined') return null;
+        var profile = LEADERBOARD_API.getProfile();
+        // Only sync for Google-authenticated users (not anonymous user_ ids)
+        if (!profile || profile.id.startsWith('user_')) return null;
+        return profile.id;
+    }
+
+    function isLoggedIn() {
+        return _getUid() !== null;
+    }
+
+    function upload(words) {
+        var uid = _getUid();
+        if (!uid) return Promise.resolve();
+        return fetch(BASE_URL + uid + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Array.isArray(words) ? words : [])
+        }).catch(function(err) { console.error('Failed to upload saved words:', err); });
+    }
+
+    function download() {
+        var uid = _getUid();
+        if (!uid) return Promise.resolve([]);
+        return fetch(BASE_URL + uid + '.json')
+            .then(function(res) { return res.json(); })
+            .then(function(data) { return Array.isArray(data) ? data : []; })
+            .catch(function() { return []; });
+    }
+
+    return { isLoggedIn: isLoggedIn, upload: upload, download: download };
+})();
+
+/* =================================================================
+   9. MULTIPLAYER API — Firebase Realtime Database Integration
    ================================================================= */
 var MULTIPLAYER_API = (function () {
     var db = null;

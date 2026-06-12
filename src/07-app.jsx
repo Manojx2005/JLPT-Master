@@ -80,6 +80,8 @@ function App() {
         return loadJSON('jlpt_saved', []);
     });
     var savedWords = _savedWords[0], setSavedWords = _savedWords[1];
+    // Ref so auth-listener closure always sees the latest list without re-registering
+    var savedWordsRef = useRef(savedWords);
 
     var _appLang = useState(function () {
         return localStorage.getItem('jlpt_lang') || 'en';
@@ -214,8 +216,42 @@ function App() {
     }, [isLightMode]);
 
     useEffect(function () {
+        savedWordsRef.current = savedWords;
         localStorage.setItem('jlpt_saved', JSON.stringify(savedWords));
+        // Keep Firebase in sync while the user is logged in
+        if (typeof SAVED_WORDS_API !== 'undefined' && SAVED_WORDS_API.isLoggedIn()) {
+            SAVED_WORDS_API.upload(savedWords);
+        }
     }, [savedWords]);
+
+    // On login: download cloud words and merge with whatever is already local
+    useEffect(function () {
+        if (typeof AUTH === 'undefined' || typeof SAVED_WORDS_API === 'undefined') return;
+        AUTH.onAuthStateChanged(function (user) {
+            if (!user) return; // logout — keep local words as-is
+            SAVED_WORDS_API.download().then(function (cloudWords) {
+                var local = savedWordsRef.current;
+                if (!cloudWords || cloudWords.length === 0) {
+                    // Nothing in the cloud yet — push local words up
+                    if (local.length > 0) SAVED_WORDS_API.upload(local);
+                    return;
+                }
+                // Merge: start with local, add any cloud-only words
+                var merged = local.slice();
+                cloudWords.forEach(function (cw) {
+                    var exists = merged.some(function (lw) { return lw.word === cw.word; });
+                    if (!exists) merged.push(cw);
+                });
+                // Only update state (and trigger the upload above) if something was added
+                if (merged.length !== local.length) {
+                    setSavedWords(merged);
+                } else {
+                    // Local already has everything; make sure cloud is current too
+                    SAVED_WORDS_API.upload(local);
+                }
+            });
+        });
+    }, []); // register once — savedWordsRef gives access to current list
 
     // --- Keyboard Shortcuts ---
     useEffect(function () {
