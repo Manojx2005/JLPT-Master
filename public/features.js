@@ -1285,11 +1285,16 @@ var LEADERBOARD_API = (function () {
     function syncScore(xp) {
         var profile = _loadProfile();
         var url = "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com/leaderboard/" + profile.id + ".json";
-        
+
+        // Always derive XP from the authoritative localStorage store so that
+        // callers (including direct console calls) cannot inject an arbitrary value.
+        var authoritative = (typeof PROGRESS !== 'undefined') ? PROGRESS.getTotalStats().xp : xp;
+        var validatedXp = Math.max(0, Math.floor(Number(authoritative) || 0));
+
         var payload = {
             name: profile.name,
             avatar: profile.photoURL || profile.avatar,
-            xp: xp,
+            xp: validatedXp,
             lastUpdated: Date.now()
         };
 
@@ -1446,17 +1451,21 @@ var MULTIPLAYER_API = (function () {
         return db.ref('rooms/' + code + '/state').set('playing');
     }
 
+    var MAX_MULTIPLAYER_SCORE = 1000; // 10 questions × 100 pts each
+
     function updateScore(code, score) {
         if (!db) return Promise.reject("Firebase DB not initialized");
+        var validatedScore = Math.max(0, Math.min(MAX_MULTIPLAYER_SCORE, Math.floor(Number(score) || 0)));
         var profile = LEADERBOARD_API.getProfile();
-        return db.ref('rooms/' + code + '/players/' + profile.id + '/score').set(score);
+        return db.ref('rooms/' + code + '/players/' + profile.id + '/score').set(validatedScore);
     }
 
     function setFinished(code, finalScore) {
         if (!db) return Promise.reject("Firebase DB not initialized");
+        var validatedScore = Math.max(0, Math.min(MAX_MULTIPLAYER_SCORE, Math.floor(Number(finalScore) || 0)));
         var profile = LEADERBOARD_API.getProfile();
         return db.ref('rooms/' + code + '/players/' + profile.id).update({
-            score: finalScore,
+            score: validatedScore,
             finished: true
         });
     }
