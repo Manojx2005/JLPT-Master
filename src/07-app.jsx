@@ -305,6 +305,20 @@ function App() {
         return PROGRESS.getStreak();
     }, []);
 
+    // Manual cloud sync — pulls + merges + pushes everything (progress + saved words).
+    // Returns a promise so the button can show progress; resolves to a status string.
+    function cloudSyncNow() {
+        if (typeof CLOUD_SYNC_API === 'undefined' || !CLOUD_SYNC_API.isLoggedIn()) {
+            return Promise.resolve('not-logged-in');
+        }
+        var result = CLOUD_SYNC_API.syncOnLogin(
+            { savedWords: savedWordsRef.current, customQs: customQsRef.current },
+            { setSavedWords: setSavedWords, setCustomQs: setCustomQs }
+        );
+        var done = (result && typeof result.then === 'function') ? result : Promise.resolve();
+        return done.then(function () { return 'ok'; }).catch(function () { return 'error'; });
+    }
+
     function addQuestion(q) {
         setCustomQs(function (prev) { return prev.concat([q]); });
     }
@@ -472,7 +486,7 @@ function App() {
     if (tab === 'conj') activeTab = createElement(ConjugationTab, { appLang: appLang });
     if (tab === 'grammar') activeTab = createElement(GrammarTab, { appLang: appLang });
     if (tab === 'dash') activeTab = createElement(DashboardTab, { setTab: switchTab, appLang: appLang });
-    if (tab === 'leader') activeTab = createElement(LeaderboardTab, { appLang: appLang });
+    if (tab === 'leader') activeTab = createElement(LeaderboardTab, { appLang: appLang, onSync: cloudSyncNow });
     if (tab === 'saved') activeTab = createElement(SavedTab, {
         savedWords: savedWords,
         toggleSavedWord: toggleSavedWord,

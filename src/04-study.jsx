@@ -203,7 +203,20 @@ function LeaderboardTab(props) {
 
     var _isEditing = useState(false);
     var isEditing = _isEditing[0], setIsEditing = _isEditing[1];
-    
+
+    var _syncState = useState('idle'); // 'idle' | 'syncing' | 'done' | 'error'
+    var syncState = _syncState[0], setSyncState = _syncState[1];
+
+    function handleSyncNow() {
+        if (!props.onSync || syncState === 'syncing') return;
+        setSyncState('syncing');
+        Promise.resolve(props.onSync()).then(function (status) {
+            setSyncState(status === 'ok' ? 'done' : 'error');
+            loadData();
+            setTimeout(function () { setSyncState('idle'); }, 2500);
+        });
+    }
+
     var _editName = useState(profile ? profile.name : '');
     var editName = _editName[0], setEditName = _editName[1];
 
@@ -320,8 +333,20 @@ function LeaderboardTab(props) {
                     ),
                     createElement('div', { style: { color: 'var(--primary)', fontWeight: 'bold' } }, (PROGRESS.getTotalStats().xp || 0).toLocaleString() + ' XP')
                 ),
-                createElement('div', { style: { display: 'flex', gap: '10px', marginLeft: 'auto' } },
-                    isGoogleLinked 
+                createElement('div', { style: { display: 'flex', gap: '10px', marginLeft: 'auto', flexWrap: 'wrap' } },
+                    isGoogleLinked && props.onSync
+                        ? createElement('button', {
+                            className: 'btn btn--outline',
+                            onClick: handleSyncNow,
+                            disabled: syncState === 'syncing',
+                            title: 'Sync progress and saved words now'
+                        },
+                            syncState === 'syncing' ? '↻ Syncing…'
+                            : syncState === 'done' ? '✓ Synced'
+                            : syncState === 'error' ? '⚠ Retry Sync'
+                            : '☁ Sync Now')
+                        : null,
+                    isGoogleLinked
                         ? createElement('button', { className: 'btn btn--outline', onClick: handleGoogleLogout }, 'Sign Out')
                         : createElement('button', { className: 'btn btn--primary', onClick: handleGoogleLogin, style: { background: '#4285F4', color: '#fff', border: 'none' } }, 'Sign in with Google'),
                     !isGoogleLinked && createElement('button', { className: 'btn btn--outline', onClick: function() { setIsEditing(true); } }, 'Edit Local Profile')
