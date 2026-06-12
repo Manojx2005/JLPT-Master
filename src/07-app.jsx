@@ -300,6 +300,55 @@ function App() {
         URL.revokeObjectURL(url);
     }
 
+    function exportSavedWordsPDF() {
+        if (savedWords.length === 0) return;
+
+        var rows = savedWords.map(function (w, i) {
+            var meaning = w.correct || w.english || (w.meanings && w.meanings.join(', ')) || '';
+            var reading = w.reading || '';
+            var level = w.level || w.jlpt || '';
+            var word = w.word || '';
+            return '<tr>' +
+                '<td style="color:#999;width:36px">' + (i + 1) + '</td>' +
+                '<td class="jp">' + word + '</td>' +
+                '<td class="jp">' + reading + '</td>' +
+                '<td><span class="tag">' + level + '</span></td>' +
+                '<td>' + meaning + '</td>' +
+                '</tr>';
+        }).join('');
+
+        var html = '<!DOCTYPE html><html lang="ja"><head>' +
+            '<meta charset="utf-8">' +
+            '<title>JLPT Master — Saved Words</title>' +
+            '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+            '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">' +
+            '<style>' +
+            'body{font-family:"Noto Sans JP",sans-serif;padding:32px;color:#1a1a1a;background:#fff}' +
+            'h1{font-size:1.3rem;font-weight:700;margin:0 0 4px}' +
+            '.meta{color:#666;font-size:.85rem;margin-bottom:24px}' +
+            'table{width:100%;border-collapse:collapse;font-size:.9rem}' +
+            'th{background:#f3f4f6;text-align:left;padding:9px 12px;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#555;border-bottom:2px solid #e5e7eb}' +
+            'td{padding:8px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top}' +
+            'tr:nth-child(even) td{background:#fafafa}' +
+            '.jp{font-size:1.15rem}' +
+            '.tag{display:inline-block;padding:1px 7px;border-radius:4px;background:#e8f4fd;color:#1a6fa8;font-size:.75rem;font-weight:700}' +
+            '@media print{body{padding:0}@page{margin:20mm}}' +
+            '</style></head><body>' +
+            '<h1>JLPT Master — Saved Words</h1>' +
+            '<div class="meta">' + savedWords.length + ' word' + (savedWords.length !== 1 ? 's' : '') + ' &nbsp;&middot;&nbsp; Exported ' + new Date().toLocaleDateString() + '</div>' +
+            '<table><thead><tr>' +
+            '<th>#</th><th>Word</th><th>Reading</th><th>JLPT</th><th>Meaning</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table>' +
+            '<script>window.onload=function(){window.print();}<\/script>' +
+            '</body></html>';
+
+        var win = window.open('', '_blank');
+        if (win) {
+            win.document.write(html);
+            win.document.close();
+        }
+    }
+
     function importSavedWords(e) {
         var file = e.target.files[0];
         if (!file) return;
@@ -403,6 +452,7 @@ function App() {
         savedWords: savedWords,
         toggleSavedWord: toggleSavedWord,
         onExport: exportSavedWords,
+        onExportPDF: exportSavedWordsPDF,
         onImport: importSavedWords,
         appLang: appLang
     });

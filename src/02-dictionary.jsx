@@ -523,6 +523,10 @@ function SavedTab(props) {
                 className: 'btn btn--small btn--outline',
                 onClick: props.onExport
             }, '📥 Export JSON') : null,
+            words.length > 0 && props.onExportPDF ? createElement('button', {
+                className: 'btn btn--small btn--outline',
+                onClick: props.onExportPDF
+            }, '📄 Export PDF') : null,
             props.onImport ? createElement('button', {
                 className: 'btn btn--small btn--outline',
                 onClick: function () { if (fileInputRef.current) fileInputRef.current.click(); }
