@@ -1401,17 +1401,27 @@ var CLOUD_SYNC_API = (function() {
         }).catch(function(err) { console.error('Cloud sync [' + key + '] failed:', err); });
     }
 
+    // Resolves to the cloud object, or null when the account genuinely has no
+    // data yet. REJECTS on a network/HTTP failure so callers never mistake a
+    // failed download for an empty account (which would wipe cloud data).
     function _getAll() {
         var uid = _getUid();
-        if (!uid) return Promise.resolve(null);
-        return fetch(BASE + uid + '.json')
-            .then(function(res) { return res.json(); })
-            .catch(function() { return null; });
+        if (!uid) return Promise.reject(new Error('not-logged-in'));
+        return fetch(BASE + uid + '.json').then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json(); // Firebase returns null for an empty path
+        });
     }
+
+    // Guards against an empty local list being pushed up (and clobbering good
+    // cloud data) before the first download/merge has completed.
+    var _initialSyncDone = false;
 
     // ── upload helpers (called after each local write) ──────────────
     function uploadSavedWords(words) {
-        _put('saved_words', Array.isArray(words) ? words : []);
+        var arr = Array.isArray(words) ? words : [];
+        if (!_initialSyncDone && arr.length === 0) return; // don't wipe before first sync
+        _put('saved_words', arr);
     }
 
     function uploadSRS() {
@@ -1426,7 +1436,9 @@ var CLOUD_SYNC_API = (function() {
     }
 
     function uploadCustomQs(qs) {
-        _put('custom_questions', Array.isArray(qs) ? qs : []);
+        var arr = Array.isArray(qs) ? qs : [];
+        if (!_initialSyncDone && arr.length === 0) return; // don't wipe before first sync
+        _put('custom_questions', arr);
     }
 
     // ── merge helpers ───────────────────────────────────────────────
@@ -1500,19 +1512,23 @@ var CLOUD_SYNC_API = (function() {
     }
 
     function syncOnLogin(localData, callbacks) {
-        if (!isLoggedIn()) return;
+        if (!isLoggedIn()) return Promise.resolve();
         localData = localData || {};
         callbacks = callbacks || {};
         var localSaved = localData.savedWords || [];
         var localCustom = localData.customQs || [];
 
         return _getAll().then(function(cloud) {
+            // cloud === null means the account genuinely has no data yet.
+            // (A failed download rejects instead, handled in catch below.)
+            _initialSyncDone = true;
+
             if (!cloud) {
-                // First login on any device — push everything up
-                uploadSavedWords(localSaved);
+                // First sync on this account — push whatever this device has.
+                if (localSaved.length) _put('saved_words', localSaved);
                 uploadSRS();
                 uploadProgress();
-                uploadCustomQs(localCustom);
+                if (localCustom.length) _put('custom_questions', localCustom);
                 return;
             }
 
@@ -1545,6 +1561,10 @@ var CLOUD_SYNC_API = (function() {
             _put('custom_questions', mergedCustom);
 
             _refreshUI();
+        }).catch(function(err) {
+            // Download failed — do NOT push local data up; an empty/partial local
+            // state could otherwise overwrite good cloud data. Leave cloud intact.
+            console.error('Cloud sync skipped (download failed):', err);
         });
     }
 
