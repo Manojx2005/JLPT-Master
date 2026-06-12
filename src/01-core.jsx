@@ -217,7 +217,48 @@ var UI_TRANSLATIONS = {
     'Continue as Guest': { vn: 'Tiếp tục với tư cách Khách', my: 'ဧည့်သည်အဖြစ် ဆက်လက်မည်', ja: 'ゲストとして続行' },
     'Could not load reviews:': { vn: 'Không thể tải đánh giá:', my: 'သုံးသပ်ချက်များ မဖွင့်နိုင်ပါ:', ja: 'レビューを読み込めませんでした：' },
     'Loading reviews…': { vn: 'Đang tải đánh giá…', my: 'သုံးသပ်ချက်များ ဖွင့်နေသည်…', ja: 'レビューを読み込み中…' },
-    'No reviews yet — be the first to leave one!': { vn: 'Chưa có đánh giá — hãy là người đầu tiên!', my: 'သုံးသပ်ချက် မရှိသေးပါ — ပထမဆုံးဖြစ်အောင် ရေးလိုက်ပါ!', ja: 'まだレビューがありません — 最初の一人になりましょう！' }
+    'No reviews yet — be the first to leave one!': { vn: 'Chưa có đánh giá — hãy là người đầu tiên!', my: 'သုံးသပ်ချက် မရှိသေးပါ — ပထမဆုံးဖြစ်အောင် ရေးလိုက်ပါ!', ja: 'まだレビューがありません — 最初の一人になりましょう！' },
+
+    // --- Hiragana / Katakana tab ---
+    'Hiragana & Katakana': { vn: 'Hiragana & Katakana', my: 'ဟီရာဂါနာနှင့် ခါတာကာနာ', ja: 'ひらがな・カタカナ' },
+    'Hiragana': { vn: 'Hiragana', my: 'ဟီရာဂါနာ', ja: 'ひらがな' },
+    'Katakana': { vn: 'Katakana', my: 'ခါတာကာနာ', ja: 'カタカナ' },
+    'Chart': { vn: 'Bảng chữ', my: 'ဇယား', ja: '一覧表' },
+    'How to write': { vn: 'Cách viết', my: 'ရေးနည်း', ja: '書き方' },
+    'Tap any character to hear it and see the stroke order. Switch to Quiz to test yourself.': { vn: 'Chạm vào ký tự bất kỳ để nghe phát âm và xem thứ tự nét. Chuyển sang Trắc nghiệm để tự kiểm tra.', my: 'အသံကြားရန်နှင့် ရေးသားပုံအဆင့်ဆင့်ကြည့်ရန် စာလုံးတစ်ခုခုကို တို့ပါ။ ကိုယ့်ကိုစစ်ရန် Quiz သို့ပြောင်းပါ။', ja: '文字をタップすると発音と書き順が見られます。クイズで腕試ししましょう。' },
+    'Basic (Gojŭon)': { vn: 'Cơ bản (Gojūon)', my: 'အခြေခံ (Gojūon)', ja: '基本（五十音）' },
+    'Voiced (Dakuten)': { vn: 'Âm đục (Dakuten)', my: 'အသံ (Dakuten)', ja: '濁音・半濁音' },
+    'Combinations (Yōon)': { vn: 'Âm ghép (Yōon)', my: 'ပေါင်းစပ်သံ (Yōon)', ja: '拗音' },
+    'Great Job!': { vn: 'Làm tốt lắm!', my: 'တော်လိုက်တာ!', ja: 'よくできました！' },
+    'Keep Practicing!': { vn: 'Hãy luyện tập thêm!', my: 'ဆက်လေ့ကျင့်ပါ!', ja: '練習を続けよう！' },
+    'correct': { vn: 'đúng', my: 'မှန်', ja: '正解' },
+    'Try Again': { vn: 'Thử lại', my: 'ထပ်ကြိုးစားမည်', ja: 'もう一度' },
+    'View Results': { vn: 'Xem kết quả', my: 'ရလဒ်များကြည့်မည်', ja: '結果を見る' },
+
+    // --- Navigation / shell ---
+    'Tap to replay': { vn: 'Chạm để phát lại', my: 'ပြန်ဖွင့်ရန် တို့ပါ', ja: 'タップで再生' },
+    'Back': { vn: 'Quay lại', my: 'နောက်သို့', ja: '戻る' },
+    'Scroll to top': { vn: 'Lên đầu trang', my: 'အပေါ်သို့တက်ရန်', ja: '上へ戻る' },
+    'Global Leaderboard': { vn: 'Bảng xếp hạng toàn cầu', my: 'ကမ္ဘာလုံးဆိုင်ရာ အဆင့်ဇယား', ja: 'グローバルランキング' },
+    'Your Rank': { vn: 'Hạng của bạn', my: 'သင့်အဆင့်', ja: 'あなたの順位' },
+
+    // --- Kanji search ---
+    'No kanji found for that word. Try a Japanese word or a kanji character.': { vn: 'Không tìm thấy kanji cho từ đó. Hãy thử một từ tiếng Nhật hoặc một ký tự kanji.', my: 'ထိုစကားလုံးအတွက် kanji မတွေ့ပါ။ ဂျပန်စကားလုံး သို့မဟုတ် kanji စာလုံးတစ်လုံး စမ်းကြည့်ပါ။', ja: 'その単語の漢字が見つかりません。日本語の単語か漢字を入力してください。' },
+    'Enter a kanji, a Japanese word, or a word in your language (e.g. "water") to see details for every kanji involved.': { vn: 'Nhập một kanji, một từ tiếng Nhật, hoặc một từ trong ngôn ngữ của bạn (ví dụ "nước") để xem chi tiết từng kanji.', my: 'kanji တစ်လုံး၊ ဂျပန်စကားလုံး သို့မဟုတ် သင့်ဘာသာစကားဖြင့် စကားလုံး (ဥပမာ "ရေ") ရိုက်ထည့်ပြီး kanji အသေးစိတ်ကြည့်ပါ။', ja: '漢字・日本語の単語・あなたの言語の単語（例：「water」）を入力すると、含まれる漢字の詳細が見られます。' },
+
+    // --- Study tab descriptions (previously English-only) ---
+    'Review vocabulary with spaced repetition. Cards you struggle with appear more often.': { vn: 'Ôn từ vựng bằng phương pháp lặp lại ngắt quãng. Những thẻ bạn hay sai sẽ xuất hiện nhiều hơn.', my: 'အကွာအဝေးပြန်လည်လေ့ကျင့်နည်းဖြင့် ဝေါဟာရကို ပြန်လေ့လာပါ။ ခက်ခဲသောကတ်များ ပိုမိုမကြာခဏ ပေါ်လာပါမည်။', ja: '間隔反復で単語を復習します。苦手なカードほど頻繁に出題されます。' },
+    'Master Japanese verb conjugations. Select forms to practice and test yourself.': { vn: 'Thành thạo cách chia động từ tiếng Nhật. Chọn các thể để luyện tập và tự kiểm tra.', my: 'ဂျပန်ကြိယာ ပြောင်းလဲပုံများကို ကျွမ်းကျင်အောင်လုပ်ပါ။ လေ့ကျင့်ရန် ပုံစံများရွေးပြီး ကိုယ့်ကိုစစ်ပါ။', ja: '日本語の動詞活用をマスターしましょう。練習する活用形を選んで腕試しできます。' },
+    'Essential Japanese grammar points organized by JLPT level.': { vn: 'Các điểm ngữ pháp tiếng Nhật thiết yếu, sắp xếp theo cấp độ JLPT.', my: 'JLPT အဆင့်အလိုက် စီစဉ်ထားသော မရှိမဖြစ် ဂျပန်သဒ္ဒါအချက်များ။', ja: 'JLPTレベル別に整理した必須の日本語文法ポイント。' },
+    'Select Level': { vn: 'Chọn cấp độ', my: 'အဆင့်ရွေးပါ', ja: 'レベルを選択' },
+    'Mode': { vn: 'Chế độ', my: 'မုဒ်', ja: 'モード' },
+    'Level': { vn: 'Cấp độ', my: 'အဆင့်', ja: 'レベル' },
+
+    // --- Dictionary tab (Jotoba) ---
+    'Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.': { vn: 'Tra cứu bất kỳ từ tiếng Nhật nào bằng tiếng Anh, kanji, hiragana hoặc katakana — sử dụng Jotoba.', my: 'အင်္ဂလိပ်၊ kanji၊ hiragana သို့မဟုတ် katakana ဖြင့် ဂျပန်စကားလုံးကို ရှာဖွေပါ — Jotoba သုံးထားသည်။', ja: '英語・漢字・ひらがな・カタカナで日本語の単語を検索（Jotoba を利用）。' },
+    'words available offline.': { vn: 'từ có sẵn ngoại tuyến.', my: 'စကားလုံးများ အော့ဖ်လိုင်းတွင် ရရှိနိုင်သည်။', ja: '語をオフラインで利用可能。' },
+    'Results from Jotoba': { vn: 'Kết quả từ Jotoba', my: 'Jotoba မှ ရလဒ်များ', ja: 'Jotoba からの結果' },
+    'Results from Local & Jotoba': { vn: 'Kết quả từ Cục bộ & Jotoba', my: 'Local နှင့် Jotoba မှ ရလဒ်များ', ja: 'ローカルと Jotoba からの結果' }
 };
 
 function t(englishText, lang) {

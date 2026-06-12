@@ -1,7 +1,7 @@
 import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
-import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchKanji, shuffleArray, t } from './01-core.jsx';
+import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchJisho, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 
 /* =================================================================
@@ -31,16 +31,48 @@ function KanjiTab(props) {
     var _showDraw = useState(false);
     var showDraw = _showDraw[0], setShowDraw = _showDraw[1]; // Handwriting panel visibility
 
+    var _replayKey = useState(0);
+    var replayKey = _replayKey[0], setReplayKey = _replayKey[1]; // Bump to restart stroke-order animation on tap
+
+    var KANJI_RE = /[\u4e00-\u9faf\u3400-\u4dbf]/g;
+
+    // Pull every kanji character out of a Japanese word string.
+    function extractKanji(str) {
+        return (str || '').match(KANJI_RE) || [];
+    }
+
     var doSearch = useCallback(async function () {
         var q = query.trim();
         if (!q) return;
 
+        setLoading(true);
+        setError('');
+        setResults([]);
+
         // Extract all Kanji characters using regex
-        var kanjiMatches = q.match(/[\u4e00-\u9faf\u3400-\u4dbf]/g);
+        var kanjiMatches = q.match(KANJI_RE);
+
+        // No kanji typed \u2192 treat the query as a word/meaning in ANY language.
+        // Translate it to English (handles Vietnamese, Burmese, etc.), find
+        // matching Japanese words in the dictionary, then collect their kanji.
         if (!kanjiMatches || kanjiMatches.length === 0) {
-            setError('Please enter a word containing at least one Kanji character.');
-            setResults([]);
-            return;
+            var enQuery = await translateToEnglishQuery(q);
+            var dictResults = await searchJisho(enQuery);
+            if (!dictResults || dictResults.length === 0) {
+                dictResults = searchMockDict(enQuery);
+            }
+            var collected = [];
+            (dictResults || []).forEach(function (r) {
+                extractKanji(r.word || r.kanji).forEach(function (k) {
+                    if (collected.indexOf(k) === -1) collected.push(k);
+                });
+            });
+            kanjiMatches = collected.slice(0, 8); // cap so a phrase doesn't flood results
+            if (kanjiMatches.length === 0) {
+                setError(t('No kanji found for that word. Try a Japanese word or a kanji character.', props.appLang));
+                setLoading(false);
+                return;
+            }
         }
 
         // Remove duplicates
@@ -50,10 +82,6 @@ function KanjiTab(props) {
                 uniqueKanji.push(kanjiMatches[i]);
             }
         }
-
-        setLoading(true);
-        setError('');
-        setResults([]);
 
         var promises = uniqueKanji.map(async function (k) {
             // Kick off both requests concurrently instead of waiting for
@@ -119,9 +147,15 @@ function KanjiTab(props) {
 
         return createElement('div', { key: idx, className: 'dict-result', style: { marginBottom: '16px' } },
             createElement('div', { style: { display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' } },
-                // Large Character Display
-                createElement('div', { className: 'kanji-large-display', style: { position: 'relative' } },
-                    res.svg ? createElement('div', { dangerouslySetInnerHTML: { __html: sanitizeHTML(res.svg) }, className: 'kanji-svg-container' }) : res.kanji,
+                // Large Character Display — tap anywhere to replay the
+                // reading (and restart the stroke-order animation via key).
+                createElement('div', {
+                    className: 'kanji-large-display',
+                    style: { position: 'relative', cursor: 'pointer' },
+                    onClick: function () { playAudio(res.kanji); setReplayKey(function (n) { return n + 1; }); },
+                    title: t('Tap to replay', props.appLang)
+                },
+                    res.svg ? createElement('div', { key: replayKey, dangerouslySetInnerHTML: { __html: sanitizeHTML(res.svg) }, className: 'kanji-svg-container' }) : res.kanji,
                     createElement('div', { style: { position: 'absolute', top: 8, right: 8, display: 'flex', flexDirection: 'column', gap: 4 } },
                         createElement(AudioButton, { text: res.kanji }),
                         props.toggleSavedWord ? createElement(SaveButton, {
@@ -160,13 +194,13 @@ function KanjiTab(props) {
 
     return createElement('div', { className: 'glass-card', key: 'kanji' },
         createElement('h2', { className: 'section-title' }, t('Kanji Search', props.appLang)),
-        createElement('p', { className: 'section-desc' }, 'Enter a Kanji or a Japanese word to see detailed information for all Kanji used in it.'),
+        createElement('p', { className: 'section-desc' }, t('Enter a kanji, a Japanese word, or a word in your language (e.g. "water") to see details for every kanji involved.', props.appLang)),
 
         createElement('div', { className: 'input-row' },
             createElement('input', {
                 className: 'input-field',
                 type: 'text',
-                placeholder: 'e.g. 食べる, 水, 飛行機...',
+                placeholder: 'e.g. 食べる, 水, water, eau...',
                 value: query,
                 onChange: function (e) { setQuery(e.target.value); },
                 onKeyDown: handleKey,
@@ -180,7 +214,7 @@ function KanjiTab(props) {
                 className: 'btn btn--primary',
                 onClick: doSearch,
                 disabled: loading,
-            }, loading ? 'Searching\u2026' : 'Search')
+            }, loading ? t('Searching\u2026', props.appLang) : t('Search', props.appLang))
         ),
         showDraw ? createElement(HandwritingInput, {
             onSelect: function (char) { setQuery(function (q) { return q + char; }); },
@@ -808,12 +842,12 @@ function FlashcardTab(props) {
 
     return createElement('div', { className: 'glass-card' },
         createElement('h2', { className: 'section-title' }, '🃏 ' + t('Flashcards', props.appLang)),
-        createElement('p', { className: 'section-desc' }, 'Review vocabulary with spaced repetition. Cards you struggle with appear more often.'),
+        createElement('p', { className: 'section-desc' }, t('Review vocabulary with spaced repetition. Cards you struggle with appear more often.', props.appLang)),
 
-        createElement('h3', { className: 'setup-label' }, 'Select Level'),
+        createElement('h3', { className: 'setup-label' }, t('Select Level', props.appLang)),
         createElement('div', { className: 'level-selector' }, levelBtns),
 
-        createElement('h3', { className: 'setup-label' }, 'Mode'),
+        createElement('h3', { className: 'setup-label' }, t('Mode', props.appLang)),
         createElement('div', { className: 'mode-selector' }, modeBtns),
 
         dueCount > 0 ? createElement('p', { style: { textAlign: 'center', color: 'var(--accent-amber)', marginTop: 12 } },
@@ -1003,9 +1037,9 @@ function ConjugationTab(props) {
 
     return createElement('div', { className: 'glass-card' },
         createElement('h2', { className: 'section-title' }, t('Conjugation Practice', props.appLang)),
-        createElement('p', { className: 'section-desc' }, 'Master Japanese verb conjugations. Select forms to practice and test yourself.'),
+        createElement('p', { className: 'section-desc' }, t('Master Japanese verb conjugations. Select forms to practice and test yourself.', props.appLang)),
 
-        createElement('h3', { className: 'setup-label' }, 'Level'),
+        createElement('h3', { className: 'setup-label' }, t('Level', props.appLang)),
         createElement('div', { className: 'level-selector' }, levelBtns),
 
         createElement('h3', { className: 'setup-label' }, 'Select Forms to Practice'),
@@ -1108,7 +1142,7 @@ function GrammarTab(props) {
 
     return createElement('div', { className: 'glass-card' },
         createElement('h2', { className: 'section-title' }, t('Grammar Reference', props.appLang)),
-        createElement('p', { className: 'section-desc' }, 'Essential Japanese grammar points organized by JLPT level.'),
+        createElement('p', { className: 'section-desc' }, t('Essential Japanese grammar points organized by JLPT level.', props.appLang)),
 
         createElement('div', { className: 'level-selector' }, levelBtns),
 

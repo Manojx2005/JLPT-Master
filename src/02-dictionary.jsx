@@ -348,10 +348,10 @@ function DictionaryTab(props) {
 
         // Result count header
         var sourceLabel = searchSource === 'jisho'
-            ? 'Results from Jisho.org'
+            ? t('Results from Jotoba', props.appLang)
             : searchSource === 'mixed'
-                ? 'Results from Local & Jisho.org'
-                : 'Results from offline dictionary (' + MOCK_DICT.length + ' words)';
+                ? t('Results from Local & Jotoba', props.appLang)
+                : t('Results from offline dictionary', props.appLang) + ' (' + MOCK_DICT.length + ')';
 
         resultEls = createElement('div', { className: 'dict-results-container' },
             createElement('div', { className: 'dict-results__header' },
@@ -426,7 +426,8 @@ function DictionaryTab(props) {
     return createElement('div', { className: 'glass-card', key: 'dict' },
         createElement('h2', { className: 'section-title' }, t('Dictionary Search', props.appLang)),
         createElement('p', { className: 'section-desc' },
-            'Search any Japanese word in English, Kanji, Hiragana, or Katakana. Powered by Jisho.org with ' + MOCK_DICT.length + ' words available offline.'
+            t('Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.', props.appLang) +
+            ' ' + MOCK_DICT.length + ' ' + t('words available offline.', props.appLang)
         ),
         // Search input row (text field + search button)
         createElement('div', { className: 'input-row' },

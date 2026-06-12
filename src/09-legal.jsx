@@ -50,7 +50,7 @@ function PrivacyTab(props) {
         section('4. Third-Party Services',
             createElement('ul', { className: 'legal-ul' },
                 li('Google Firebase (authentication and database) — subject to Google’s Privacy Policy.'),
-                li('Jisho.org and related public dictionary APIs — your search terms are sent to these services to fetch definitions.'),
+                li('Jotoba, Google Translate, kanjiapi.dev, KanjiVG and related public dictionary APIs — your search terms are sent to these services to fetch definitions, translations, and stroke-order diagrams.'),
                 li('Google Fonts — fonts are loaded from Google’s servers.'),
                 li('Your browser’s built-in speech synthesis is used for pronunciation; no audio is recorded or transmitted by us.'))),
 

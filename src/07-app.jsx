@@ -9,6 +9,7 @@ import { GrammarQuizTab, HeaderLoginWidget, LanguageSelector, MockExamTab, PDFEx
 import { MultiplayerTab } from './06-multiplayer.jsx';
 import { ReviewsTab } from './08-reviews.jsx';
 import { PrivacyTab } from './09-legal.jsx';
+import { KanaTab } from './11-kana.jsx';
 
 /* =================================================================
    JLPT Master — Root App component, ErrorBoundary, and mount logic
@@ -23,6 +24,7 @@ import { PrivacyTab } from './09-legal.jsx';
 var NAV_ICON_PATHS = {
     dict: ['M12 7v14', 'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z'],
     kanji: ['m5 8 6 6', 'm4 14 6-6 2-3', 'M2 5h12', 'M7 2h1', 'm22 22-5-10-5 10', 'M14 18h6'],
+    kana: ['M4 5h16', 'M9 3v2', 'M7 9c0 4-1 8-4 10', 'M7 9c2 0 6 .5 6 4 0 2-1 3-2.5 3S8 18 8 16.5c0-2 2-3 5-3 3 0 5 1.5 5 4', 'M20 9h-5'],
     grammar: ['m6 16 6-12 6 12', 'M8 12h8', 'm16 20 2 2 4-4'],
     grammarquiz: ['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z', 'M14 2v4a2 2 0 0 0 2 2h4', 'm9 15 2 2 4-4'],
     quiz: ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', 'M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z', 'M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'],
@@ -57,6 +59,9 @@ function App() {
     // --- State ---
     var _tab = useState('dict');
     var tab = _tab[0], setTab = _tab[1];              // Active tab
+
+    var _tabHistory = useState([]);
+    var tabHistory = _tabHistory[0], setTabHistory = _tabHistory[1]; // Stack of visited tabs for the Back button
 
     var _isSidebarExpanded = useState(true);
     var isSidebarExpanded = _isSidebarExpanded[0], setIsSidebarExpanded = _isSidebarExpanded[1];
@@ -129,6 +134,7 @@ function App() {
     var indicatorStyle = _indicatorStyle[0], setIndicatorStyle = _indicatorStyle[1];
 
     var navScrollRef = useRef(null);
+    var mainRef = useRef(null);   // <main> scroll container — used to jump back to top
     var isDown = useRef(false);
     var startX = useRef(0);
     var scrollLeft = useRef(0);
@@ -262,7 +268,10 @@ function App() {
         return function () { window.removeEventListener('keydown', handleKeyDown); };
     }, []);
 
-    function switchTab(newTab) {
+    function switchTab(newTab, skipHistory) {
+        if (newTab === tab) { scrollToTop(); return; } // re-tapping current tab → jump to top
+        // Remember where we came from so the Back button can return there.
+        if (!skipHistory) setTabHistory(function (h) { return h.concat([tab]); });
         var oldIdx = TAB_ORDER.indexOf(tab);
         var newIdx = TAB_ORDER.indexOf(newTab);
         var goingRight = newIdx > oldIdx;
@@ -271,7 +280,22 @@ function App() {
             setTab(newTab);
             setTabAnim(goingRight ? 'tab-enter' : 'tab-enter tab-enter--left');
             setTimeout(function () { setTabAnim(''); }, 300);
+            scrollToTop();
         }, 150);
+    }
+
+    // Pop the history stack and return to the previous tab.
+    function goBack() {
+        if (tabHistory.length === 0) return;
+        var prev = tabHistory[tabHistory.length - 1];
+        setTabHistory(function (h) { return h.slice(0, -1); });
+        switchTab(prev, true); // skipHistory: don't re-push when going back
+    }
+
+    // Smoothly scroll the main content back to the top.
+    function scrollToTop() {
+        if (mainRef.current) mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function toggleTheme() {
@@ -293,7 +317,7 @@ function App() {
     var allQuestions = JLPT_VOCAB.concat(customQs);
 
     // Tab order — used for directional slide transitions
-    var TAB_ORDER = ['dict', 'kanji', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'conj', 'multi', 'dash', 'leader', 'saved', 'reviews', 'custom'];
+    var TAB_ORDER = ['dict', 'kanji', 'kana', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'conj', 'multi', 'dash', 'leader', 'saved', 'reviews', 'custom'];
 
     // SRS due count for Flashcards badge
     var srsDueCount = useMemo(function () {
@@ -431,6 +455,7 @@ function App() {
         { header: 'Study', id: 'header_study' },
         { id: 'dict', label: '📖', full: 'Dictionary' },
         { id: 'kanji', label: '✍️', full: 'Kanji' },
+        { id: 'kana', label: 'あ', full: 'Hiragana & Katakana' },
         { id: 'grammar', label: '📐', full: 'Grammar' },
         { header: 'Tests', id: 'header_tests' },
         { id: 'grammarquiz', label: '📝', full: 'Grammar Test' },
@@ -497,6 +522,7 @@ function App() {
         appLang: appLang,
         showFurigana: showFurigana
     });
+    if (tab === 'kana') activeTab = createElement(KanaTab, { appLang: appLang });
     if (tab === 'conj') activeTab = createElement(ConjugationTab, { appLang: appLang });
     if (tab === 'grammar') activeTab = createElement(GrammarTab, { appLang: appLang });
     if (tab === 'dash') activeTab = createElement(DashboardTab, { setTab: switchTab, appLang: appLang });
@@ -653,15 +679,33 @@ function App() {
             createElement('nav', { className: 'sidebar-nav' }, tabBtns)
         ),
         // Main Content Area
-        createElement('main', { className: 'app-main' },
+        createElement('main', { className: 'app-main', ref: mainRef },
             // Slim contextual page header: page title left, controls right.
             createElement('header', { className: 'page-header' },
-                createElement('div', { className: 'page-header__heading' },
-                    createElement('h1', { className: 'page-header__title' },
-                        t(activeTabMeta.full, appLang)),
-                    createElement('p', { className: 'page-header__sub' },
-                        'JLPT Master \u00b7 ' + JLPT_VOCAB.length + ' words' +
-                        (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : ''))
+                createElement('div', { className: 'page-header__heading', style: { display: 'flex', alignItems: 'center', gap: '12px' } },
+                    tabHistory.length > 0 ? createElement('button', {
+                        className: 'page-header__back',
+                        onClick: goBack,
+                        title: t('Back', appLang),
+                        'aria-label': t('Back', appLang)
+                    },
+                        createElement('svg', {
+                            width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none',
+                            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round'
+                        }, createElement('path', { d: 'm15 18-6-6 6-6' }))
+                    ) : null,
+                    createElement('div', { style: { minWidth: 0 } },
+                        // Clicking the title scrolls the current tab back to the top.
+                        createElement('h1', {
+                            className: 'page-header__title',
+                            onClick: scrollToTop,
+                            style: { cursor: 'pointer' },
+                            title: t('Scroll to top', appLang)
+                        }, t(activeTabMeta.full, appLang)),
+                        createElement('p', { className: 'page-header__sub' },
+                            'JLPT Master \u00b7 ' + JLPT_VOCAB.length + ' words' +
+                            (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : ''))
+                    )
                 ),
                 createElement('div', { className: 'app-controls-bar__actions page-header__actions' },
                     createElement('button', {
