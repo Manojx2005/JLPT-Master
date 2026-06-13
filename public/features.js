@@ -1163,7 +1163,7 @@ var GRAMMAR_DATA = [
    ================================================================= */
 var AUTH = (function() {
     var firebaseConfig = {
-        apiKey: "AIzaSyBsgPvl13XX0lLBvzmXQN17rFbRGfg8rE8",
+        apiKey: "AIzaSyAC3r0zXyyVD0sAJ_ddZCFO00o71cgY8dA",
         authDomain: "jlpt-master-4cbf2.firebaseapp.com",
         databaseURL: "https://jlpt-master-4cbf2-default-rtdb.firebaseio.com",
         projectId: "jlpt-master-4cbf2",
@@ -1178,17 +1178,96 @@ var AUTH = (function() {
     var provider = null;
 
     if (typeof firebase !== 'undefined') {
-        app = firebase.initializeApp(firebaseConfig);
-        auth = firebase.auth();
-        provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            if (!firebase.apps.length) {
+                app = firebase.initializeApp(firebaseConfig);
+            } else {
+                app = firebase.app();
+            }
+            auth = firebase.auth();
+            provider = new firebase.auth.GoogleAuthProvider();
+
+            // In the Capacitor native WebView the Firebase JS Auth SDK's default
+            // IndexedDB-backed persistence can stall, leaving signInWithCredential
+            // hanging forever — the native sign-in succeeds but the bridge to the
+            // JS SDK never resolves, so the app's auth state never flips. In-memory
+            // persistence avoids IndexedDB entirely and lets the bridge complete.
+            // The native FirebaseAuthentication plugin is the durable source of
+            // truth across restarts, so dropping JS-SDK persistence here is fine.
+            var _isNative = window.Capacitor &&
+                typeof window.Capacitor.isNativePlatform === 'function' &&
+                window.Capacitor.isNativePlatform();
+            if (_isNative && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+                auth.setPersistence(firebase.auth.Auth.Persistence.NONE)
+                    .catch(function (e) { console.warn("[AUTH] setPersistence(NONE) failed:", e); });
+            }
+        } catch (e) {
+            console.error("[AUTH] Firebase init error:", e);
+        }
     }
 
     function signIn() {
+        var isNative = window.Capacitor && (window.Capacitor.getPlatform() === 'android' || window.Capacitor.getPlatform() === 'ios');
+        console.log("[AUTH] v2 signIn called. isNative:", isNative);
+
+        if (isNative) {
+            var FirebaseAuthentication = window.Capacitor.Plugins.FirebaseAuthentication || window.Capacitor.Plugins.CapacitorFirebaseAuthentication;
+            if (FirebaseAuthentication) {
+                console.log("[AUTH] Using native FirebaseAuthentication plugin");
+                return FirebaseAuthentication.signInWithGoogle({
+                    webClientId: "99961338444-f27us1hbscomipivb6ai9i5pks8die8c.apps.googleusercontent.com"
+                })
+                    .then(function(result) {
+                        console.log("[AUTH] Native success. result:", JSON.stringify(result));
+                        var idToken = (result.credential && result.credential.idToken) || result.idToken;
+
+                        if (typeof firebase !== 'undefined' && idToken) {
+                            console.log("[AUTH] Bridging to web SDK...");
+                            var credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+                            // Guard the bridge: if the JS SDK ever stalls again,
+                            // surface a clear error instead of a frozen sign-in.
+                            var _bridge = auth.signInWithCredential(credential);
+                            var _guard = new Promise(function (_, reject) {
+                                setTimeout(function () {
+                                    reject(new Error("Web SDK bridge timed out after 12s"));
+                                }, 12000);
+                            });
+                            return Promise.race([_bridge, _guard])
+                                .then(function(webResult) {
+                                    console.log("[AUTH] Web SDK bridge SUCCESS for:", webResult.user.email);
+                                    return webResult.user;
+                                })
+                                .catch(function(err) {
+                                    console.error("[AUTH] Web SDK bridge FAILED:", err);
+                                    alert("Firebase Bridge Error: " + err.message);
+                                    return result.user;
+                                });
+                        } else if (!idToken) {
+                            console.error("[AUTH] No idToken returned from native login");
+                            alert("Native login succeeded but no idToken was provided. Check Firebase Console / SHA-1.");
+                        }
+                        return result.user;
+                    })
+                    .catch(function(error) {
+                        console.error("[AUTH] Native Google Sign-In Error:", error);
+                        var msg = error.message || (typeof error === 'string' ? error : JSON.stringify(error));
+                        if (error.code !== 'unauthenticated' && error.message !== 'canceled') {
+                            alert("Native Login failed: " + msg);
+                        }
+                        throw error;
+                    });
+            } else {
+                console.warn("[AUTH] Capacitor detected but FirebaseAuthentication plugin not found on window.Capacitor.Plugins");
+                alert("Auth Plugin Error: FirebaseAuthentication plugin not found.");
+            }
+        }
+
+        console.log("[AUTH] Falling back to web signInWithPopup");
         if (!auth) return Promise.reject('Firebase not loaded');
         return auth.signInWithPopup(provider).then(function(result) {
             return result.user;
         }).catch(function(error) {
-            console.error("Google Sign-In Error:", error);
+            console.error("[AUTH] Web Google Sign-In Error:", error);
             throw error;
         });
     }
@@ -1204,6 +1283,12 @@ var AUTH = (function() {
     }
 
     function signOut() {
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+            var FirebaseAuthentication = window.Capacitor.Plugins.FirebaseAuthentication;
+            if (FirebaseAuthentication) {
+                FirebaseAuthentication.signOut();
+            }
+        }
         if (!auth) return Promise.resolve();
         return auth.signOut();
     }

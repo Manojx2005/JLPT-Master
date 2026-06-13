@@ -440,6 +440,19 @@ function DictionaryTab(props) {
                 onChange: function (e) { setQuery(e.target.value); },
                 onKeyDown: handleKey,
             }),
+            // One-tap clear: wipes the typed word and any results, then refocuses
+            // the field. Only shown when there's something to clear.
+            query ? createElement('button', {
+                className: 'btn btn--outline dict-clear-btn',
+                title: 'Clear',
+                'aria-label': 'Clear search',
+                onClick: function () {
+                    setQuery('');
+                    setResults(null);
+                    var el = document.getElementById('dict-search-input');
+                    if (el) el.focus();
+                },
+            }, '\u2715') : null,
             createElement('button', {
                 className: 'btn btn--outline',
                 title: 'Draw a kanji to search',

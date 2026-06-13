@@ -5790,3 +5790,298 @@ a, button, .btn, .nav-tab, .bottom-nav__item, .quiz-option,
 .legal-li::marker {
     color: var(--primary);
 }
+
+/* ===================================================================
+   NATIVE MOBILE LAYER (Wave 1 redesign)
+   Makes the Capacitor build feel like a real Android app: safe-area
+   awareness, tactile press states, momentum scrolling, and motion that
+   respects the OS "reduce motion" setting. Layered at the end so it
+   overrides the web defaults without touching the existing rules.
+   =================================================================== */
+
+/* App-like touch behavior: kill the blue tap flash, the pull-to-refresh
+   glow, and accidental text selection on chrome — but keep selection in
+   actual reading content (dictionary entries, examples, etc.). */
+html, body {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+}
+.app-wrapper, .bottom-nav, .sidebar, .page-header, .more-sheet,
+button, .nav-tab, .bottom-nav__item, .more-sheet__item {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Smooth, momentum-based scrolling for the main content column. */
+.app-main {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* --- Safe-area insets (notch, punch-hole, gesture nav bar) --- */
+.bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+}
+.more-sheet {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+}
+.page-header {
+    padding-top: calc(env(safe-area-inset-top, 0px));
+}
+.app-main {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* --- Tactile press states (paired with the haptic tick) --- */
+.bottom-nav__item {
+    transition: transform var(--transition-fast), color var(--transition-fast);
+}
+.bottom-nav__item:active {
+    transform: scale(0.9);
+}
+.bottom-nav__item--active .bottom-nav__icon {
+    transform: translateY(-1px);
+}
+.nav-tab:active,
+.more-sheet__item:active {
+    transform: scale(0.97);
+}
+button:active {
+    transform: scale(0.98);
+}
+/* Don't shrink full-width/large layout buttons — only interactive chips. */
+.btn-large:active, .btn-full:active { transform: none; }
+
+/* --- Bottom sheet: spring the panel up instead of a flat slide --- */
+.more-sheet {
+    transition: transform var(--transition-spring), opacity var(--transition-fast);
+}
+
+/* --- Honor the OS "reduce motion" accessibility setting --- */
+@media (prefers-reduced-motion: reduce) {
+    .tab-enter, .tab-enter--left, .tab-exit, .tab-exit--right {
+        animation: none !important;
+        transition: opacity 0.12s linear !important;
+        transform: none !important;
+    }
+    .bottom-nav__item:active, .nav-tab:active,
+    .more-sheet__item:active, button:active {
+        transform: none;
+    }
+    * { scroll-behavior: auto !important; }
+}
+
+/* ===================================================================
+   WAVE 2 — VISUAL REFRESH (shared primitives)
+   Modernizes the design language at the token + shared-component level so
+   every tab lifts at once: softer radii, layered depth, refined buttons,
+   inputs, cards, and a cohesive warm-toned glass bottom nav. Appended last
+   so it supersedes the originals without editing them. The ink/vermillion
+   identity is preserved — this is polish, not a new palette.
+   =================================================================== */
+:root {
+    /* Softer, more contemporary rounding across cards/inputs/buttons */
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 9px;
+    --radius-xs: 5px;
+    /* Layered, tactile elevation — two-stop shadows read as real depth */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 1px rgba(0, 0, 0, 0.22);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.30), 0 2px 4px rgba(0, 0, 0, 0.22);
+    --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.42), 0 6px 14px rgba(0, 0, 0, 0.28);
+}
+
+/* Cards: subtle top-lit surface gradient + softer, deeper lift, and the
+   brand thread upgraded to a vermillion→gold sweep that hugs the radius. */
+.glass-card {
+    background: linear-gradient(180deg, var(--bg-card-hover) 0%, var(--bg-card) 44%);
+    box-shadow: var(--shadow-md);
+}
+.glass-card::before {
+    height: 3px;
+    opacity: 1;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* Primary button: gentle vertical gradient, inner highlight, crisper press. */
+.btn--primary {
+    background: linear-gradient(180deg, var(--primary) 0%, var(--primary-deep) 100%);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.btn--primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--primary) 0%, var(--primary-deep) 90%);
+    box-shadow: 0 6px 18px rgba(var(--primary-rgb), 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Inputs: a touch taller with a calmer single focus ring. */
+.input-field {
+    padding: 15px 18px;
+}
+.input-field:focus {
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+/* Bottom nav (dark): cohesive warm tone + glass blur + animated active pill.
+   Light mode keeps its own (more specific) rule, so this only touches dark. */
+@media (max-width: 800px) {
+    .bottom-nav {
+        height: 66px;
+        background: rgba(30, 26, 20, 0.86);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        backdrop-filter: blur(18px) saturate(1.2);
+        border-top: 1px solid var(--border-glass);
+        box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.40);
+    }
+}
+.bottom-nav__icon {
+    transition: background var(--transition-fast), transform var(--transition-spring);
+}
+.bottom-nav__item--active .bottom-nav__icon {
+    background: rgba(var(--primary-rgb), 0.16);
+    transform: translateY(-1px);
+}
+/* Accent bar that marks the active tab. */
+.bottom-nav__item--active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 24px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--primary);
+    transform: translateX(-50%);
+}
+
+/* ===================================================================
+   DYNAMIC ISLAND BOTTOM NAV (mobile)
+   A floating, detached glass capsule with a spring-animated blob that
+   slides under the active tab — the look/feel of Apple's Dynamic Island.
+   =================================================================== */
+@media (max-width: 800px) {
+    .bottom-nav {
+        /* Detach from the screen edges and float as a centered capsule. */
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+        width: calc(100% - 28px);
+        max-width: 440px;
+        height: 62px;
+        padding: 6px;
+        gap: 0;
+        border-radius: 999px;
+        background: rgba(24, 21, 16, 0.72);
+        -webkit-backdrop-filter: blur(22px) saturate(1.5);
+        backdrop-filter: blur(22px) saturate(1.5);
+        border: 1px solid rgba(237, 224, 201, 0.10);
+        box-shadow:
+            0 14px 44px rgba(0, 0, 0, 0.55),
+            0 4px 12px rgba(0, 0, 0, 0.40),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        overflow: visible;
+    }
+
+    /* The morphing blob: one slot wide, slides between tabs with a spring. */
+    .bottom-nav__blob {
+        position: absolute;
+        top: 6px;
+        bottom: 6px;
+        left: 6px;
+        width: calc((100% - 12px) / var(--nav-count, 5));
+        border-radius: 999px;
+        background: linear-gradient(180deg, var(--primary), var(--primary-deep));
+        box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        transform: translateX(calc(var(--nav-active, 0) * 100%));
+        transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.5, 1), opacity 0.25s ease;
+        z-index: 0;
+        will-change: transform;
+    }
+    /* No bottom tab represents the current screen → tuck the blob away. */
+    .bottom-nav--noblob .bottom-nav__blob {
+        opacity: 0;
+        transform: translateX(calc(var(--nav-active, 0) * 100%)) scale(0.5);
+    }
+
+    /* Items ride above the blob; the blob provides the active fill, so the
+       old per-icon background and accent bar are retired in island mode. */
+    .bottom-nav__item {
+        z-index: 1;
+        min-height: 0;
+        min-width: 0;
+        border-radius: 999px;
+        padding: 6px 2px;
+    }
+    .bottom-nav__item--active {
+        color: #fff;
+    }
+    .bottom-nav__item--active .bottom-nav__icon {
+        background: transparent;
+        transform: none;
+    }
+    .bottom-nav__item--active::after {
+        display: none;
+    }
+    .bottom-nav__icon {
+        height: 24px;
+    }
+    .bottom-nav__label {
+        font-size: 0.6rem;
+    }
+    .bottom-nav__item--active .bottom-nav__label {
+        font-weight: 700;
+    }
+
+    /* --- "More" as an extension of the island ---
+       Instead of a separate bottom sheet, the More panel is a floating glass
+       card that springs up directly above the capsule, matching its width and
+       material — so it reads as the island expanding, not a modal. */
+    .more-sheet {
+        top: auto;
+        right: auto;
+        left: 50%;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 12px + 62px + 10px);
+        width: calc(100% - 28px);
+        max-width: 440px;
+        max-height: 60vh;
+        padding: 10px;
+        transform-origin: bottom center;
+        transform: translateX(-50%) translateY(14px) scale(0.86);
+        opacity: 0;
+        pointer-events: none;
+        border: 1px solid rgba(237, 224, 201, 0.10);
+        border-radius: 28px;
+        background: rgba(24, 21, 16, 0.82);
+        -webkit-backdrop-filter: blur(22px) saturate(1.5);
+        backdrop-filter: blur(22px) saturate(1.5);
+        box-shadow:
+            0 18px 50px rgba(0, 0, 0, 0.58),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        transition: transform 0.42s cubic-bezier(0.34, 1.4, 0.5, 1), opacity 0.25s ease;
+    }
+    .more-sheet--open {
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    /* No drag handle — this isn't a bottom sheet anymore. */
+    .more-sheet__handle {
+        display: none;
+    }
+    .more-sheet__grid {
+        gap: 6px;
+        padding: 4px;
+    }
+    .more-sheet__item {
+        border-radius: 18px;
+        padding: 12px 8px;
+    }
+    /* Backdrop: a light, quick dim — the panel is the focus, not a modal veil. */
+    .more-sheet-backdrop {
+        background: rgba(0, 0, 0, 0.30);
+    }
+}

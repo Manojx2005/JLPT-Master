@@ -2,5 +2,29 @@
   "appId": "com.jlptmaster.app",
   "appName": "JLPT Master",
   "webDir": "dist",
-  "backgroundColor": "#17140F"
+  "backgroundColor": "#17140F",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"],
+      "google": {
+        "webClientId": "99961338444-f27us1hbscomipivb6ai9i5pks8die8c.apps.googleusercontent.com"
+      }
+    },
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": false,
+      "backgroundColor": "#17140F",
+      "androidSpinnerStyle": "small",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#17140F",
+      "overlaysWebView": false
+    },
+    "Keyboard": {
+      "resize": "native"
+    }
+  }
 }

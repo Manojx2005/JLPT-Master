@@ -5,10 +5,31 @@ import { App, ErrorBoundary } from './07-app.jsx';
 import { _localDataMissing } from './01-core.jsx';
 const createElement = React.createElement;
 
-// Register the PWA service worker in production web builds (makes the app
-// installable + offline-capable). Skipped in dev so it never interferes with
-// Vite HMR. Harmless inside the Capacitor shell.
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+// Service worker policy differs by platform:
+//  - Web/PWA (prod): register sw.js for installability + offline.
+//  - Native (Capacitor): NEVER register. Assets are already bundled and served
+//    locally, so a SW adds nothing — but it caches features.js/index.html under
+//    a fixed key and shadows every new build after a reinstall (the WebView
+//    profile, hence the SW, survives APK reinstalls). That stale cache is why
+//    code changes appeared to do nothing on device. Proactively unregister any
+//    SW + delete any caches left behind by older builds so the WebView always
+//    runs the freshly-bundled code.
+var isNativeShell = !!(window.Capacitor &&
+    typeof window.Capacitor.isNativePlatform === 'function' &&
+    window.Capacitor.isNativePlatform());
+
+if (isNativeShell) {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+            .then(function (regs) { regs.forEach(function (r) { r.unregister(); }); })
+            .catch(function () {});
+    }
+    if (window.caches && caches.keys) {
+        caches.keys()
+            .then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); })
+            .catch(function () {});
+    }
+} else if ('serviceWorker' in navigator && import.meta.env.PROD) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('./sw.js').catch(function () {});
     });

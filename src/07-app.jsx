@@ -226,6 +226,8 @@ function App() {
             document.documentElement.classList.remove('light-mode');
             localStorage.setItem('jlpt_theme', 'dark');
         }
+        // Keep the native status bar in sync with the theme (no-op on web).
+        if (window.NativeUX) window.NativeUX.setStatusBarTheme(isLightMode);
     }, [isLightMode]);
 
     useEffect(function () {
@@ -272,6 +274,8 @@ function App() {
 
     function switchTab(newTab, skipHistory) {
         if (newTab === tab) { scrollToTop(); return; } // re-tapping current tab → jump to top
+        // Subtle native tap feedback on navigation (no-op on web).
+        if (window.NativeUX) window.NativeUX.haptic('light');
         // Remember where we came from so the Back button can return there.
         if (!skipHistory) setTabHistory(function (h) { return h.concat([tab]); });
         var oldIdx = TAB_ORDER.indexOf(tab);
@@ -587,7 +591,25 @@ function App() {
         return !t.header && BOTTOM_PRIMARY.indexOf(t.id) === -1;
     });
 
-    var bottomNav = createElement('nav', { className: 'bottom-nav', 'aria-label': 'Navigation' },
+    // Which slot the sliding "Dynamic Island" blob sits under. -1 means the
+    // current tab isn't one of the bottom items (a hidden/More tab) and the
+    // sheet is closed, so the blob hides instead of pointing at the wrong slot.
+    var bottomActiveIdx = moreSheetOpen ? (BOTTOM_NAV_ITEMS.length - 1) : -1;
+    if (!moreSheetOpen) {
+        for (var bi = 0; bi < BOTTOM_NAV_ITEMS.length; bi++) {
+            if (BOTTOM_NAV_ITEMS[bi].id === tab) { bottomActiveIdx = bi; break; }
+        }
+    }
+
+    var bottomNav = createElement('nav', {
+        className: 'bottom-nav' + (bottomActiveIdx < 0 ? ' bottom-nav--noblob' : ''),
+        'aria-label': 'Navigation',
+        style: {
+            '--nav-active': bottomActiveIdx < 0 ? 0 : bottomActiveIdx,
+            '--nav-count': BOTTOM_NAV_ITEMS.length
+        }
+    },
+        createElement('span', { className: 'bottom-nav__blob', 'aria-hidden': true }),
         BOTTOM_NAV_ITEMS.map(function (item) {
             var isMore = item.id === 'more';
             var isActive = isMore ? moreSheetOpen : tab === item.id;

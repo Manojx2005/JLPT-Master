@@ -4,3 +4,17 @@ dist/
 Thumbs.db
 *.log
 .claude/
+
+# IDE
+.idea/
+
+# Claude project memory (local only)
+memory/
+
+# Firebase native config — secret, per-developer, never publish
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
+
+# iOS CocoaPods build artifacts
+ios/App/Pods/
+ios/App/App/public/

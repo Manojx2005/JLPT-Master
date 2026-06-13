@@ -816,6 +816,12 @@ function playAudio(text, url) {
 }
 
 function playTTS(text) {
+    // On native (Capacitor) the WebView's speechSynthesis has no Japanese
+    // voice — delegate to the device TTS engine. Falls through to Web Speech
+    // on web/PWA, where speak() returns false.
+    if (window.NativeUX && window.NativeUX.speak && window.NativeUX.speak(text, { rate: 0.9 })) {
+        return;
+    }
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     var msg = new SpeechSynthesisUtterance(text);
