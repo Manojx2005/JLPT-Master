@@ -6244,3 +6244,43 @@ button:active {
     padding: 4px;
     line-height: 1;
 }
+
+/* ===================================================================
+   FIX: long account names must not widen the layout
+   A long Google display name with no wrapping caused horizontal overflow,
+   which on mobile WebViews breaks position:fixed — the bottom nav then
+   scrolls away. Clamp the name to an ellipsis, let flex ancestors shrink,
+   hard-clip horizontal overflow, and anchor the floating island to the
+   viewport width so it can never be pushed off.
+   =================================================================== */
+html { overflow-x: hidden; }
+
+.login-widget,
+.login-widget__btn {
+    min-width: 0;
+    max-width: 100%;
+}
+.login-widget__name {
+    display: inline-block;
+    max-width: clamp(70px, 30vw, 200px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.login-widget__dropdown-name {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.page-header,
+.page-header__heading,
+.page-header__heading > div {
+    min-width: 0;
+}
+
+@media (max-width: 800px) {
+    /* viewport-relative width: immune to any layout-width overflow */
+    .island-dock {
+        width: calc(100vw - 28px);
+    }
+}
