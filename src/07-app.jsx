@@ -137,6 +137,7 @@ function App() {
 
     var navScrollRef = useRef(null);
     var mainRef = useRef(null);   // <main> scroll container — used to jump back to top
+    var islandExpandRef = useRef(null); // More-tabs panel — height animated to exact px
     var isDown = useRef(false);
     var startX = useRef(0);
     var scrollLeft = useRef(0);
@@ -229,6 +230,15 @@ function App() {
         // Keep the native status bar in sync with the theme (no-op on web).
         if (window.NativeUX) window.NativeUX.setStatusBarTheme(isLightMode);
     }, [isLightMode]);
+
+    // Animate the island's More panel to its EXACT measured height so the
+    // grow/shrink reads as one smooth motion (max-height easing is uneven
+    // because the target rarely equals the real content height).
+    useEffect(function () {
+        var el = islandExpandRef.current;
+        if (!el) return;
+        el.style.height = moreSheetOpen ? (el.scrollHeight + 'px') : '0px';
+    }, [moreSheetOpen]);
 
     useEffect(function () {
         savedWordsRef.current = savedWords;
@@ -642,11 +652,14 @@ function App() {
         onClick: function () { setMoreSheetOpen(false); }
     });
 
-    var moreSheet = createElement('div', {
-        className: 'more-sheet' + (moreSheetOpen ? ' more-sheet--open' : ''),
+    // The "More" tabs live INSIDE the island capsule. When open, the capsule
+    // grows to reveal this grid (one morphing element), then shrinks back —
+    // the authentic Dynamic Island behavior, not a separate sheet.
+    var moreExpand = createElement('div', {
+        className: 'island-expand',
+        ref: islandExpandRef,
         'aria-hidden': !moreSheetOpen
     },
-        createElement('div', { className: 'more-sheet__handle' }),
         createElement('div', { className: 'more-sheet__grid' },
             moreTabs.map(function (tabItem) {
                 return createElement('button', {
@@ -673,10 +686,13 @@ function App() {
 
     // --- Render the App Shell ---
     return createElement('div', { className: 'app-wrapper' },
-        // Mobile bottom navigation (replaces mobile-header + sidebar-overlay on mobile)
-        bottomNav,
+        // Backdrop closes the expanded island on outside tap.
         moreSheetBackdrop,
-        moreSheet,
+        // The island dock: the expandable More grid sits above the persistent
+        // pill row, all in one capsule that grows/shrinks as a single element.
+        createElement('div', {
+            className: 'island-dock' + (moreSheetOpen ? ' island-dock--open' : '')
+        }, moreExpand, bottomNav),
         // Sidebar Navigation
         createElement('aside', { className: 'sidebar' + (!isSidebarExpanded ? ' sidebar--collapsed' : '') },
             createElement('div', { className: 'sidebar-header' },

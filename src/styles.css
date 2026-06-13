@@ -6085,3 +6085,89 @@ button:active {
         background: rgba(0, 0, 0, 0.30);
     }
 }
+
+/* ===================================================================
+   DYNAMIC ISLAND — single morphing capsule
+   The bottom bar IS the island. Tapping More grows the SAME capsule
+   taller (revealing the extra tabs inside it) in one smooth motion,
+   then shrinks back. The dock owns the glass + size; the nav row and
+   the expandable grid live inside it.
+   =================================================================== */
+@media (max-width: 800px) {
+    .island-dock {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+        width: calc(100% - 28px);
+        max-width: 440px;
+        z-index: 950; /* MUST sit above the backdrop (940), or it gets covered */
+        display: flex;
+        flex-direction: column;
+        padding: 6px;
+        background: rgba(24, 21, 16, 0.80);
+        -webkit-backdrop-filter: blur(22px) saturate(1.5);
+        backdrop-filter: blur(22px) saturate(1.5);
+        border: 1px solid rgba(237, 224, 201, 0.10);
+        box-shadow:
+            0 14px 44px rgba(0, 0, 0, 0.55),
+            0 4px 12px rgba(0, 0, 0, 0.40),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+        /* Constant radius (= half the collapsed height) = a true pill when
+           collapsed and a clean rounded-rect when expanded. We do NOT animate
+           the radius: a transitioning 999px curve caps at half the WIDTH as the
+           box grows, bulging the bottom corners and pinching the nav row for a
+           frame. Fixed radius removes that jank — only the height animates. */
+        border-radius: 34px;
+    }
+
+    /* The expandable grid: clipped to zero when collapsed, springs open to
+       reveal the extra tabs — this is what makes the capsule "grow". The
+       max-height target is sized near the real content so close feels snappy. */
+    .island-expand {
+        height: 0; /* exact px set by JS (islandExpandRef) for a smooth morph */
+        flex: 0 0 auto; /* don't let flex layout fight the height animation */
+        opacity: 0;
+        overflow: hidden;
+        padding-bottom: 6px;
+        transition: height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.26s ease 0.04s;
+        will-change: height;
+    }
+    .island-dock--open .island-expand {
+        opacity: 1;
+    }
+
+    /* The nav row now lives inside the dock: no own glass or fixed position —
+       just the persistent pill row at the bottom of the capsule. */
+    .island-dock .bottom-nav {
+        position: relative;
+        display: flex;
+        flex: 0 0 56px; /* never shrink during the expand/collapse animation */
+        left: auto;
+        right: auto;
+        bottom: auto;
+        transform: none;
+        width: 100%;
+        max-width: none;
+        height: 56px;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        background: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border: none;
+        border-radius: 999px;
+        box-shadow: none;
+        overflow: visible;
+    }
+    /* Blob spans full slots now that the nav row has no padding. */
+    .island-dock .bottom-nav__blob {
+        top: 4px;
+        bottom: 4px;
+        left: 0;
+        width: calc(100% / var(--nav-count, 5));
+    }
+}
