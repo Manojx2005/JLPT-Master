@@ -6171,3 +6171,76 @@ button:active {
         width: calc(100% / var(--nav-count, 5));
     }
 }
+
+/* ===================================================================
+   PWA INSTALL BANNER (browser only)
+   A clear, dismissible prompt that teaches users how to install the app
+   to their home screen — a real Install button on Android, instructions
+   on iOS. Hidden in the native app and once installed (see InstallPrompt).
+   =================================================================== */
+.install-banner {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 440px;
+    z-index: 960;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: rgba(24, 21, 16, 0.94);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    box-shadow: var(--shadow-lg);
+    animation: installSlideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes installSlideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.install-banner__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    flex-shrink: 0;
+}
+.install-banner__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.25;
+}
+.install-banner__text strong {
+    color: var(--text-primary);
+    font-size: 0.92rem;
+}
+.install-banner__btn {
+    flex-shrink: 0;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--primary), var(--primary-deep));
+    color: #fff;
+    font-weight: 700;
+    font-family: var(--font-main);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.4);
+}
+.install-banner__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+}

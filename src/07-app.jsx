@@ -57,6 +57,62 @@ function navIcon(id, size) {
     }));
 }
 
+/* PWA install helper. Shown only in a browser (never in the native app or
+   when already installed/standalone). On Android it captures the
+   beforeinstallprompt event and offers a real Install button; on iOS Safari —
+   which has no programmatic install — it shows the Share→Add to Home Screen
+   instruction. Dismissible, and the choice is remembered. */
+function InstallPrompt() {
+    var _d = useState(null), deferred = _d[0], setDeferred = _d[1];
+    var _show = useState(false), show = _show[0], setShow = _show[1];
+    var _ios = useState(false), ios = _ios[0], setIos = _ios[1];
+
+    useEffect(function () {
+        try { if (localStorage.getItem('jlpt_install_hide') === '1') return; } catch (e) {}
+        var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+            || window.navigator.standalone === true;
+        var isNative = !!(window.NativeUX && window.NativeUX.isNative);
+        if (standalone || isNative) return; // already installed, or in the native app
+
+        var ua = (window.navigator.userAgent || '').toLowerCase();
+        var isIOS = /iphone|ipad|ipod/.test(ua);
+        if (isIOS) { setIos(true); setShow(true); return; }
+
+        function onBIP(e) { e.preventDefault(); setDeferred(e); setShow(true); }
+        function onInstalled() { setShow(false); }
+        window.addEventListener('beforeinstallprompt', onBIP);
+        window.addEventListener('appinstalled', onInstalled);
+        return function () {
+            window.removeEventListener('beforeinstallprompt', onBIP);
+            window.removeEventListener('appinstalled', onInstalled);
+        };
+    }, []);
+
+    function dismiss() {
+        setShow(false);
+        try { localStorage.setItem('jlpt_install_hide', '1'); } catch (e) {}
+    }
+    function install() {
+        if (!deferred) return;
+        deferred.prompt();
+        deferred.userChoice.then(function () { setShow(false); setDeferred(null); });
+    }
+
+    if (!show) return null;
+
+    return createElement('div', { className: 'install-banner' },
+        createElement('img', { className: 'install-banner__icon', src: './icon.svg', alt: '' }),
+        createElement('div', { className: 'install-banner__text' },
+            createElement('strong', null, 'Install JLPT Master'),
+            createElement('span', null, ios
+                ? 'Tap the Share icon below, then “Add to Home Screen”.'
+                : 'Add it to your home screen for the full app.')
+        ),
+        ios ? null : createElement('button', { className: 'install-banner__btn', onClick: install }, 'Install'),
+        createElement('button', { className: 'install-banner__close', onClick: dismiss, 'aria-label': 'Dismiss' }, '✕')
+    );
+}
+
 function App() {
     // --- State ---
     var _tab = useState('dict');
@@ -686,6 +742,8 @@ function App() {
 
     // --- Render the App Shell ---
     return createElement('div', { className: 'app-wrapper' },
+        // PWA install banner (browser-only; hidden in the native app).
+        createElement(InstallPrompt, null),
         // Backdrop closes the expanded island on outside tap.
         moreSheetBackdrop,
         // The island dock: the expandable More grid sits above the persistent
