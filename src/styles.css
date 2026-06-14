@@ -4803,6 +4803,11 @@ body {
 @media (min-width: 801px) {
     .mobile-header { display: none !important; }
     .sidebar-overlay { display: none !important; }
+    /* The whole mobile "Dynamic Island" dock (bottom nav + More grid) is
+       mobile-only. It has no desktop styling, so if left visible it falls
+       into normal flow as the first flex child of .app-wrapper and paints
+       the More grid at the far left. Hide the wrapper, not just its parts. */
+    .island-dock { display: none !important; }
     .bottom-nav { display: none !important; }
     .more-sheet { display: none !important; }
     .more-sheet-backdrop { display: none !important; }
