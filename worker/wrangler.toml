@@ -1,0 +1,6 @@
+name = "jlpt-dict-proxy"
+main = "jisho-proxy.js"
+compatibility_date = "2025-06-01"
+
+# No bindings, secrets, or vars are needed — this Worker only proxies Jisho.org.
+# Deploy from this directory with:  npx wrangler deploy

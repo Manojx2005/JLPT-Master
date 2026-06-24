@@ -5,6 +5,11 @@ Thumbs.db
 *.log
 .claude/
 
+# Local env overrides (keep .env.example and .env.production committed)
+.env
+.env.local
+.env.*.local
+
 # IDE
 .idea/
 

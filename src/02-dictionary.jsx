@@ -1,7 +1,7 @@
 import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
-import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchJisho, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
+import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 
 /* =================================================================
@@ -145,7 +145,14 @@ function DictionaryTab(props) {
         if (navigator.onLine) {
             try {
                 var apiQuery = await translateToEnglishQuery(q);
-                var apiResults = await searchJisho(apiQuery);
+                var apiResults = await searchDictionary(apiQuery);
+                // If the translated query found nothing, retry with the user's
+                // original term across all sources. Jotoba/Jisho handle
+                // Japanese, romaji, and English directly, so this recovers
+                // words the translation step mangled.
+                if ((!apiResults || apiResults.length === 0) && apiQuery !== q) {
+                    apiResults = await searchDictionary(q);
+                }
                 if (apiResults && apiResults.length > 0) {
                     var filteredApi = apiResults.filter(function(apiItem) {
                         return !convertedMock.some(function(mItem) {
@@ -348,9 +355,9 @@ function DictionaryTab(props) {
 
         // Result count header
         var sourceLabel = searchSource === 'jisho'
-            ? t('Results from Jotoba', props.appLang)
+            ? t('Results from online dictionaries', props.appLang)
             : searchSource === 'mixed'
-                ? t('Results from Local & Jotoba', props.appLang)
+                ? t('Results from Local & online dictionaries', props.appLang)
                 : t('Results from offline dictionary', props.appLang) + ' (' + MOCK_DICT.length + ')';
 
         resultEls = createElement('div', { className: 'dict-results-container' },

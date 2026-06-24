@@ -464,10 +464,18 @@ async function translateToEnglishQuery(text) {
     if (!text || typeof text !== 'string') return text;
     var hasJapanese = /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
     if (hasJapanese) return text;
-    
+    // Plain ASCII (English / romaji) needs no translation \u2014 Jotoba searches
+    // English and romaji natively. Skipping this avoids a pointless network
+    // round-trip on the most common case and removes a failure/latency point.
+    // Only non-ASCII Latin (e.g. Vietnamese diacritics) or other scripts get
+    // sent to Google Translate.
+    if (/^[\x00-\x7F]*$/.test(text)) return text;
+
     try {
         var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=' + encodeURIComponent(text);
-        var resp = await fetch(url);
+        // Cap the translate call so a slow/hanging proxy can't stall the whole
+        // search; on timeout we fall back to the original term below.
+        var resp = await fetch(url, { signal: AbortSignal.timeout(3000) });
         var data = await resp.json();
         var translated = '';
         if (data && data[0]) {
@@ -713,6 +721,187 @@ async function searchJisho(query) {
 }
 
 /**
+ * Normalizes Jisho.org's `data` array into our common result shape.
+ * @param {Array} data - Jisho API `data` array
+ * @returns {Array} Normalized result objects
+ */
+function _normalizeJisho(data) {
+    var out = [];
+    var max = Math.min(data.length, 10);
+
+    for (var d = 0; d < max; d++) {
+        var entry = data[d];
+        var jp = entry.japanese || [];
+        if (jp.length === 0) continue;
+
+        var primary = jp[0];
+        var word = primary.word || primary.reading || '';
+        if (!word) continue;
+        var reading = primary.word ? (primary.reading || '') : '';
+
+        var meanings = [];
+        var tags = [];
+        var senses = entry.senses || [];
+        for (var s = 0; s < senses.length; s++) {
+            var sense = senses[s];
+            if (sense.english_definitions && sense.english_definitions.length) {
+                meanings.push(sense.english_definitions.join(', '));
+            }
+            var pos = sense.parts_of_speech || [];
+            for (var p = 0; p < pos.length; p++) {
+                if (pos[p] && tags.indexOf(pos[p]) === -1) tags.push(pos[p]);
+            }
+        }
+
+        // "jlpt-n5" → "N5"
+        var jlptLabel = '';
+        if (entry.jlpt && entry.jlpt.length) {
+            jlptLabel = entry.jlpt[0].replace('jlpt-', '').toUpperCase();
+        }
+
+        if (entry.is_common) tags.push('Common');
+
+        var otherForms = [];
+        for (var f = 1; f < jp.length; f++) {
+            var altWord = jp[f].word || jp[f].reading;
+            if (altWord) otherForms.push({ word: altWord, reading: jp[f].reading || '' });
+        }
+
+        out.push({
+            word: word,
+            reading: reading,
+            meanings: meanings,
+            tags: tags,
+            jlpt: jlptLabel,
+            source: 'jisho',
+            otherForms: otherForms,
+            isCommon: entry.is_common || false,
+            audioUrl: null
+        });
+    }
+
+    return out;
+}
+
+/**
+ * Fetches Jisho results from a single endpoint and validates the payload.
+ * Rejects on non-JSON responses (e.g. a proxy's HTML challenge page) and on
+ * empty data, so only a real hit resolves.
+ *
+ * @param {string} url - Fully-formed endpoint URL
+ * @returns {Promise<Array>} Normalized results (throws on failure/empty)
+ */
+async function _fetchJisho(url) {
+    var resp = await fetch(url, { signal: AbortSignal.timeout(7000) });
+    if (!resp.ok) throw new Error('status ' + resp.status);
+
+    // Parse defensively: some proxies return JSON with an HTML content-type,
+    // others (allorigins /get) wrap the body in a { contents: "..." } envelope.
+    var text = await resp.text();
+    var json;
+    try {
+        json = JSON.parse(text);
+    } catch (e) {
+        throw new Error('non-json response');
+    }
+    if (json && typeof json.contents === 'string') {
+        json = JSON.parse(json.contents);
+    }
+
+    if (!json || !json.data || json.data.length === 0) throw new Error('empty');
+    var results = _normalizeJisho(json.data);
+    if (results.length === 0) throw new Error('empty');
+    return results;
+}
+
+/**
+ * Searches the Jisho.org dictionary. Jisho has broad coverage but sends no
+ * CORS headers, so the transport is chosen by environment:
+ *   - Native (Capacitor): CapacitorHttp patches fetch → call Jisho directly.
+ *   - Dev (Vite): a same-origin dev-server proxy forwards to Jisho.
+ *   - Web prod: race public CORS proxies in parallel, first valid JSON wins.
+ *
+ * @param {string} query - Search term (English, kanji, kana, or romaji)
+ * @returns {Array|null} Normalized result objects, or null if all paths fail
+ */
+async function searchJishoOrg(query) {
+    var keyword = encodeURIComponent(query);
+    var jishoUrl = 'https://jisho.org/api/v1/search/words?keyword=' + keyword;
+
+    var isNative = typeof window !== 'undefined' && window.Capacitor &&
+        typeof window.Capacitor.isNativePlatform === 'function' &&
+        window.Capacitor.isNativePlatform();
+    var isDev = false;
+    try { isDev = !!import.meta.env.DEV; } catch (e) { isDev = false; }
+
+    var candidates;
+    if (isNative) {
+        // CapacitorHttp (enabled in capacitor.config.json) routes fetch through
+        // native HTTP, so there is no CORS restriction — hit Jisho directly.
+        candidates = [jishoUrl];
+    } else if (isDev) {
+        // Vite dev server proxies this same-origin path to Jisho (see vite.config.js).
+        candidates = ['/jisho-api?keyword=' + keyword];
+    } else {
+        // Web production. Prefer a self-hosted Cloudflare Worker proxy when one
+        // is configured (set VITE_DICT_PROXY at build time) — it's reliable and
+        // not rate-limited. Public proxies remain as best-effort fallbacks.
+        candidates = [];
+
+        var proxyBase = '';
+        try { proxyBase = (import.meta.env.VITE_DICT_PROXY || '').trim(); } catch (e) { proxyBase = ''; }
+        if (proxyBase) {
+            candidates.push(proxyBase.replace(/\/+$/, '') + '/?keyword=' + keyword);
+        }
+
+        candidates.push('https://api.allorigins.win/raw?url=' + encodeURIComponent(jishoUrl));
+        candidates.push('https://api.allorigins.win/get?url=' + encodeURIComponent(jishoUrl));
+        candidates.push('https://thingproxy.freeboard.io/fetch/' + jishoUrl);
+    }
+
+    var attempts = candidates.map(function (u) { return _fetchJisho(u); });
+    try {
+        return await Promise.any(attempts);
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * Unified online dictionary lookup. Queries every online source
+ * concurrently and returns the first one that yields results, so a single
+ * slow or empty source never blocks the others. Sources, in preference of
+ * speed: Jotoba (direct CORS) and Jisho.org (via CORS proxies).
+ *
+ * @param {string} query - Search term
+ * @returns {Array|null} First non-empty result set, or null if all sources fail
+ */
+async function searchDictionary(query) {
+    if (!query) return null;
+
+    // Wrap each source so an empty result counts as a rejection — that way
+    // Promise.any resolves with the first source that actually found words.
+    function nonEmpty(promise) {
+        return Promise.resolve(promise).then(function (r) {
+            if (r && r.length > 0) return r;
+            throw new Error('no results');
+        });
+    }
+
+    var attempts = [
+        nonEmpty(searchJisho(query)),
+        nonEmpty(searchJishoOrg(query))
+    ];
+
+    try {
+        return await Promise.any(attempts);
+    } catch (e) {
+        // Every source was empty or failed.
+        return null;
+    }
+}
+
+/**
  * Searches the local MOCK_DICT for vocabulary matches.
  * Prioritizes exact matches over partial (substring) matches.
  * Returns up to 8 results for display.
@@ -907,4 +1096,4 @@ function Toast(props) {
 
 
 
-export { loadJSON, sanitizeHTML, AnimatedCounter, UI_TRANSLATIONS, t, _localDataMissing, MOCK_DICT, getVocabMeaning, shuffleArray, levenshteinDistance, formatTime, generateOptions, searchMockDict, searchJisho, searchKanji, fetchKanjiSvg, translateText, translateToEnglishQuery, playAudio, playTTS, ThemeToggle, AudioButton, SaveButton, Toast };
+export { loadJSON, sanitizeHTML, AnimatedCounter, UI_TRANSLATIONS, t, _localDataMissing, MOCK_DICT, getVocabMeaning, shuffleArray, levenshteinDistance, formatTime, generateOptions, searchMockDict, searchJisho, searchJishoOrg, searchDictionary, searchKanji, fetchKanjiSvg, translateText, translateToEnglishQuery, playAudio, playTTS, ThemeToggle, AudioButton, SaveButton, Toast };

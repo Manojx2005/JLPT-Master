@@ -1,7 +1,7 @@
 import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
-import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchJisho, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
+import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 
 /* =================================================================
@@ -57,7 +57,11 @@ function KanjiTab(props) {
         // matching Japanese words in the dictionary, then collect their kanji.
         if (!kanjiMatches || kanjiMatches.length === 0) {
             var enQuery = await translateToEnglishQuery(q);
-            var dictResults = await searchJisho(enQuery);
+            var dictResults = await searchDictionary(enQuery);
+            // Retry online with the original term if translation found nothing.
+            if ((!dictResults || dictResults.length === 0) && enQuery !== q) {
+                dictResults = await searchDictionary(q);
+            }
             if (!dictResults || dictResults.length === 0) {
                 dictResults = searchMockDict(enQuery);
             }
