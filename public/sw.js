@@ -8,7 +8,7 @@
      data / auth and must not be served stale from an opaque cache.
    Bump CACHE when shipping a release to evict the old shell.
    ================================================================= */
-var CACHE = 'jlpt-master-v1';
+var CACHE = 'jlpt-master-v2';
 var APP_SHELL = [
     './',
     './index.html',
