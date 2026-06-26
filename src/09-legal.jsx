@@ -51,6 +51,7 @@ function PrivacyTab(props) {
             createElement('ul', { className: 'legal-ul' },
                 li('Google Firebase (authentication and database) — subject to Google’s Privacy Policy.'),
                 li('Jotoba, Google Translate, kanjiapi.dev, KanjiVG and related public dictionary APIs — your search terms are sent to these services to fetch definitions, translations, and stroke-order diagrams.'),
+                li('Offline dictionary data is derived from JMdict, © the Electronic Dictionary Research and Development Group (EDRDG), used under the Creative Commons Attribution-ShareAlike 4.0 license, via the jmdict-simplified project. This dictionary is bundled into the app and searched on your device — no network request is made for offline lookups.'),
                 li('Google Fonts — fonts are loaded from Google’s servers.'),
                 li('Your browser’s built-in speech synthesis is used for pronunciation; no audio is recorded or transmitted by us.'))),
 

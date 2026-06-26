@@ -1,5 +1,9 @@
 node_modules/
 dist/
+
+# Generated offline dictionary (rebuilt from JMdict on each build — see scripts/build-dict.mjs)
+public/dict/
+
 .DS_Store
 Thumbs.db
 *.log

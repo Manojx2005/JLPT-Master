@@ -2,6 +2,7 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
+import { installDict, getInstalledInfo } from './dict-local.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 
 /* =================================================================
@@ -100,6 +101,49 @@ function DictionaryTab(props) {
     var _showDraw = useState(false);
     var showDraw = _showDraw[0], setShowDraw = _showDraw[1]; // Handwriting panel visibility
 
+    // Offline full-dictionary install state. 'checking' until we know whether
+    // the user has already installed it; then 'not-installed' | 'installing' |
+    // 'ready' | 'error'. Nothing is downloaded unless the user opts in.
+    var _dictState = useState('checking');
+    var dictState = _dictState[0], setDictState = _dictState[1];
+    var _dictProgress = useState(0);     // 0..1 during install
+    var dictProgress = _dictProgress[0], setDictProgress = _dictProgress[1];
+    var _dictCount = useState(0);        // installed entry count
+    var dictCount = _dictCount[0], setDictCount = _dictCount[1];
+
+    // On mount: read install status (no network) and subscribe to progress.
+    useEffect(function () {
+        var alive = true;
+        getInstalledInfo().then(function (info) {
+            if (!alive) return;
+            if (info.installed) { setDictState('ready'); setDictCount(info.count); }
+            else setDictState('not-installed');
+        });
+        function onProgress(e) {
+            if (!alive || !e.detail) return;
+            var d = e.detail;
+            if (d.status === 'installing') {
+                setDictState('installing');
+                setDictProgress(d.total > 0 ? d.loaded / d.total : 0);
+            } else if (d.status === 'ready') {
+                setDictState('ready');
+                setDictProgress(1);
+                if (d.total > 0) setDictCount(d.total);
+            } else if (d.status === 'error') {
+                setDictState('error');
+            }
+        }
+        window.addEventListener('jlpt-dict-progress', onProgress);
+        return function () { alive = false; window.removeEventListener('jlpt-dict-progress', onProgress); };
+    }, []);
+
+    // User opted in to the full offline dictionary — start the ~20 MB download.
+    var handleDownloadDict = function () {
+        setDictState('installing');
+        setDictProgress(0);
+        installDict().catch(function () { setDictState('error'); });
+    };
+
     /**
      * Performs the dictionary search.
      * 1. Tries the online Jisho API via CORS proxies
@@ -176,7 +220,7 @@ function DictionaryTab(props) {
                         setResults(convertedMock.concat(filteredApi));
                     } else {
                         setResults(filteredApi);
-                        setSearchSource('jisho');
+                        setSearchSource(filteredApi[0] && filteredApi[0].source === 'local' ? 'local' : 'jisho');
                         setLoading(false);
                     }
                 } else if (convertedMock.length === 0) {
@@ -217,7 +261,7 @@ function DictionaryTab(props) {
                     needsTranslation = true;
                     sourceToTranslate = [meaningStr];
                 }
-            } else if (res.source === 'jisho' && props.appLang !== 'en') {
+            } else if ((res.source === 'jisho' || res.source === 'local') && props.appLang !== 'en') {
                 needsTranslation = true;
                 sourceToTranslate = res.meanings;
             }
@@ -356,9 +400,11 @@ function DictionaryTab(props) {
         // Result count header
         var sourceLabel = searchSource === 'jisho'
             ? t('Results from online dictionaries', props.appLang)
-            : searchSource === 'mixed'
-                ? t('Results from Local & online dictionaries', props.appLang)
-                : t('Results from offline dictionary', props.appLang) + ' (' + MOCK_DICT.length + ')';
+            : searchSource === 'local'
+                ? t('Results from offline dictionary', props.appLang)
+                : searchSource === 'mixed'
+                    ? t('Results from Local & online dictionaries', props.appLang)
+                    : t('Results from offline dictionary', props.appLang) + ' (' + MOCK_DICT.length + ')';
 
         resultEls = createElement('div', { className: 'dict-results-container' },
             createElement('div', { className: 'dict-results__header' },
@@ -429,6 +475,50 @@ function DictionaryTab(props) {
         );
     }
 
+    // --- Offline dictionary banner (opt-in download / progress / installed) ---
+    var dictOfflineEl = null;
+    if (dictState === 'not-installed') {
+        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--prompt' },
+            createElement('div', { className: 'dict-offline__info' },
+                createElement('span', { className: 'dict-offline__icon' }, '⚡'),
+                createElement('div', null,
+                    createElement('div', { className: 'dict-offline__title' }, t('Use the dictionary offline', props.appLang)),
+                    createElement('div', { className: 'dict-offline__sub' }, t('Download the full dictionary (218,000+ words) to search instantly with no internet.', props.appLang))
+                )
+            ),
+            createElement('button', {
+                className: 'btn btn--primary dict-offline__btn',
+                onClick: handleDownloadDict,
+            }, '⬇️ ' + t('Download', props.appLang) + ' (20 MB)')
+        );
+    } else if (dictState === 'installing') {
+        var known = dictProgress > 0;
+        var pct = Math.round(dictProgress * 100);
+        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--installing' },
+            createElement('div', { className: 'dict-offline__title' },
+                known ? (t('Building offline dictionary…', props.appLang) + ' ' + pct + '%')
+                      : t('Downloading offline dictionary…', props.appLang)),
+            createElement('div', { className: 'dict-offline__bar' + (known ? '' : ' dict-offline__bar--indeterminate') },
+                createElement('div', { className: 'dict-offline__fill', style: known ? { width: pct + '%' } : null })
+            )
+        );
+    } else if (dictState === 'ready') {
+        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--ready' },
+            createElement('span', { className: 'dict-offline__icon' }, '✓'),
+            createElement('span', null,
+                t('Offline dictionary ready', props.appLang) +
+                (dictCount ? ' — ' + dictCount.toLocaleString() + ' ' + t('words', props.appLang) : ''))
+        );
+    } else if (dictState === 'error') {
+        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--error' },
+            createElement('span', null, t('Couldn’t download the offline dictionary.', props.appLang)),
+            createElement('button', {
+                className: 'btn btn--outline btn--small',
+                onClick: handleDownloadDict,
+            }, t('Retry', props.appLang))
+        );
+    }
+
     // --- Render the Dictionary Tab ---
     return createElement('div', { className: 'glass-card', key: 'dict' },
         createElement('h2', { className: 'section-title' }, t('Dictionary Search', props.appLang)),
@@ -476,6 +566,7 @@ function DictionaryTab(props) {
             onSelect: function (char) { setQuery(function (q) { return q + char; }); },
             onClose: function () { setShowDraw(false); }
         }) : null,
+        dictOfflineEl, // Offline dictionary: download prompt / progress / installed
         historyEls,  // Search history chips
         loadingEl,   // Loading indicator
         dailyWordEl, // Daily word card

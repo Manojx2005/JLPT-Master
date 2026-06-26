@@ -6291,3 +6291,115 @@ html { overflow-x: hidden; }
         width: calc(100vw - 28px);
     }
 }
+
+/* ---------------------------------------------------------------
+   Offline dictionary banner (opt-in download / progress / installed)
+   --------------------------------------------------------------- */
+.dict-offline {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    font-family: var(--font-main);
+}
+
+.dict-offline--prompt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-color: rgba(var(--accent-amber-rgb), 0.35);
+    background: linear-gradient(135deg, rgba(var(--accent-amber-rgb), 0.10), rgba(var(--accent-amber-rgb), 0.02));
+}
+
+.dict-offline__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.dict-offline__icon {
+    font-size: 1.3rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.dict-offline__title {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.98rem;
+}
+
+.dict-offline__sub {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+.dict-offline__btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Progress bar */
+.dict-offline__bar {
+    position: relative;
+    height: 8px;
+    margin-top: 10px;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--bg-rgb), 0.4);
+    overflow: hidden;
+    border: 1px solid var(--border-glass);
+}
+
+.dict-offline__fill {
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(90deg, var(--accent-amber), var(--accent-red));
+    transition: width 0.25s ease;
+}
+
+/* Indeterminate state while the 20 MB file is still downloading */
+.dict-offline__bar--indeterminate .dict-offline__fill {
+    width: 35%;
+    animation: dict-offline-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes dict-offline-slide {
+    0%   { margin-left: -35%; }
+    100% { margin-left: 100%; }
+}
+
+.dict-offline--ready {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    border-color: rgba(var(--accent-green-rgb), 0.3);
+    background: rgba(var(--accent-green-rgb), 0.06);
+}
+
+.dict-offline--ready .dict-offline__icon {
+    color: var(--accent-green);
+    font-weight: 700;
+}
+
+.dict-offline--error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    border-color: rgba(var(--accent-red-rgb), 0.3);
+}
+
+@media (max-width: 560px) {
+    .dict-offline--prompt { align-items: stretch; }
+    .dict-offline__btn { width: 100%; }
+}

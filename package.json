@@ -5,7 +5,10 @@
   "type": "module",
   "description": "JLPT Master — Japanese study app (Vite + React build)",
   "scripts": {
+    "predev": "node --max-old-space-size=4096 scripts/build-dict.mjs",
     "dev": "vite",
+    "build:dict": "node --max-old-space-size=4096 scripts/build-dict.mjs --force",
+    "prebuild": "node --max-old-space-size=4096 scripts/build-dict.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "sync": "vite build && cap sync",

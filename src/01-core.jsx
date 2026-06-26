@@ -2,6 +2,7 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import DOMPurify from 'dompurify';
+import { searchLocal } from './dict-local.jsx';
 
 /* =================================================================
    JLPT Master — Core: setup, helpers, shared UI primitives
@@ -888,7 +889,12 @@ async function searchDictionary(query) {
         });
     }
 
+    // Offline-first: the bundled JMdict (≈218k entries in IndexedDB) is the
+    // preferred source — once imported it answers instantly with no network.
+    // Jotoba/Jisho race alongside so the very first search (before the import
+    // finishes) and words missing from JMdict still resolve online.
     var attempts = [
+        nonEmpty(searchLocal(query)),
         nonEmpty(searchJisho(query)),
         nonEmpty(searchJishoOrg(query))
     ];
