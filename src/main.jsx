@@ -30,8 +30,24 @@ if (isNativeShell) {
             .catch(function () {});
     }
 } else if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    // Auto-update: each deploy stamps a new cache name (scripts/stamp-sw.mjs),
+    // so the new SW activates (skipWaiting + clients.claim) and fires
+    // 'controllerchange'. Reload once then so the user gets fresh assets with
+    // no manual hard refresh. Guarded by an existing controller so the very
+    // first install (no prior controller) doesn't trigger a reload loop.
+    if (navigator.serviceWorker.controller) {
+        var _swRefreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (_swRefreshing) return;
+            _swRefreshing = true;
+            window.location.reload();
+        });
+    }
     window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js').catch(function () {});
+        navigator.serviceWorker.register('./sw.js').then(function (reg) {
+            // Check for a newer SW on every load so updates land promptly.
+            reg.update().catch(function () {});
+        }).catch(function () {});
     });
 }
 

@@ -8,7 +8,10 @@
      data / auth and must not be served stale from an opaque cache.
    Bump CACHE when shipping a release to evict the old shell.
    ================================================================= */
-var CACHE = 'jlpt-master-v2';
+// The __SW_VERSION__ token is replaced with a unique build id at build time by
+// scripts/stamp-sw.mjs (npm postbuild), so every deploy gets a fresh cache name
+// and the activate handler evicts the previous build automatically.
+var CACHE = 'jlpt-master-__SW_VERSION__';
 var APP_SHELL = [
     './',
     './index.html',

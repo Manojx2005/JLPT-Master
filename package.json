@@ -10,10 +10,11 @@
     "build:dict": "node --max-old-space-size=4096 scripts/build-dict.mjs --force",
     "prebuild": "node --max-old-space-size=4096 scripts/build-dict.mjs",
     "build": "vite build",
+    "postbuild": "node scripts/stamp-sw.mjs",
     "preview": "vite preview",
-    "sync": "vite build && cap sync",
-    "android": "vite build && cap sync android && cap open android",
-    "ios": "vite build && cap sync ios && cap open ios"
+    "sync": "npm run build && cap sync",
+    "android": "npm run build && cap sync android && cap open android",
+    "ios": "npm run build && cap sync ios && cap open ios"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.1",
