@@ -21,6 +21,8 @@
    installed, later sessions open instantly and work fully offline.
    ================================================================= */
 
+import { deinflect } from './deinflect.js';
+
 var DB_NAME = 'jlpt-dict';
 var DB_VERSION = 1;
 var STORE = 'entries';
@@ -315,14 +317,19 @@ async function searchLocal(query) {
     if (JP_RE.test(q)) {
         // Two tiers: exact headword/reading matches always rank ABOVE prefix
         // matches (so 猫 beats 猫舌, 経済 beats 経済学), each tier ranked internally.
+        // Deinflect the query so conjugated forms (食べました) also find the
+        // dictionary entry (食べる).
+        var forms = deinflect(q);
         var exact = { ids: {}, records: [], count: 0 };
-        await queryIndex('k', q, false, LIMIT, exact);         // exact kanji/headword
-        await queryIndex('r', q, false, LIMIT, exact);         // exact reading
+        for (var fi = 0; fi < forms.length; fi++) {
+            await queryIndex('k', forms[fi], false, LIMIT, exact);
+            await queryIndex('r', forms[fi], false, LIMIT, exact);
+        }
 
         var prefix = { ids: Object.assign({}, exact.ids), records: [], count: 0 };
         if (exact.count < LIMIT) {
-            await queryIndex('k', q, true, LIMIT, prefix);     // prefix kanji
-            await queryIndex('r', q, true, LIMIT, prefix);     // prefix reading
+            await queryIndex('k', q, true, LIMIT, prefix);     // prefix kanji (original only)
+            await queryIndex('r', q, true, LIMIT, prefix);     // prefix reading (original only)
         }
         var merged = rankRecords(exact.records).concat(rankRecords(prefix.records));
         return merged.slice(0, LIMIT).map(toResult);

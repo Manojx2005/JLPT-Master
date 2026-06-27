@@ -3,6 +3,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import DOMPurify from 'dompurify';
 import { searchLocal } from './dict-local.jsx';
+import { deinflect } from './deinflect.js';
 
 /* =================================================================
    JLPT Master — Core: setup, helpers, shared UI primitives
@@ -376,7 +377,26 @@ function shuffleArray(arr) {
     return a;
 }
 
-window.TRANSLATION_CACHE = {};
+// Persist translation cache across sessions (max 500 entries, LRU eviction).
+var _TC_KEY = 'jlpt_tcache';
+var _TC_MAX = 500;
+function _persistTC() {
+    try {
+        var keys = Object.keys(window.TRANSLATION_CACHE);
+        if (keys.length > _TC_MAX) {
+            // Object keys are insertion-ordered — drop the oldest half.
+            keys.slice(0, keys.length - _TC_MAX).forEach(function(k) {
+                delete window.TRANSLATION_CACHE[k];
+            });
+        }
+        localStorage.setItem(_TC_KEY, JSON.stringify(window.TRANSLATION_CACHE));
+    } catch(e) {}
+}
+try {
+    var _tcRaw = localStorage.getItem(_TC_KEY);
+    window.TRANSLATION_CACHE = _tcRaw ? JSON.parse(_tcRaw) : {};
+} catch(e) { window.TRANSLATION_CACHE = {}; }
+
 var _translationQueue = [];
 var _isTranslatingQueue = false;
 
@@ -436,8 +456,10 @@ async function processTranslationQueue() {
                         missingBatch[i].resolve(missingBatch[i].text);
                     }
                 }
+                _persistTC();
             } catch (e) {
                 console.warn('Translation batch failed:', e);
+                window.dispatchEvent(new CustomEvent('jlpt-translate-error', { detail: { error: String(e) } }));
                 for (var i = 0; i < missingBatch.length; i++) {
                     window.TRANSLATION_CACHE[missingBatch[i].cacheKey] = missingBatch[i].text;
                     missingBatch[i].resolve(missingBatch[i].text);
@@ -644,7 +666,7 @@ function generateOptions(question, pool, mode, appLang) {
  * @param {string} query - Search term (English, Kanji, or Hiragana)
  * @returns {Array|null} Array of dictionary result objects, or null if all proxies fail
  */
-async function searchJisho(query) {
+async function searchJotoba(query) {
     try {
         var resp = await fetch('https://jotoba.de/api/search/words', {
             method: 'POST',
@@ -720,6 +742,9 @@ async function searchJisho(query) {
         return null;
     }
 }
+
+// Legacy alias — old call sites used "searchJisho" but the target was always Jotoba.
+var searchJisho = searchJotoba;
 
 /**
  * Normalizes Jisho.org's `data` array into our common result shape.
@@ -868,17 +893,48 @@ async function searchJishoOrg(query) {
     }
 }
 
+// 24-hour localStorage cache for online search results. Keyed by normalised
+// query so the same word searched twice in a day hits local storage, not the
+// network. Cache is small per-entry (JSON of ~10 result objects ≈ a few KB).
+var _SC_KEY = 'jlpt_scache';
+var _SC_TTL = 24 * 60 * 60 * 1000; // 24 h in ms
+var _SC_MAX = 200;                  // max distinct cached queries
+
+function _loadSearchCache() {
+    try { return JSON.parse(localStorage.getItem(_SC_KEY) || '{}'); } catch(e) { return {}; }
+}
+function _saveSearchCache(cache) {
+    try {
+        var keys = Object.keys(cache);
+        if (keys.length > _SC_MAX) {
+            // Drop oldest entries (sorted by stored timestamp).
+            keys.sort(function(a, b) { return (cache[a].ts || 0) - (cache[b].ts || 0); });
+            keys.slice(0, keys.length - _SC_MAX).forEach(function(k) { delete cache[k]; });
+        }
+        localStorage.setItem(_SC_KEY, JSON.stringify(cache));
+    } catch(e) {}
+}
+var _searchCache = _loadSearchCache();
+
 /**
  * Unified online dictionary lookup. Queries every online source
  * concurrently and returns the first one that yields results, so a single
- * slow or empty source never blocks the others. Sources, in preference of
- * speed: Jotoba (direct CORS) and Jisho.org (via CORS proxies).
+ * slow or empty source never blocks the others. Results are cached in
+ * localStorage for 24 hours so repeat searches are instant and offline.
  *
  * @param {string} query - Search term
  * @returns {Array|null} First non-empty result set, or null if all sources fail
  */
 async function searchDictionary(query) {
     if (!query) return null;
+
+    // Check 24h localStorage cache first (only for online sources — local
+    // IndexedDB is already instant, so we let it race as normal).
+    var cacheKey = query.trim().toLowerCase();
+    var cached = _searchCache[cacheKey];
+    if (cached && cached.results && (Date.now() - cached.ts) < _SC_TTL) {
+        return cached.results;
+    }
 
     // Wrap each source so an empty result counts as a rejection — that way
     // Promise.any resolves with the first source that actually found words.
@@ -895,14 +951,20 @@ async function searchDictionary(query) {
     // finishes) and words missing from JMdict still resolve online.
     var attempts = [
         nonEmpty(searchLocal(query)),
-        nonEmpty(searchJisho(query)),
+        nonEmpty(searchJotoba(query)),
         nonEmpty(searchJishoOrg(query))
     ];
 
     try {
-        return await Promise.any(attempts);
+        var results = await Promise.any(attempts);
+        // Only cache results that came from online sources (local IndexedDB
+        // results are already offline; no need to duplicate them).
+        if (results && results.length > 0 && results[0].source !== 'local') {
+            _searchCache[cacheKey] = { ts: Date.now(), results: results };
+            _saveSearchCache(_searchCache);
+        }
+        return results;
     } catch (e) {
-        // Every source was empty or failed.
         return null;
     }
 }
@@ -919,22 +981,25 @@ function searchMockDict(query) {
     var q = query.trim();
     var qLower = q.toLowerCase();
 
+    // Expand conjugated Japanese input to all plausible dictionary forms so
+    // searching 食べました also finds 食べる in the MOCK_DICT.
+    var jpForms = /[ぁ-んァ-ヶー一-龯々]/.test(q) ? deinflect(q) : [q];
+
     // Phase 1: Exact matches (kanji, kana, or exact english/vn/my word match)
     var exact = MOCK_DICT.filter(function (item) {
+        if (jpForms.some(function(f) { return item.kanji === f || item.kana === f; })) return true;
         var enParts = item.english.toLowerCase().split(/[\s,()\/]+/);
-        return item.kanji === q || item.kana === q ||
-            item.english.toLowerCase() === qLower ||
+        return item.english.toLowerCase() === qLower ||
             enParts.indexOf(qLower) !== -1 ||
             (item.meaning_vn && item.meaning_vn.toLowerCase() === qLower) ||
             (item.meaning_my && item.meaning_my.toLowerCase() === qLower);
     });
     if (exact.length > 0) return exact.slice(0, 8);
 
-    // Phase 2: Partial/substring matches
+    // Phase 2: Partial/substring matches (also check deinflected forms)
     var partial = MOCK_DICT.filter(function (item) {
-        return item.kanji.indexOf(q) !== -1 ||
-            item.kana.indexOf(q) !== -1 ||
-            item.english.toLowerCase().indexOf(qLower) !== -1 ||
+        if (jpForms.some(function(f) { return item.kanji.indexOf(f) !== -1 || item.kana.indexOf(f) !== -1; })) return true;
+        return item.english.toLowerCase().indexOf(qLower) !== -1 ||
             (item.meaning_vn && item.meaning_vn.toLowerCase().indexOf(qLower) !== -1) ||
             (item.meaning_my && item.meaning_my.toLowerCase().indexOf(qLower) !== -1);
     });

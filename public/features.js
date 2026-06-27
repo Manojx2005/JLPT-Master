@@ -488,117 +488,51 @@ var SEARCH_HISTORY = (function () {
 })();
 
 /* =================================================================
-   4. CUSTOM DICTIONARY – Caches API lookups
+   4. CUSTOM DICTIONARY – Caches API lookups locally
    ================================================================= */
 
 var CUSTOM_DICT = (function() {
     var STORAGE_KEY = 'jlpt_custom_dict';
     var itemsCache = [];
-    var firebaseRef = null;
-    var isFirebaseInit = false;
-    
-    function initFirebase() {
-        if (isFirebaseInit) return;
-        if (typeof firebase !== 'undefined' && firebase.database) {
-            isFirebaseInit = true;
-            firebaseRef = firebase.database().ref('community_dictionary');
-            
-            // Listen for new words added by ANY user
-            firebaseRef.on('child_added', function(snapshot) {
-                var wordData = snapshot.val();
-                if (!wordData) return;
-                
-                // Add to local cache if not already present
-                var exists = itemsCache.find(function(i) { return i.kanji === wordData.kanji && i.kana === wordData.kana; });
-                if (!exists) {
-                    itemsCache.push(wordData);
-                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsCache)); } catch(e) {}
-                    
-                    // Add dynamically to global JLPT_VOCAB
-                    if (typeof JLPT_VOCAB !== 'undefined') {
-                        var vocabExists = JLPT_VOCAB.find(function(v) { return v.word === wordData.kanji && v.reading === wordData.kana; });
-                        if (!vocabExists) {
-                            JLPT_VOCAB.push({
-                                word: wordData.kanji,
-                                reading: wordData.kana,
-                                correct: wordData.english,
-                                meaning_vn: wordData.meaning_vn || '',
-                                meaning_my: wordData.meaning_my || '',
-                                level: 'Custom',
-                                nuance: wordData.nuance || '',
-                                example: '',
-                                exampleEn: ''
-                            });
-                        }
-                    }
-                    
-                    // Add dynamically to global MOCK_DICT
-                    if (typeof MOCK_DICT !== 'undefined') {
-                        var mockExists = MOCK_DICT.find(function(m) { return m.kanji === wordData.kanji && m.kana === wordData.kana; });
-                        if (!mockExists) {
-                            MOCK_DICT.push(wordData);
-                        }
-                    }
-                }
-            });
-        }
-    }
-    
+
     function load() {
         try {
             var data = localStorage.getItem(STORAGE_KEY);
             itemsCache = data ? JSON.parse(data) : [];
         } catch(e) { itemsCache = []; }
-        
-        // Wait a bit for firebase to be initialized in app.js if needed, then sync
-        setTimeout(initFirebase, 2000);
-        
         return itemsCache;
     }
-    
+
     function save(wordData) {
         var exists = itemsCache.find(function(i) { return i.kanji === wordData.kanji && i.kana === wordData.kana; });
-        if (!exists) {
-            itemsCache.push(wordData);
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsCache)); } catch(e) {}
-            
-            // Push to Firebase so EVERYONE gets this word in their dictionary!
-            if (firebaseRef) {
-                firebaseRef.push(wordData);
-            } else if (typeof firebase !== 'undefined' && firebase.database) {
-                firebase.database().ref('community_dictionary').push(wordData);
-            }
-            
-            // Add immediately locally in case offline
-            if (typeof JLPT_VOCAB !== 'undefined') {
-                var vocabExists = JLPT_VOCAB.find(function(v) { return v.word === wordData.kanji && v.reading === wordData.kana; });
-                if (!vocabExists) {
-                    JLPT_VOCAB.push({
-                        word: wordData.kanji,
-                        reading: wordData.kana,
-                        correct: wordData.english,
-                        meaning_vn: wordData.meaning_vn || '',
-                        meaning_my: wordData.meaning_my || '',
-                        level: 'Custom',
-                        nuance: wordData.nuance || '',
-                        example: '',
-                        exampleEn: ''
-                    });
-                }
-            }
-            if (typeof MOCK_DICT !== 'undefined') {
-                var mockExists = MOCK_DICT.find(function(m) { return m.kanji === wordData.kanji && m.kana === wordData.kana; });
-                if (!mockExists) {
-                    MOCK_DICT.push(wordData);
-                }
+        if (exists) return;
+
+        itemsCache.push(wordData);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsCache)); } catch(e) {}
+
+        if (typeof JLPT_VOCAB !== 'undefined') {
+            var vocabExists = JLPT_VOCAB.find(function(v) { return v.word === wordData.kanji && v.reading === wordData.kana; });
+            if (!vocabExists) {
+                JLPT_VOCAB.push({
+                    word: wordData.kanji,
+                    reading: wordData.kana,
+                    correct: wordData.english,
+                    meaning_vn: wordData.meaning_vn || '',
+                    meaning_my: wordData.meaning_my || '',
+                    level: 'Custom',
+                    nuance: wordData.nuance || '',
+                    example: '',
+                    exampleEn: ''
+                });
             }
         }
+        if (typeof MOCK_DICT !== 'undefined') {
+            var mockExists = MOCK_DICT.find(function(m) { return m.kanji === wordData.kanji && m.kana === wordData.kana; });
+            if (!mockExists) MOCK_DICT.push(wordData);
+        }
     }
-    
-    return {
-        load: load,
-        save: save
-    };
+
+    return { load: load, save: save };
 })();
 
 

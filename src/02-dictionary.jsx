@@ -483,7 +483,7 @@ function DictionaryTab(props) {
                 createElement('span', { className: 'dict-offline__icon' }, '⚡'),
                 createElement('div', null,
                     createElement('div', { className: 'dict-offline__title' }, t('Use the dictionary offline', props.appLang)),
-                    createElement('div', { className: 'dict-offline__sub' }, t('Download the full dictionary (218,000+ words) to search instantly with no internet.', props.appLang))
+                    createElement('div', { className: 'dict-offline__sub' }, t('Download the full dictionary (218,000+ words, ~20 MB) to search instantly with no internet. WiFi recommended.', props.appLang))
                 )
             ),
             createElement('button', {
