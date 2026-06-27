@@ -2219,3 +2219,26 @@ var PDF_EXAM = (function() {
         generateQuiz: generateQuiz
     };
 })();
+
+/* =================================================================
+   ES Module exports — importable from src/ files.
+   window.* assignments keep legacy global reads working.
+   ================================================================= */
+window.SRS = SRS;
+window.PROGRESS = PROGRESS;
+window.SEARCH_HISTORY = SEARCH_HISTORY;
+window.CUSTOM_DICT = CUSTOM_DICT;
+window.DAILY_WORD = DAILY_WORD;
+window.CONJUGATION = CONJUGATION;
+window.GRAMMAR_DATA = GRAMMAR_DATA;
+window.AUTH = AUTH;
+window.LEADERBOARD_API = LEADERBOARD_API;
+window.CLOUD_SYNC_API = CLOUD_SYNC_API;
+window.MULTIPLAYER_API = MULTIPLAYER_API;
+window.PDF_EXAM = PDF_EXAM;
+
+export {
+    SRS, PROGRESS, SEARCH_HISTORY, CUSTOM_DICT, DAILY_WORD,
+    CONJUGATION, GRAMMAR_DATA, AUTH, LEADERBOARD_API,
+    CLOUD_SYNC_API, MULTIPLAYER_API, PDF_EXAM
+};

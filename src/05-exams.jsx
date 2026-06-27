@@ -4,6 +4,7 @@ const createElement = React.createElement;
 import { formatTime, sanitizeHTML, shuffleArray, t } from './01-core.jsx';
 import { CountSelector, LevelSelector, ModeSelector } from './03-quiz.jsx';
 import { generateGrammarOptions, getGrammarMeaning } from './04-study.jsx';
+import { PDF_EXAM, PROGRESS, LEADERBOARD_API, AUTH } from './features.js';
 
 /* =================================================================
    JLPT Master — Exams (Grammar quiz, Shared/PDF exams, Mock exam, language & login widgets)

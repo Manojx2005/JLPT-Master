@@ -2,6 +2,7 @@ import React from 'react';
 const { useState, useEffect, useRef } = React;
 const createElement = React.createElement;
 import { t } from './01-core.jsx';
+import { AUTH, LEADERBOARD_API } from './features.js';
 
 /* =================================================================
    JLPT Master — Reviews & Ratings tab

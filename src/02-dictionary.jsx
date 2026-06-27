@@ -4,6 +4,7 @@ const createElement = React.createElement;
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
 import { installDict, getInstalledInfo } from './dict-local.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
+import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 
 /* =================================================================
    JLPT Master — Dictionary & Saved words

@@ -3,6 +3,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
+import { SRS, PROGRESS, CONJUGATION, GRAMMAR_DATA, AUTH, LEADERBOARD_API } from './features.js';
 
 /* =================================================================
    JLPT Master — Study tools (Kanji, Leaderboard, Dashboard, Flashcards, Conjugation, Grammar)

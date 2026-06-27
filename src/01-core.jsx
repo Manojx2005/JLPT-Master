@@ -4,6 +4,7 @@ const createElement = React.createElement;
 import DOMPurify from 'dompurify';
 import { searchLocal } from './dict-local.jsx';
 import { deinflect } from './deinflect.js';
+import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 
 /* =================================================================
    JLPT Master — Core: setup, helpers, shared UI primitives
@@ -326,9 +327,7 @@ var MOCK_DICT = window.JLPT_VOCAB.map(function (q) {
 });
 
 // Append dynamically saved custom dictionary words
-if (typeof CUSTOM_DICT !== 'undefined') {
-    MOCK_DICT = MOCK_DICT.concat(CUSTOM_DICT.load());
-}
+MOCK_DICT = MOCK_DICT.concat(CUSTOM_DICT.load());
 
 function getVocabMeaning(q, lang) {
     if (lang === 'vn' && q.meaning_vn) return q.meaning_vn;

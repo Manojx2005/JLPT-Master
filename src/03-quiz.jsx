@@ -3,6 +3,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { AudioButton, SaveButton, Toast, formatTime, generateOptions, getVocabMeaning, playAudio, shuffleArray, t } from './01-core.jsx';
 import { FuriganaText } from './05-exams.jsx';
+import { PROGRESS } from './features.js';
 
 /* =================================================================
    JLPT Master — Quiz (selectors, ExampleReveal, QuizTab, CustomTab)

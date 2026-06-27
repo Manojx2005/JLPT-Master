@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+// Import features first — this runs the SRS/PROGRESS/etc. module code and
+// assigns everything to window.* so legacy global reads still work.
+import { CUSTOM_DICT } from './features.js';
 import './styles.css';
 import { App, ErrorBoundary } from './07-app.jsx';
 import { _localDataMissing } from './01-core.jsx';
@@ -84,9 +87,7 @@ if (_localDataMissing && typeof firebase !== 'undefined' && firebase.database) {
                 example: q.example || '', exampleEn: q.exampleEn || ''
             };
         });
-        if (typeof CUSTOM_DICT !== 'undefined') {
-            window.MOCK_DICT = window.MOCK_DICT.concat(CUSTOM_DICT.load());
-        }
+        window.MOCK_DICT = window.MOCK_DICT.concat(CUSTOM_DICT.load());
         mountApp();
     }).catch(function(e) {
         console.error("Firebase fallback failed:", e);

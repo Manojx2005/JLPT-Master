@@ -2,6 +2,7 @@ import React from 'react';
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { MOCK_DICT, ThemeToggle, _localDataMissing, loadJSON, t } from './01-core.jsx';
+import { SRS, PROGRESS, CLOUD_SYNC_API, GRAMMAR_DATA, DAILY_WORD } from './features.js';
 import { DictionaryTab, SavedTab } from './02-dictionary.jsx';
 import { CustomTab, QuizTab } from './03-quiz.jsx';
 import { ConjugationTab, DashboardTab, FlashcardTab, GrammarTab, KanjiTab, LeaderboardTab } from './04-study.jsx';

@@ -3,6 +3,7 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const createElement = React.createElement;
 import { generateOptions, getVocabMeaning, t } from './01-core.jsx';
 import { CustomSelect } from './05-exams.jsx';
+import { LEADERBOARD_API, MULTIPLAYER_API } from './features.js';
 
 /* =================================================================
    JLPT Master — Multiplayer head-to-head quiz
