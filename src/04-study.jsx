@@ -441,7 +441,7 @@ function LeaderboardTab(props) {
             return <button key={em} onClick={() => {
               setEditAvatar(em);
             }} className={'avatar-pick' + (editAvatar === em ? ' avatar-pick--active' : '')}>{em}</button>;
-          })} // Upload custom photo
+          })}
           <button className='avatar-pick' title={t('Upload photo', props.appLang)} onClick={() => {
             if (fileRef.current) fileRef.current.click();
           }}>📷</button>{
@@ -671,12 +671,12 @@ function DashboardTab(props) {
   }}>{weaknessCards}</div></div>;
     }
 
-    return <div className='glass-card'><h2 className='section-title'>{t('Dashboard', props.appLang)}</h2>{insightsSection}{rankCard}{questsSection} // Streak & Today stats
+    return <div className='glass-card'><h2 className='section-title'>{t('Dashboard', props.appLang)}</h2>{insightsSection}{rankCard}{questsSection}
   <div className='dash-stats-grid'><div className='dash-stat-card dash-stat-card--streak'><div className='dash-stat-card__icon'>{streak > 0 ? '🔥' : '❄️'}</div><div className='dash-stat-card__value'>{streak}</div><div className='dash-stat-card__label'>Day Streak</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>📝</div><div className='dash-stat-card__value'>{todayStats.wordsReviewed}</div><div className='dash-stat-card__label'>Reviews Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>🎯</div><div className='dash-stat-card__value'>{todayStats.quizzesTaken}</div><div className='dash-stat-card__label'>Quizzes Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>⏰</div><div className='dash-stat-card__value'>{srsStats.dueToday}</div><div className='dash-stat-card__label'>Due for Review</div></div></div>
   <div className='dash-section'><h3 className='dash-section__title'>SRS Progress</h3><div className='srs-bar'>{srsBarEls}</div><div className='srs-labels'>{srsLabelEls}</div></div>
   <div className='dash-section'><h3 className='dash-section__title'>Weekly Activity</h3><div className='weekly-chart'>{chartBars}</div></div>{
   // Quiz History
-  quizCards.length > 0 ? <div className='dash-section'><h3 className='dash-section__title'>Recent Quizzes</h3><div className='quiz-history-grid'>{quizCards}</div></div> : null} // Totals
+  quizCards.length > 0 ? <div className='dash-section'><h3 className='dash-section__title'>Recent Quizzes</h3><div className='quiz-history-grid'>{quizCards}</div></div> : null}
   <div className='dash-totals'><span>{'📅 ' + totalStats.daysActive + ' days active'}</span><span>{'📖 ' + totalStats.totalReviews + ' total reviews'}</span><span>{'📝 ' + totalStats.totalQuizzes + ' quizzes taken'}</span></div></div>;
 }
 

@@ -749,12 +749,12 @@ function SharedExamTab(props) {
   // Reading passage
   sec.passage && <div className='exam-passage'><div className='exam-passage__label'>📖 Reading Passage</div><div className='exam-passage__text'>{sec.passage}</div></div>}{
   // Sub-passage for this question
-  q && q.subPassage && <div className='exam-passage exam-passage--sub'><div className='exam-passage__text'>{q.subPassage}</div></div>} // Question dots
+  q && q.subPassage && <div className='exam-passage exam-passage--sub'><div className='exam-passage__text'>{q.subPassage}</div></div>}
   <div className='exam-q-nav'>{qDots}</div>{
   // Question
   q && <div className='exam-question'><div className='exam-question__num'>{'Q' + q.number}</div><div className='exam-question__text' dangerouslySetInnerHTML={{
       __html: sanitizeHTML(q.text)
-    }} /></div>} // Options
+    }} /></div>}
   <div className='exam-options'>{optionEls}</div>
   <div className='exam-nav-btns'><button className='btn btn--outline btn--small' disabled={isFirst} onClick={goPrev}>← Previous</button><button className='btn btn--primary' onClick={isLast ? finishExam : goNext}>{isLast ? '✓ Finish Exam' : 'Next →'}</button>{!isLast ? <button className='btn btn--outline btn--small' style={{
       marginLeft: '12px',

@@ -35,7 +35,7 @@ Dictionary · Kanji · Grammar · Timed exams · SRS flashcards · Multiplayer �
 <td width="50%" valign="top">
 
 ### 📚 Study
-- **Dictionary** — Search by kanji, kana, romaji, or English. Powered by the **Jotoba** API with an offline fallback of **2,700+ JLPT words**. Shows readings, meanings, parts of speech, JLPT level, and audio.
+- **Dictionary** — Search by kanji, kana, romaji, or English. Three-tier lookup: **218,000-word offline JMdict** (opt-in ~20 MB download) → **Jotoba API** → **Jisho.org** (via CORS proxy), all raced concurrently. Includes **verb deinflection** so conjugated forms like 食べました find the base entry 食べる automatically.
 - **Kanji** — Stroke count, JLPT level, school grade, on/kun readings, and **animated stroke-order diagrams** (KanjiVG).
 - **Grammar** — Browse patterns by JLPT level with examples, meanings, and usage notes.
 
@@ -95,9 +95,11 @@ It launches full-screen with its own icon, just like a native app.
 | **Mobile** | [Capacitor](https://capacitorjs.com) (Android + iOS) and an installable PWA |
 | **Backend** | Firebase Realtime Database (multiplayer, leaderboard, reviews) |
 | **Auth** | Firebase Authentication — Google + anonymous guest (native Google Sign-In on device) |
-| **Dictionary** | [Jotoba](https://jotoba.de) API + offline JLPT word list |
+| **Dictionary** | [Jotoba](https://jotoba.de) API · [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html) offline (218k entries, opt-in) · [Jisho.org](https://jisho.org) via Cloudflare Worker proxy |
 | **Kanji** | [kanjiapi.dev](https://kanjiapi.dev) + [KanjiVG](https://kanjivg.tagaini.net) stroke diagrams |
-| **Security** | DOMPurify sanitisation + SRI-hashed CDN scripts |
+| **Deinflection** | 90-rule verb conjugation table — searches conjugated forms (食べました → 食べる) |
+| **Caching** | LRU translation cache (500 entries) + 24 h search cache (200 entries) in `localStorage` |
+| **Security** | DOMPurify HTML sanitisation · Firebase security rules · Cloudflare Worker CORS proxy |
 
 ---
 
