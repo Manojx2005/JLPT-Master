@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchKanjiSvg, playAudio, sanitizeHTML, searchKanji, shuffleArray, t } from './01-core.jsx';
 import { recognizeStrokes } from './10-handwriting.jsx';
 
@@ -134,22 +132,21 @@ function WritingPad(props) {
         emit();
     }
 
-    return createElement('div', { style: { display: 'inline-flex', flexDirection: 'column', gap: 10, alignItems: 'center' } },
-        createElement('div', { className: 'writing-pad', style: { width: PAD_SIZE, height: PAD_SIZE, maxWidth: '100%' } },
-            props.guideSvg ? createElement('div', {
-                className: 'writing-guide', dangerouslySetInnerHTML: { __html: sanitizeHTML(props.guideSvg) }
-            }) : null,
-            createElement('canvas', {
-                ref: canvasRef, width: PAD_SIZE, height: PAD_SIZE,
-                className: 'writing-pad__canvas',
-                onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerLeave: up
-            })
-        ),
-        createElement('div', { style: { display: 'flex', gap: 8 } },
-            createElement('button', { className: 'btn btn--small btn--outline', onClick: undo }, '↩ ' + t('Undo', props.appLang)),
-            createElement('button', { className: 'btn btn--small btn--outline', onClick: wipe }, '🗑 ' + t('Clear', props.appLang))
-        )
-    );
+    return <div style={{
+  display: 'inline-flex',
+  flexDirection: 'column',
+  gap: 10,
+  alignItems: 'center'
+}}><div className='writing-pad' style={{
+    width: PAD_SIZE,
+    height: PAD_SIZE,
+    maxWidth: '100%'
+  }}>{props.guideSvg ? <div className='writing-guide' dangerouslySetInnerHTML={{
+      __html: sanitizeHTML(props.guideSvg)
+    }} /> : null}<canvas ref={canvasRef} width={PAD_SIZE} height={PAD_SIZE} className='writing-pad__canvas' onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={up} /></div><div style={{
+    display: 'flex',
+    gap: 8
+  }}><button className='btn btn--small btn--outline' onClick={undo}>{'↩ ' + t('Undo', props.appLang)}</button><button className='btn btn--small btn--outline' onClick={wipe}>{'🗑 ' + t('Clear', props.appLang)}</button></div></div>;
 }
 
 /* -----------------------------------------------------------------
@@ -267,23 +264,27 @@ function KanjiWritingTab(props) {
     /* ---------- Result screen ---------- */
     if (phase === 'result') {
         var pct = Math.round((score / items.length) * 100);
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'result-panel' },
-                createElement('div', { className: 'result-panel__emoji' }, pct >= 70 ? '🎉' : '✍️'),
-                createElement('div', { className: 'result-panel__title' }, pct >= 70 ? t('Great Job!', props.appLang) : t('Keep Practicing!', props.appLang)),
-                createElement('div', { style: { fontSize: '2rem', fontWeight: 700, margin: '16px 0' } }, pct + '%'),
-                createElement('div', { style: { color: 'var(--text-secondary)' } }, score + ' / ' + items.length + ' ' + t('correct', props.appLang)),
-                createElement('button', { className: 'btn btn--primary', onClick: function () { setPhase('setup'); }, style: { marginTop: 20 } }, '↻ ' + t('Try Again', props.appLang))
-            )
-        );
+        return <div className='glass-card'><div className='result-panel'><div className='result-panel__emoji'>{pct >= 70 ? '🎉' : '✍️'}</div><div className='result-panel__title'>{pct >= 70 ? t('Great Job!', props.appLang) : t('Keep Practicing!', props.appLang)}</div><div style={{
+      fontSize: '2rem',
+      fontWeight: 700,
+      margin: '16px 0'
+    }}>{pct + '%'}</div><div style={{
+      color: 'var(--text-secondary)'
+    }}>{score + ' / ' + items.length + ' ' + t('correct', props.appLang)}</div><button className='btn btn--primary' onClick={() => {
+      setPhase('setup');
+    }} style={{
+      marginTop: 20
+    }}>{'↻ ' + t('Try Again', props.appLang)}</button></div></div>;
     }
 
     /* ---------- Loading ---------- */
     if (phase === 'loading') {
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { style: { textAlign: 'center', padding: 60, fontSize: '1.1rem', color: 'var(--text-muted)' } },
-                t('Preparing your writing set…', props.appLang))
-        );
+        return <div className='glass-card'><div style={{
+    textAlign: 'center',
+    padding: 60,
+    fontSize: '1.1rem',
+    color: 'var(--text-muted)'
+  }}>{t('Preparing your writing set…', props.appLang)}</div></div>;
     }
 
     /* ---------- Active drill ---------- */
@@ -293,61 +294,55 @@ function KanjiWritingTab(props) {
         var showGuide = mode === 'trace'; // faint guide only in trace mode
 
         var statusEl = null;
-        if (check === 'checking') statusEl = createElement('div', { className: 'writing-status' }, t('Checking…', props.appLang));
-        else if (check === 'correct') statusEl = createElement('div', { className: 'writing-status writing-status--ok' }, '✓ ' + t('Correct!', props.appLang));
-        else if (check === 'wrong') statusEl = createElement('div', { className: 'writing-status writing-status--bad' }, '✗ ' + t('Not recognized — try again or reveal the answer.', props.appLang));
+        if (check === 'checking') statusEl = <div className='writing-status'>{t('Checking…', props.appLang)}</div>;
+        else if (check === 'correct') statusEl = <div className='writing-status writing-status--ok'>{'✓ ' + t('Correct!', props.appLang)}</div>;
+        else if (check === 'wrong') statusEl = <div className='writing-status writing-status--bad'>{'✗ ' + t('Not recognized — try again or reveal the answer.', props.appLang)}</div>;
 
         // The animated stroke-order answer, shown after reveal/correct.
-        var answerEl = (revealed && item.svg) ? createElement('div', { className: 'writing-answer' },
-            createElement('div', { className: 'kanji-large-display', style: { margin: '0 auto', cursor: 'pointer' }, onClick: function () { playAudio(item.kanji); } },
-                createElement('div', { className: 'kanji-svg-container', dangerouslySetInnerHTML: { __html: sanitizeHTML(item.svg) } })
-            ),
-            createElement('div', { style: { textAlign: 'center', marginTop: 6, fontSize: '0.85rem', color: 'var(--text-muted)' } }, meaningStr)
-        ) : null;
+        var answerEl = (revealed && item.svg) ? <div className='writing-answer'><div className='kanji-large-display' style={{
+    margin: '0 auto',
+    cursor: 'pointer'
+  }} onClick={() => {
+    playAudio(item.kanji);
+  }}><div className='kanji-svg-container' dangerouslySetInnerHTML={{
+      __html: sanitizeHTML(item.svg)
+    }} /></div><div style={{
+    textAlign: 'center',
+    marginTop: 6,
+    fontSize: '0.85rem',
+    color: 'var(--text-muted)'
+  }}>{meaningStr}</div></div> : null;
 
         // Action buttons depend on the check state.
         var actions;
         if (check === 'correct') {
-            actions = createElement('button', { className: 'btn btn--primary btn--full', onClick: next, style: { marginTop: 14 } },
-                index + 1 >= items.length ? t('View Results', props.appLang) + ' →' : t('Next', props.appLang) + ' →');
+            actions = <button className='btn btn--primary btn--full' onClick={next} style={{
+  marginTop: 14
+}}>{index + 1 >= items.length ? t('View Results', props.appLang) + ' →' : t('Next', props.appLang) + ' →'}</button>;
         } else if (check === 'wrong') {
-            actions = createElement('div', { style: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 } },
-                !revealed ? createElement('button', { className: 'btn btn--outline', onClick: function () { setRevealed(true); } }, '👁 ' + t('Reveal answer', props.appLang)) : null,
-                revealed ? createElement('button', { className: 'btn btn--outline', onClick: gradeRight }, '✓ ' + t('I wrote it right', props.appLang)) : null,
-                createElement('button', { className: 'btn btn--primary', onClick: next }, index + 1 >= items.length ? t('View Results', props.appLang) + ' →' : t('Skip', props.appLang) + ' →')
-            );
+            actions = <div style={{
+  display: 'flex',
+  gap: 8,
+  flexWrap: 'wrap',
+  marginTop: 14
+}}>{!revealed ? <button className='btn btn--outline' onClick={() => {
+    setRevealed(true);
+  }}>{'👁 ' + t('Reveal answer', props.appLang)}</button> : null}{revealed ? <button className='btn btn--outline' onClick={gradeRight}>{'✓ ' + t('I wrote it right', props.appLang)}</button> : null}<button className='btn btn--primary' onClick={next}>{index + 1 >= items.length ? t('View Results', props.appLang) + ' →' : t('Skip', props.appLang) + ' →'}</button></div>;
         } else {
-            actions = createElement('button', {
-                className: 'btn btn--primary btn--full', onClick: runCheck,
-                disabled: !strokes.length, style: { marginTop: 14 }
-            }, '✓ ' + t('Check', props.appLang));
+            actions = <button className='btn btn--primary btn--full' onClick={runCheck} disabled={!strokes.length} style={{
+  marginTop: 14
+}}>{'✓ ' + t('Check', props.appLang)}</button>;
         }
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'flashcard-header' },
-                createElement('button', { className: 'quiz-bar__back', onClick: function () { setPhase('setup'); } }, '←'),
-                createElement('span', null, (index + 1) + ' / ' + items.length),
-                createElement('span', null, score + ' ✓')
-            ),
-            createElement('div', { className: 'progress-track' },
-                createElement('div', { className: 'progress-fill', style: { width: ((index + 1) / items.length * 100) + '%' } })
-            ),
-
-            // Prompt: what to write
-            createElement('div', { className: 'writing-prompt' },
-                createElement('div', { className: 'writing-prompt__label' }, mode === 'trace' ? t('Trace this kanji', props.appLang) : t('Write the kanji for:', props.appLang)),
-                createElement('div', { className: 'writing-prompt__meaning' }, meaningStr || '—'),
-                readings ? createElement('div', { className: 'writing-prompt__reading', lang: 'ja' }, readings) : null
-            ),
-
-            createElement('div', { style: { textAlign: 'center', marginTop: 16 } },
-                createElement(WritingPad, { onStrokes: setStrokes, clearSignal: clearSignal, guideSvg: showGuide ? item.svg : null, appLang: props.appLang })
-            ),
-
-            statusEl,
-            answerEl,
-            actions
-        );
+        return <div className='glass-card'><div className='flashcard-header'><button className='quiz-bar__back' onClick={() => {
+      setPhase('setup');
+    }}>←</button><span>{index + 1 + ' / ' + items.length}</span><span>{score + ' ✓'}</span></div><div className='progress-track'><div className='progress-fill' style={{
+      width: (index + 1) / items.length * 100 + '%'
+    }} /></div> // Prompt: what to write
+  <div className='writing-prompt'><div className='writing-prompt__label'>{mode === 'trace' ? t('Trace this kanji', props.appLang) : t('Write the kanji for:', props.appLang)}</div><div className='writing-prompt__meaning'>{meaningStr || '—'}</div>{readings ? <div className='writing-prompt__reading' lang='ja'>{readings}</div> : null}</div><div style={{
+    textAlign: 'center',
+    marginTop: 16
+  }}><WritingPad onStrokes={setStrokes} clearSignal={clearSignal} guideSvg={showGuide ? item.svg : null} appLang={props.appLang} /></div>{statusEl}{answerEl}{actions}</div>;
     }
 
     /* ---------- Setup ---------- */
@@ -355,38 +350,23 @@ function KanjiWritingTab(props) {
     if (props.savedWords && props.savedWords.length > 0) levels.push('Saved');
 
     var levelBtns = levels.map(function (lv) {
-        return createElement('button', {
-            key: lv,
-            className: 'level-btn' + (level === lv ? ' level-btn--active' : ''),
-            onClick: function () { setLevel(lv); }
-        }, lv === 'Saved' ? t('Saved', props.appLang) : lv);
+        return <button key={lv} className={'level-btn' + (level === lv ? ' level-btn--active' : '')} onClick={() => {
+  setLevel(lv);
+}}>{lv === 'Saved' ? t('Saved', props.appLang) : lv}</button>;
     });
 
     var modeBtns = [
         { id: 'recall', label: '🧠 ' + t('Recall', props.appLang) },
         { id: 'trace', label: '✏️ ' + t('Trace', props.appLang) }
     ].map(function (m) {
-        return createElement('button', {
-            key: m.id,
-            className: 'mode-btn' + (mode === m.id ? ' mode-btn--active' : ''),
-            onClick: function () { setMode(m.id); }
-        }, m.label);
+        return <button key={m.id} className={'mode-btn' + (mode === m.id ? ' mode-btn--active' : '')} onClick={() => {
+  setMode(m.id);
+}}>{m.label}</button>;
     });
 
-    return createElement('div', { className: 'glass-card', key: 'writing' },
-        createElement('h2', { className: 'section-title' }, t('Kanji Writing Practice', props.appLang)),
-        createElement('p', { className: 'section-desc' }, t('Draw kanji by hand and get instant feedback. Recall mode hides the character; Trace mode shows a guide to copy.', props.appLang)),
-
-        createElement('h3', { className: 'setup-label' }, t('Select Level', props.appLang)),
-        createElement('div', { className: 'level-selector' }, levelBtns),
-
-        createElement('h3', { className: 'setup-label' }, t('Mode', props.appLang)),
-        createElement('div', { className: 'mode-selector' }, modeBtns),
-
-        createElement('div', { className: 'setup-center' },
-            createElement('button', { className: 'btn btn--primary btn--large btn--glow', onClick: start, style: { marginTop: 20 } }, '▶  ' + t('Start Practice', props.appLang))
-        )
-    );
+    return <div className='glass-card' key='writing'><h2 className='section-title'>{t('Kanji Writing Practice', props.appLang)}</h2><p className='section-desc'>{t('Draw kanji by hand and get instant feedback. Recall mode hides the character; Trace mode shows a guide to copy.', props.appLang)}</p><h3 className='setup-label'>{t('Select Level', props.appLang)}</h3><div className='level-selector'>{levelBtns}</div><h3 className='setup-label'>{t('Mode', props.appLang)}</h3><div className='mode-selector'>{modeBtns}</div><div className='setup-center'><button className='btn btn--primary btn--large btn--glow' onClick={start} style={{
+      marginTop: 20
+    }}>{'▶  ' + t('Start Practice', props.appLang)}</button></div></div>;
 }
 
 export { KanjiWritingTab };

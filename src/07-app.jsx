@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { MOCK_DICT, ThemeToggle, _localDataMissing, loadJSON, t } from './01-core.jsx';
 import { SRS, PROGRESS, CLOUD_SYNC_API, GRAMMAR_DATA, DAILY_WORD } from './features.js';
 import { DictionaryTab, SavedTab } from './02-dictionary.jsx';
@@ -16,7 +14,6 @@ import { KanjiWritingTab } from './12-writing.jsx';
 /* =================================================================
    JLPT Master — Root App component, ErrorBoundary, and mount logic
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
@@ -48,14 +45,11 @@ var NAV_ICON_PATHS = {
 function navIcon(id, size) {
     var paths = NAV_ICON_PATHS[id];
     if (!paths) return null;
-    return createElement('svg', {
-        width: size || 18, height: size || 18, viewBox: '0 0 24 24',
-        fill: 'none', stroke: 'currentColor', strokeWidth: 2,
-        strokeLinecap: 'round', strokeLinejoin: 'round',
-        'aria-hidden': true, style: { display: 'block' }
-    }, paths.map(function (d, i) {
-        return createElement('path', { key: i, d: d });
-    }));
+    return <svg width={size || 18} height={size || 18} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth={2} strokeLinecap='round' strokeLinejoin='round' aria-hidden={true} style={{
+  display: 'block'
+}}>{paths.map(function (d, i) {
+    return <path key={i} d={d} />;
+  })}</svg>;
 }
 
 /* PWA install helper. Shown only in a browser (never in the native app or
@@ -101,17 +95,7 @@ function InstallPrompt() {
 
     if (!show) return null;
 
-    return createElement('div', { className: 'install-banner' },
-        createElement('img', { className: 'install-banner__icon', src: './icon.svg', alt: '' }),
-        createElement('div', { className: 'install-banner__text' },
-            createElement('strong', null, 'Install JLPT Master'),
-            createElement('span', null, ios
-                ? 'Tap the Share icon below, then “Add to Home Screen”.'
-                : 'Add it to your home screen for the full app.')
-        ),
-        ios ? null : createElement('button', { className: 'install-banner__btn', onClick: install }, 'Install'),
-        createElement('button', { className: 'install-banner__close', onClick: dismiss, 'aria-label': 'Dismiss' }, '✕')
-    );
+    return <div className='install-banner'><img className='install-banner__icon' src='./icon.svg' alt='' /><div className='install-banner__text'><strong>Install JLPT Master</strong><span>{ios ? 'Tap the Share icon below, then “Add to Home Screen”.' : 'Add it to your home screen for the full app.'}</span></div>{ios ? null : <button className='install-banner__btn' onClick={install}>Install</button>}<button className='install-banner__close' onClick={dismiss} aria-label='Dismiss'>✕</button></div>;
 }
 
 function App() {
@@ -551,90 +535,43 @@ function App() {
     // Render navigation tab buttons
     var tabBtns = tabs.map(function (tabItem) {
         if (tabItem.header) {
-            return createElement('div', { key: tabItem.id, className: 'sidebar-nav-header' }, t(tabItem.header, appLang));
+            return <div key={tabItem.id} className='sidebar-nav-header'>{t(tabItem.header, appLang)}</div>;
         }
         var hasBadge = tabItem.id === 'flash' && srsDueCount > 0;
         var badge = hasBadge
-            ? createElement('span', { className: 'nav-tab__badge' }, srsDueCount > 99 ? '99+' : srsDueCount)
+            ? <span className='nav-tab__badge'>{srsDueCount > 99 ? '99+' : srsDueCount}</span>
             : null;
 
-        return createElement('button', {
-            key: tabItem.id,
-            className: 'nav-tab' + (tab === tabItem.id ? ' nav-tab--active' : ''),
-            onClick: function (e) {
-                if (didDrag.current) return;
-                switchTab(tabItem.id);
-                if (window.innerWidth <= 800) {
-                    setIsSidebarExpanded(false);
-                }
-            },
-            title: t(tabItem.full, appLang),
-            'data-tooltip': t(tabItem.full, appLang),
-        },
-            createElement('span', { className: 'nav-tab__icon' }, navIcon(tabItem.id) || tabItem.label),
-            createElement('span', { className: 'nav-tab__text' }, t(tabItem.full, appLang)),
-            badge
-        );
+        return <button key={tabItem.id} className={'nav-tab' + (tab === tabItem.id ? ' nav-tab--active' : '')} onClick={e => {
+  if (didDrag.current) return;
+  switchTab(tabItem.id);
+  if (window.innerWidth <= 800) {
+    setIsSidebarExpanded(false);
+  }
+}} title={t(tabItem.full, appLang)} data-tooltip={t(tabItem.full, appLang)}><span className='nav-tab__icon'>{navIcon(tabItem.id) || tabItem.label}</span><span className='nav-tab__text'>{t(tabItem.full, appLang)}</span>{badge}</button>;
     });
 
     // Conditionally render the active tab's component
     var activeTab = null;
-    if (tab === 'dict') activeTab = createElement(DictionaryTab, {
-        savedWords: savedWords,
-        toggleSavedWord: toggleSavedWord,
-        appLang: appLang
-    });
-    if (tab === 'kanji') activeTab = createElement(KanjiTab, {
-        savedWords: savedWords,
-        toggleSavedWord: toggleSavedWord,
-        appLang: appLang
-    });
-    if (tab === 'flash') activeTab = createElement(FlashcardTab, {
-        savedWords: savedWords,
-        toggleSavedWord: toggleSavedWord,
-        autoPronounce: autoPronounce,
-        appLang: appLang,
-        showFurigana: showFurigana
-    });
-    if (tab === 'kana') activeTab = createElement(KanaTab, { appLang: appLang });
-    if (tab === 'writing') activeTab = createElement(KanjiWritingTab, { appLang: appLang, savedWords: savedWords });
-    if (tab === 'conj') activeTab = createElement(ConjugationTab, { appLang: appLang });
-    if (tab === 'grammar') activeTab = createElement(GrammarTab, { appLang: appLang });
-    if (tab === 'dash') activeTab = createElement(DashboardTab, { setTab: switchTab, appLang: appLang });
-    if (tab === 'leader') activeTab = createElement(LeaderboardTab, { appLang: appLang, onSync: cloudSyncNow });
-    if (tab === 'saved') activeTab = createElement(SavedTab, {
-        savedWords: savedWords,
-        toggleSavedWord: toggleSavedWord,
-        onExport: exportSavedWords,
-        onExportPDF: exportSavedWordsPDF,
-        onImport: importSavedWords,
-        onSyncSaved: syncSavedWordsNow,
-        appLang: appLang
-    });
-    if (tab === 'quiz') activeTab = createElement(QuizTab, {
-        questions: allQuestions,
-        savedWords: savedWords,
-        toggleSavedWord: toggleSavedWord,
-        autoPronounce: autoPronounce,
-        showFurigana: showFurigana,
-        appLang: appLang
-    });
-    if (tab === 'grammarquiz') activeTab = createElement(GrammarQuizTab, {
-        questions: GRAMMAR_DATA,
-        showFurigana: showFurigana,
-        appLang: appLang
-    });
-    if (tab === 'pdfexam') activeTab = createElement(PDFExamTab, { appLang: appLang });
-    if (tab === 'mockexam') activeTab = createElement(MockExamTab, { appLang: appLang });
-    if (tab === 'multi') activeTab = createElement(MultiplayerTab, { questions: allQuestions, appLang: appLang });
-    if (tab === 'reviews') activeTab = createElement(ReviewsTab, { appLang: appLang });
-    if (tab === 'privacy') activeTab = createElement(PrivacyTab, { appLang: appLang });
+    if (tab === 'dict') activeTab = <DictionaryTab savedWords={savedWords} toggleSavedWord={toggleSavedWord} appLang={appLang} />;
+    if (tab === 'kanji') activeTab = <KanjiTab savedWords={savedWords} toggleSavedWord={toggleSavedWord} appLang={appLang} />;
+    if (tab === 'flash') activeTab = <FlashcardTab savedWords={savedWords} toggleSavedWord={toggleSavedWord} autoPronounce={autoPronounce} appLang={appLang} showFurigana={showFurigana} />;
+    if (tab === 'kana') activeTab = <KanaTab appLang={appLang} />;
+    if (tab === 'writing') activeTab = <KanjiWritingTab appLang={appLang} savedWords={savedWords} />;
+    if (tab === 'conj') activeTab = <ConjugationTab appLang={appLang} />;
+    if (tab === 'grammar') activeTab = <GrammarTab appLang={appLang} />;
+    if (tab === 'dash') activeTab = <DashboardTab setTab={switchTab} appLang={appLang} />;
+    if (tab === 'leader') activeTab = <LeaderboardTab appLang={appLang} onSync={cloudSyncNow} />;
+    if (tab === 'saved') activeTab = <SavedTab savedWords={savedWords} toggleSavedWord={toggleSavedWord} onExport={exportSavedWords} onExportPDF={exportSavedWordsPDF} onImport={importSavedWords} onSyncSaved={syncSavedWordsNow} appLang={appLang} />;
+    if (tab === 'quiz') activeTab = <QuizTab questions={allQuestions} savedWords={savedWords} toggleSavedWord={toggleSavedWord} autoPronounce={autoPronounce} showFurigana={showFurigana} appLang={appLang} />;
+    if (tab === 'grammarquiz') activeTab = <GrammarQuizTab questions={GRAMMAR_DATA} showFurigana={showFurigana} appLang={appLang} />;
+    if (tab === 'pdfexam') activeTab = <PDFExamTab appLang={appLang} />;
+    if (tab === 'mockexam') activeTab = <MockExamTab appLang={appLang} />;
+    if (tab === 'multi') activeTab = <MultiplayerTab questions={allQuestions} appLang={appLang} />;
+    if (tab === 'reviews') activeTab = <ReviewsTab appLang={appLang} />;
+    if (tab === 'privacy') activeTab = <PrivacyTab appLang={appLang} />;
 
-    if (tab === 'custom') activeTab = createElement(CustomTab, {
-        onAdd: addQuestion,
-        customQuestions: customQs,
-        onDelete: deleteQuestion,
-    });
+    if (tab === 'custom') activeTab = <CustomTab onAdd={addQuestion} customQuestions={customQs} onDelete={deleteQuestion} />;
 
     // Daily Word
     var dailyWord = DAILY_WORD.get();
@@ -668,71 +605,38 @@ function App() {
         }
     }
 
-    var bottomNav = createElement('nav', {
-        className: 'bottom-nav' + (bottomActiveIdx < 0 ? ' bottom-nav--noblob' : ''),
-        'aria-label': 'Navigation',
-        style: {
-            '--nav-active': bottomActiveIdx < 0 ? 0 : bottomActiveIdx,
-            '--nav-count': BOTTOM_NAV_ITEMS.length
-        }
-    },
-        createElement('span', { className: 'bottom-nav__blob', 'aria-hidden': true }),
-        BOTTOM_NAV_ITEMS.map(function (item) {
-            var isMore = item.id === 'more';
-            var isActive = isMore ? moreSheetOpen : tab === item.id;
-            var showBadge = item.id === 'flash' && srsDueCount > 0;
-            return createElement('button', {
-                key: item.id,
-                className: 'bottom-nav__item' + (isActive ? ' bottom-nav__item--active' : ''),
-                onClick: function () {
-                    if (isMore) {
-                        setMoreSheetOpen(function (prev) { return !prev; });
-                    } else {
-                        setMoreSheetOpen(false);
-                        switchTab(item.id);
-                    }
-                },
-                'aria-label': item.short,
-            },
-                createElement('span', { className: 'bottom-nav__icon' },
-                    navIcon(item.id, 20) || item.label,
-                    showBadge ? createElement('span', { className: 'bottom-nav__badge' },
-                        srsDueCount > 9 ? '9+' : srsDueCount) : null
-                ),
-                createElement('span', { className: 'bottom-nav__label' }, item.short)
-            );
-        })
-    );
+    var bottomNav = <nav className={'bottom-nav' + (bottomActiveIdx < 0 ? ' bottom-nav--noblob' : '')} aria-label='Navigation' style={{
+  '--nav-active': bottomActiveIdx < 0 ? 0 : bottomActiveIdx,
+  '--nav-count': BOTTOM_NAV_ITEMS.length
+}}><span className='bottom-nav__blob' aria-hidden={true} />{BOTTOM_NAV_ITEMS.map(function (item) {
+    var isMore = item.id === 'more';
+    var isActive = isMore ? moreSheetOpen : tab === item.id;
+    var showBadge = item.id === 'flash' && srsDueCount > 0;
+    return <button key={item.id} className={'bottom-nav__item' + (isActive ? ' bottom-nav__item--active' : '')} onClick={() => {
+      if (isMore) {
+        setMoreSheetOpen(function (prev) {
+          return !prev;
+        });
+      } else {
+        setMoreSheetOpen(false);
+        switchTab(item.id);
+      }
+    }} aria-label={item.short}><span className='bottom-nav__icon'>{navIcon(item.id, 20) || item.label}{showBadge ? <span className='bottom-nav__badge'>{srsDueCount > 9 ? '9+' : srsDueCount}</span> : null}</span><span className='bottom-nav__label'>{item.short}</span></button>;
+  })}</nav>;
 
-    var moreSheetBackdrop = createElement('div', {
-        className: 'more-sheet-backdrop' + (moreSheetOpen ? ' more-sheet-backdrop--open' : ''),
-        onClick: function () { setMoreSheetOpen(false); }
-    });
+    var moreSheetBackdrop = <div className={'more-sheet-backdrop' + (moreSheetOpen ? ' more-sheet-backdrop--open' : '')} onClick={() => {
+  setMoreSheetOpen(false);
+}} />;
 
     // The "More" tabs live INSIDE the island capsule. When open, the capsule
     // grows to reveal this grid (one morphing element), then shrinks back —
     // the authentic Dynamic Island behavior, not a separate sheet.
-    var moreExpand = createElement('div', {
-        className: 'island-expand',
-        ref: islandExpandRef,
-        'aria-hidden': !moreSheetOpen
-    },
-        createElement('div', { className: 'more-sheet__grid' },
-            moreTabs.map(function (tabItem) {
-                return createElement('button', {
-                    key: tabItem.id,
-                    className: 'more-sheet__item' + (tab === tabItem.id ? ' more-sheet__item--active' : ''),
-                    onClick: function () {
-                        switchTab(tabItem.id);
-                        setMoreSheetOpen(false);
-                    }
-                },
-                    createElement('span', { className: 'more-sheet__icon' }, navIcon(tabItem.id, 22) || tabItem.label),
-                    createElement('span', { className: 'more-sheet__label' }, t(tabItem.full, appLang))
-                );
-            })
-        )
-    );
+    var moreExpand = <div className='island-expand' ref={islandExpandRef} aria-hidden={!moreSheetOpen}><div className='more-sheet__grid'>{moreTabs.map(function (tabItem) {
+      return <button key={tabItem.id} className={'more-sheet__item' + (tab === tabItem.id ? ' more-sheet__item--active' : '')} onClick={() => {
+        switchTab(tabItem.id);
+        setMoreSheetOpen(false);
+      }}><span className='more-sheet__icon'>{navIcon(tabItem.id, 22) || tabItem.label}</span><span className='more-sheet__label'>{t(tabItem.full, appLang)}</span></button>;
+    })}</div></div>;
 
     // Title shown in the page header for the active tab
     var activeTabMeta = { full: 'JLPT Master' };
@@ -742,112 +646,45 @@ function App() {
     if (tab === 'privacy') activeTabMeta = { full: 'Privacy Policy' };
 
     // --- Render the App Shell ---
-    return createElement('div', { className: 'app-wrapper' },
-        // PWA install banner (browser-only; hidden in the native app).
-        createElement(InstallPrompt, null),
-        // Backdrop closes the expanded island on outside tap.
-        moreSheetBackdrop,
-        // The island dock: the expandable More grid sits above the persistent
-        // pill row, all in one capsule that grows/shrinks as a single element.
-        createElement('div', {
-            className: 'island-dock' + (moreSheetOpen ? ' island-dock--open' : '')
-        }, moreExpand, bottomNav),
-        // Sidebar Navigation
-        createElement('aside', { className: 'sidebar' + (!isSidebarExpanded ? ' sidebar--collapsed' : '') },
-            createElement('div', { className: 'sidebar-header' },
-                createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 } },
-                    createElement('div', { className: 'sidebar-title' }, 'JLPT Master'),
-                    currentStreak > 0
-                        ? createElement('div', { className: 'sidebar-streak' },
-                            '🔥 ', currentStreak, ' day streak')
-                        : null
-                ),
-                createElement('button', {
-                    className: 'sidebar-toggle-btn desktop-only',
-                    onClick: function () { setIsSidebarExpanded(!isSidebarExpanded); },
-                    title: isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar',
-                    style: { flexShrink: 0 }
-                },
-                    createElement('svg', {
-                        width: '16', height: '16', viewBox: '0 0 16 16',
-                        fill: 'none', stroke: 'currentColor', strokeWidth: '2',
-                        strokeLinecap: 'round', strokeLinejoin: 'round'
-                    },
-                        createElement('polyline', { points: '11 4 5 8 11 12' })
-                    )
-                )
-            ),
-            createElement('nav', { className: 'sidebar-nav' }, tabBtns)
-        ),
-        // Main Content Area
-        createElement('main', { className: 'app-main', ref: mainRef },
-            // Slim contextual page header: page title left, controls right.
-            createElement('header', { className: 'page-header' },
-                createElement('div', { className: 'page-header__heading', style: { display: 'flex', alignItems: 'center', gap: '12px' } },
-                    tabHistory.length > 0 ? createElement('button', {
-                        className: 'page-header__back',
-                        onClick: goBack,
-                        title: t('Back', appLang),
-                        'aria-label': t('Back', appLang)
-                    },
-                        createElement('svg', {
-                            width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none',
-                            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round'
-                        }, createElement('path', { d: 'm15 18-6-6 6-6' }))
-                    ) : null,
-                    createElement('div', { style: { minWidth: 0 } },
-                        // Clicking the title scrolls the current tab back to the top.
-                        createElement('h1', {
-                            className: 'page-header__title',
-                            onClick: scrollToTop,
-                            style: { cursor: 'pointer' },
-                            title: t('Scroll to top', appLang)
-                        }, t(activeTabMeta.full, appLang)),
-                        createElement('p', { className: 'page-header__sub' },
-                            'JLPT Master \u00b7 ' + JLPT_VOCAB.length + ' words' +
-                            (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : ''))
-                    )
-                ),
-                createElement('div', { className: 'app-controls-bar__actions page-header__actions' },
-                    createElement('button', {
-                        className: 'ctrl-btn' + (showFurigana ? ' ctrl-btn--active' : ''),
-                        onClick: function () { setShowFurigana(!showFurigana); },
-                        title: 'Furigana ' + (showFurigana ? 'ON' : 'OFF')
-                    }, '\u3042'),
-                    createElement('button', {
-                        className: 'ctrl-btn' + (autoPronounce ? ' ctrl-btn--active' : ''),
-                        onClick: function () { setAutoPronounce(!autoPronounce); },
-                        title: 'Auto-Pronounce ' + (autoPronounce ? 'ON' : 'OFF')
-                    }, autoPronounce ? '\uD83D\uDD0A' : '\uD83D\uDD07'),
-                    createElement(LanguageSelector, {
-                        value: appLang,
-                        onChange: function (newLang) { setAppLang(newLang); }
-                    }),
-                    createElement(ThemeToggle, { isLight: isLightMode, onToggle: toggleTheme }),
-                    createElement(HeaderLoginWidget, null)
-                )
-            ),
-            // Active tab content with transition
-            createElement('div', { className: 'tab-content ' + tabAnim }, activeTab),
-            // Footer: brand close + legal links
-            createElement('footer', { className: 'app-footer' },
-                createElement('span', { className: 'app-footer__copy' },
-                    '\u00a9 ' + new Date().getFullYear() + ' JLPT Master'),
-                createElement('nav', { className: 'app-footer__links', 'aria-label': 'Legal' },
-                    createElement('button', {
-                        className: 'app-footer__link',
-                        onClick: function () { switchTab('privacy'); }
-                    }, 'Privacy Policy'),
-                    createElement('span', { className: 'app-footer__dot' }, '\u00b7'),
-                    createElement('button', {
-                        className: 'app-footer__link',
-                        onClick: function () { switchTab('privacy'); }
-                    }, 'Terms of Use')
-                ),
-                createElement('span', { className: 'app-footer__jp', lang: 'ja' }, '\u65e5\u672c\u8a9e\u80fd\u529b\u8a66\u9a13\u5bfe\u7b56')
-            )
-        )
-    );
+    return <div className='app-wrapper'> // PWA install banner (browser-only; hidden in the native app).
+  <InstallPrompt />{
+  // Backdrop closes the expanded island on outside tap.
+  moreSheetBackdrop} // The island dock: the expandable More grid sits above the persistent
+  // pill row, all in one capsule that grows/shrinks as a single element.
+  <div className={'island-dock' + (moreSheetOpen ? ' island-dock--open' : '')}>{moreExpand}{bottomNav}</div> // Sidebar Navigation
+  <aside className={'sidebar' + (!isSidebarExpanded ? ' sidebar--collapsed' : '')}><div className='sidebar-header'><div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+        minWidth: 0
+      }}><div className='sidebar-title'>JLPT Master</div>{currentStreak > 0 ? <div className='sidebar-streak'>{'🔥 '}{currentStreak}{' day streak'}</div> : null}</div><button className='sidebar-toggle-btn desktop-only' onClick={() => {
+        setIsSidebarExpanded(!isSidebarExpanded);
+      }} title={isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'} style={{
+        flexShrink: 0
+      }}><svg width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='11 4 5 8 11 12' /></svg></button></div><nav className='sidebar-nav'>{tabBtns}</nav></aside> // Main Content Area
+  <main className='app-main' ref={mainRef}> // Slim contextual page header: page title left, controls right.
+    <header className='page-header'><div className='page-header__heading' style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>{tabHistory.length > 0 ? <button className='page-header__back' onClick={goBack} title={t('Back', appLang)} aria-label={t('Back', appLang)}><svg width={18} height={18} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth={2} strokeLinecap='round' strokeLinejoin='round'><path d='m15 18-6-6 6-6' /></svg></button> : null}<div style={{
+          minWidth: 0
+        }}> // Clicking the title scrolls the current tab back to the top.
+          <h1 className='page-header__title' onClick={scrollToTop} style={{
+            cursor: 'pointer'
+          }} title={t('Scroll to top', appLang)}>{t(activeTabMeta.full, appLang)}</h1><p className='page-header__sub'>{'JLPT Master \u00b7 ' + JLPT_VOCAB.length + ' words' + (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : '')}</p></div></div><div className='app-controls-bar__actions page-header__actions'><button className={'ctrl-btn' + (showFurigana ? ' ctrl-btn--active' : '')} onClick={() => {
+          setShowFurigana(!showFurigana);
+        }} title={'Furigana ' + (showFurigana ? 'ON' : 'OFF')}>あ</button><button className={'ctrl-btn' + (autoPronounce ? ' ctrl-btn--active' : '')} onClick={() => {
+          setAutoPronounce(!autoPronounce);
+        }} title={'Auto-Pronounce ' + (autoPronounce ? 'ON' : 'OFF')}>{autoPronounce ? '\uD83D\uDD0A' : '\uD83D\uDD07'}</button><LanguageSelector value={appLang} onChange={newLang => {
+          setAppLang(newLang);
+        }} /><ThemeToggle isLight={isLightMode} onToggle={toggleTheme} /><HeaderLoginWidget /></div></header> // Active tab content with transition
+    <div className={'tab-content ' + tabAnim}>{activeTab}</div> // Footer: brand close + legal links
+    <footer className='app-footer'><span className='app-footer__copy'>{'\u00a9 ' + new Date().getFullYear() + ' JLPT Master'}</span><nav className='app-footer__links' aria-label='Legal'><button className='app-footer__link' onClick={() => {
+          switchTab('privacy');
+        }}>Privacy Policy</button><span className='app-footer__dot'>·</span><button className='app-footer__link' onClick={() => {
+          switchTab('privacy');
+        }}>Terms of Use</button></nav><span className='app-footer__jp' lang='ja'>日本語能力試験対策</span></footer></main></div>;
 }
 
 /* =================================================================
@@ -872,15 +709,20 @@ class ErrorBoundary extends React.Component {
     }
     render() {
         if (this.state.error) {
-            return createElement('div', { style: { padding: '40px', textAlign: 'center', color: 'var(--text-primary, #fff)' } },
-                createElement('h2', null, '\u26A0\uFE0F Something went wrong'),
-                createElement('p', { style: { opacity: 0.7, margin: '12px 0 20px' } }, String(this.state.error && this.state.error.message || this.state.error)),
-                createElement('button', {
-                    className: 'btn btn--primary',
-                    onClick: function () { window.location.reload(); },
-                    style: { padding: '10px 24px', borderRadius: '12px', cursor: 'pointer' }
-                }, 'Reload App')
-            );
+            return <div style={{
+  padding: '40px',
+  textAlign: 'center',
+  color: 'var(--text-primary, #fff)'
+}}><h2>⚠️ Something went wrong</h2><p style={{
+    opacity: 0.7,
+    margin: '12px 0 20px'
+  }}>{String(this.state.error && this.state.error.message || this.state.error)}</p><button className='btn btn--primary' onClick={() => {
+    window.location.reload();
+  }} style={{
+    padding: '10px 24px',
+    borderRadius: '12px',
+    cursor: 'pointer'
+  }}>Reload App</button></div>;
         }
         return this.props.children;
     }

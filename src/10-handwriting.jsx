@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef } from 'react';
 
 /* =================================================================
    JLPT Master — Handwriting input for Kanji search
@@ -186,59 +184,68 @@ function HandwritingInput(props) {
     }
 
     var candidateEls = candidates.map(function (c, i) {
-        return createElement('button', {
-            key: i,
-            className: 'btn btn--outline',
-            style: { fontSize: '1.4rem', padding: '6px 14px', fontFamily: 'var(--font-jp, sans-serif)', minWidth: '52px' },
-            onClick: function () { handlePick(c); }
-        }, c);
+        return <button key={i} className='btn btn--outline' style={{
+  fontSize: '1.4rem',
+  padding: '6px 14px',
+  fontFamily: 'var(--font-jp, sans-serif)',
+  minWidth: '52px'
+}} onClick={() => {
+  handlePick(c);
+}}>{c}</button>;
     });
 
-    return createElement('div', {
-        style: {
-            marginTop: '14px', padding: '16px', borderRadius: '14px',
-            background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.08)'
-        }
-    },
-        createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' } },
-            createElement('strong', { style: { color: 'var(--text-secondary)' } }, '✍️ Draw a character'),
-            createElement('button', {
-                className: 'btn btn--small btn--outline',
-                onClick: props.onClose
-            }, '✕ Close')
-        ),
-
-        createElement('div', { style: { display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' } },
-            // Drawing canvas
-            createElement('canvas', {
-                ref: canvasRef,
-                width: CANVAS_SIZE,
-                height: CANVAS_SIZE,
-                style: {
-                    width: CANVAS_SIZE + 'px', height: CANVAS_SIZE + 'px', maxWidth: '100%',
-                    borderRadius: '12px', border: '2px dashed #bbb', background: '#fff',
-                    touchAction: 'none', cursor: 'crosshair'
-                },
-                onPointerDown: handlePointerDown,
-                onPointerMove: handlePointerMove,
-                onPointerUp: handlePointerUp,
-                onPointerLeave: handlePointerUp
-            }),
-
-            // Candidates + controls
-            createElement('div', { style: { flex: 1, minWidth: '180px' } },
-                createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '12px' } },
-                    createElement('button', { className: 'btn btn--small btn--outline', onClick: handleUndo }, '↩ Undo'),
-                    createElement('button', { className: 'btn btn--small btn--outline', onClick: handleClear }, '🗑 Clear')
-                ),
-                status === 'recognizing' ? createElement('div', { style: { color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 8 } }, 'Recognizing…') : null,
-                status === 'error' ? createElement('div', { style: { color: 'var(--accent-red)', fontSize: '0.9rem', marginBottom: 8 } }, 'Recognition failed — check your internet connection.') : null,
-                candidates.length > 0
-                    ? createElement('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, candidateEls)
-                    : (status === 'idle' ? createElement('div', { style: { color: 'var(--text-muted)', fontSize: '0.9rem' } }, 'Candidates appear here after each stroke. Tap one to add it to the search box.') : null)
-            )
-        )
-    );
+    return <div style={{
+  marginTop: '14px',
+  padding: '16px',
+  borderRadius: '14px',
+  background: 'rgba(0,0,0,0.15)',
+  border: '1px solid rgba(255,255,255,0.08)'
+}}><div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '10px'
+  }}><strong style={{
+      color: 'var(--text-secondary)'
+    }}>✍️ Draw a character</strong><button className='btn btn--small btn--outline' onClick={props.onClose}>✕ Close</button></div><div style={{
+    display: 'flex',
+    gap: '16px',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start'
+  }}> // Drawing canvas
+    <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} style={{
+      width: CANVAS_SIZE + 'px',
+      height: CANVAS_SIZE + 'px',
+      maxWidth: '100%',
+      borderRadius: '12px',
+      border: '2px dashed #bbb',
+      background: '#fff',
+      touchAction: 'none',
+      cursor: 'crosshair'
+    }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp} /> // Candidates + controls
+    <div style={{
+      flex: 1,
+      minWidth: '180px'
+    }}><div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '12px'
+      }}><button className='btn btn--small btn--outline' onClick={handleUndo}>↩ Undo</button><button className='btn btn--small btn--outline' onClick={handleClear}>🗑 Clear</button></div>{status === 'recognizing' ? <div style={{
+        color: 'var(--text-muted)',
+        fontSize: '0.9rem',
+        marginBottom: 8
+      }}>Recognizing…</div> : null}{status === 'error' ? <div style={{
+        color: 'var(--accent-red)',
+        fontSize: '0.9rem',
+        marginBottom: 8
+      }}>Recognition failed — check your internet connection.</div> : null}{candidates.length > 0 ? <div style={{
+        display: 'flex',
+        gap: '8px',
+        flexWrap: 'wrap'
+      }}>{candidateEls}</div> : status === 'idle' ? <div style={{
+        color: 'var(--text-muted)',
+        fontSize: '0.9rem'
+      }}>Candidates appear here after each stroke. Tap one to add it to the search box.</div> : null}</div></div></div>;
 }
 
 export { HandwritingInput, recognizeStrokes };

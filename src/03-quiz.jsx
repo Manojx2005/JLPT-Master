@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AudioButton, SaveButton, Toast, formatTime, generateOptions, getVocabMeaning, playAudio, shuffleArray, t } from './01-core.jsx';
 import { FuriganaText } from './05-exams.jsx';
 import { PROGRESS } from './features.js';
@@ -8,7 +6,6 @@ import { PROGRESS } from './features.js';
 /* =================================================================
    JLPT Master — Quiz (selectors, ExampleReveal, QuizTab, CustomTab)
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
@@ -32,16 +29,11 @@ function LevelSelector(props) {
         else if (lv === 'Saved') count = props.savedWords.length;
         else count = props.questions.filter(function (q) { return q.level === lv; }).length;
 
-        return createElement('button', {
-            key: lv,
-            className: 'level-btn' + (isActive ? ' level-btn--active' : ''),
-            onClick: function () { props.onSelect(lv); },
-        },
-            createElement('span', { className: 'level-btn__label' }, lv),
-            createElement('span', { className: 'level-btn__count' }, count)
-        );
+        return <button key={lv} className={'level-btn' + (isActive ? ' level-btn--active' : '')} onClick={() => {
+  props.onSelect(lv);
+}}><span className='level-btn__label'>{lv}</span><span className='level-btn__count'>{count}</span></button>;
     });
-    return createElement('div', { className: 'level-selector' }, btns);
+    return <div className='level-selector'>{btns}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -76,17 +68,12 @@ function ModeSelector(props) {
 
     var btns = modes.map(function (m) {
         var isActive = props.selected === m.id;
-        return createElement('button', {
-            key: m.id,
-            className: 'mode-btn' + (isActive ? ' mode-btn--active' : ''),
-            onClick: function () { props.onSelect(m.id); },
-        },
-            createElement('span', { className: 'mode-btn__icon' }, m.label),
-            createElement('span', { className: 'mode-btn__desc' }, m.desc)
-        );
+        return <button key={m.id} className={'mode-btn' + (isActive ? ' mode-btn--active' : '')} onClick={() => {
+  props.onSelect(m.id);
+}}><span className='mode-btn__icon'>{m.label}</span><span className='mode-btn__desc'>{m.desc}</span></button>;
     });
 
-    return createElement('div', { className: 'mode-selector' }, btns);
+    return <div className='mode-selector'>{btns}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -98,14 +85,11 @@ function CountSelector(props) {
     var btns = counts.map(function (c) {
         var isActive = props.selected === c;
         var isDisabled = c > props.maxAvailable;
-        return createElement('button', {
-            key: c,
-            className: 'count-btn' + (isActive ? ' count-btn--active' : '') + (isDisabled ? ' count-btn--disabled' : ''),
-            onClick: function () { if (!isDisabled) props.onSelect(c); },
-            disabled: isDisabled,
-        }, c);
+        return <button key={c} className={'count-btn' + (isActive ? ' count-btn--active' : '') + (isDisabled ? ' count-btn--disabled' : '')} onClick={() => {
+  if (!isDisabled) props.onSelect(c);
+}} disabled={isDisabled}>{c}</button>;
     });
-    return createElement('div', { className: 'count-selector' }, btns);
+    return <div className='count-selector'>{btns}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -142,59 +126,56 @@ function ExampleReveal(props) {
 
     // Show correct answer badge
     children.push(
-        createElement('div', { key: 'badge', className: 'example-reveal__badge' + (props.wasCorrect ? ' example-reveal__badge--correct' : ' example-reveal__badge--wrong') },
-            props.wasCorrect ? '\u2714 Correct!' : '\u2718 Incorrect'
-        )
+        <div key='badge' className={'example-reveal__badge' + (props.wasCorrect ? ' example-reveal__badge--correct' : ' example-reveal__badge--wrong')}>{props.wasCorrect ? '\u2714 Correct!' : '\u2718 Incorrect'}</div>
     );
 
     // Word and Actions
     children.push(
-        createElement('div', { key: 'word-actions', style: { display: 'flex', gap: 8, marginBottom: 4, alignItems: 'center', marginTop: 12 } },
-            createElement('strong', { style: { fontSize: '1.4rem' } }, q.word),
-            createElement(AudioButton, { text: q.word }),
-            props.onToggleSave ? createElement(SaveButton, { isSaved: props.isSaved, onToggle: props.onToggleSave }) : null
-        )
+        <div key='word-actions' style={{
+  display: 'flex',
+  gap: 8,
+  marginBottom: 4,
+  alignItems: 'center',
+  marginTop: 12
+}}><strong style={{
+    fontSize: '1.4rem'
+  }}>{q.word}</strong><AudioButton text={q.word} />{props.onToggleSave ? <SaveButton isSaved={props.isSaved} onToggle={props.onToggleSave} /> : null}</div>
     );
 
     // Reading
     if (q.reading && q.reading !== q.word) {
         children.push(
-            createElement('div', { key: 'reading', style: { fontSize: '1rem', color: 'var(--text-muted)', marginBottom: 8 } },
-                '(' + q.reading + ')'
-            )
+            <div key='reading' style={{
+  fontSize: '1rem',
+  color: 'var(--text-muted)',
+  marginBottom: 8
+}}>{'(' + q.reading + ')'}</div>
         );
     }
 
     // Meaning (always show for context)
     children.push(
-        createElement('div', { key: 'meaning', style: { fontSize: '1.1rem', marginBottom: 12 } },
-            getVocabMeaning(q, props.appLang)
-        )
+        <div key='meaning' style={{
+  fontSize: '1.1rem',
+  marginBottom: 12
+}}>{getVocabMeaning(q, props.appLang)}</div>
     );
 
     // Nuance / context
     if (q.nuance) {
         children.push(
-            createElement('div', { key: 'nuance', className: 'example-reveal__nuance' },
-                createElement('span', { className: 'example-reveal__label' }, '\uD83D\uDCA1 '),
-                q.nuance
-            )
+            <div key='nuance' className='example-reveal__nuance'><span className='example-reveal__label'>{'\uD83D\uDCA1 '}</span>{q.nuance}</div>
         );
     }
 
     // Example sentence
     if (q.example) {
         children.push(
-            createElement('div', { key: 'example', className: 'example-reveal__sentence' },
-                createElement('div', { className: 'example-reveal__jp' }, 
-                    createElement(FuriganaText, { text: q.example, show: props.showFurigana })
-                ),
-                q.exampleEn ? createElement('div', { className: 'example-reveal__en' }, q.exampleEn) : null
-            )
+            <div key='example' className='example-reveal__sentence'><div className='example-reveal__jp'><FuriganaText text={q.example} show={props.showFurigana} /></div>{q.exampleEn ? <div className='example-reveal__en'>{q.exampleEn}</div> : null}</div>
         );
     }
 
-    return createElement('div', { className: 'example-reveal', key: 'example-reveal' }, children);
+    return <div className='example-reveal' key='example-reveal'>{children}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -408,64 +389,17 @@ function QuizTab(props) {
 
     // =============== PHASE: SETUP ===============
     if (phase === 'setup') {
-        return createElement('div', { className: 'glass-card', key: 'quiz-setup' },
-            createElement('h2', { className: 'section-title' }, t('Vocab Test', props.appLang)),
-            createElement('p', { className: 'section-desc' }, 'Configure your exam, then test your knowledge under time pressure.'),
-
-            // Level filter buttons
-            createElement('h3', { className: 'setup-label' }, 'Select Level'),
-            createElement(LevelSelector, {
-                selected: selectedLevel,
-                onSelect: setSelectedLevel,
-                questions: questions,
-                allCount: questions.length,
-                savedWords: props.savedWords,
-            }),
-
-            // Quiz mode selector
-            createElement('h3', { className: 'setup-label' }, 'Quiz Mode'),
-            createElement(ModeSelector, {
-                selected: quizMode,
-                onSelect: setQuizMode,
-                appLang: props.appLang
-            }),
-
-            // Question count selector
-            createElement('h3', { className: 'setup-label' }, 'Questions'),
-            createElement(CountSelector, {
-                selected: questionCount,
-                onSelect: setQuestionCount,
-                maxAvailable: availableQuestions.length,
-            }),
-
-            // Exam info and start button
-            createElement('div', { className: 'setup-center' },
-                createElement('div', { className: 'setup-stats' },
-                    createElement('div', { className: 'setup-stat' },
-                        createElement('span', { className: 'setup-stat__value' }, NUM_QUESTIONS),
-                        createElement('span', { className: 'setup-stat__label' }, 'Questions')
-                    ),
-                    createElement('div', { className: 'setup-stat' },
-                        createElement('span', { className: 'setup-stat__value' }, Math.ceil(EXAM_DURATION / 60) + ' min'),
-                        createElement('span', { className: 'setup-stat__label' }, 'Time Limit')
-                    ),
-                    createElement('div', { className: 'setup-stat' },
-                        createElement('span', { className: 'setup-stat__value' }, selectedLevel === 'All' ? 'All' : selectedLevel),
-                        createElement('span', { className: 'setup-stat__label' }, 'Level')
-                    )
-                ),
-                createElement('button', {
-                    id: 'start-exam-btn',
-                    className: 'btn btn--primary btn--large btn--glow',
-                    onClick: startQuiz,
-                    disabled: availableQuestions.length === 0,
-                }, '\u25B6  START EXAM'),
-                // Warning if no questions available
-                availableQuestions.length === 0 ? createElement('p', {
-                    style: { marginTop: 12, color: 'var(--accent-red)', fontSize: '0.9rem' }
-                }, 'No questions available for this level/mode combination.') : null
-            )
-        );
+        return <div className='glass-card' key='quiz-setup'><h2 className='section-title'>{t('Vocab Test', props.appLang)}</h2><p className='section-desc'>Configure your exam, then test your knowledge under time pressure.</p> // Level filter buttons
+  <h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={props.savedWords} /> // Quiz mode selector
+  <h3 className='setup-label'>Quiz Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} /> // Question count selector
+  <h3 className='setup-label'>Questions</h3><CountSelector selected={questionCount} onSelect={setQuestionCount} maxAvailable={availableQuestions.length} /> // Exam info and start button
+  <div className='setup-center'><div className='setup-stats'><div className='setup-stat'><span className='setup-stat__value'>{NUM_QUESTIONS}</span><span className='setup-stat__label'>Questions</span></div><div className='setup-stat'><span className='setup-stat__value'>{Math.ceil(EXAM_DURATION / 60) + ' min'}</span><span className='setup-stat__label'>Time Limit</span></div><div className='setup-stat'><span className='setup-stat__value'>{selectedLevel === 'All' ? 'All' : selectedLevel}</span><span className='setup-stat__label'>Level</span></div></div><button id='start-exam-btn' className='btn btn--primary btn--large btn--glow' onClick={startQuiz} disabled={availableQuestions.length === 0}>▶  START EXAM</button>{
+    // Warning if no questions available
+    availableQuestions.length === 0 ? <p style={{
+      marginTop: 12,
+      color: 'var(--accent-red)',
+      fontSize: '0.9rem'
+    }}>No questions available for this level/mode combination.</p> : null}</div></div>;
     }
 
     // =============== PHASE: RESULT ===============
@@ -499,41 +433,23 @@ function QuizTab(props) {
                     if (correctMatch && correctMatch.reading) correctAnsDisplay += ' (' + correctMatch.reading + ')';
                 }
 
-                return createElement('div', { key: i, className: 'wrong-review-item' },
-                    createElement('div', { className: 'wrong-review-item__top', style: { display: 'flex', gap: 8, alignItems: 'center' } },
-                        createElement('span', { className: 'wrong-review-item__word', style: { fontSize: '1.2rem', fontWeight: 'bold' } }, a.question.word),
-                        createElement(AudioButton, { text: a.question.word }),
-                        props.toggleSavedWord ? createElement(SaveButton, {
-                            isSaved: props.savedWords ? props.savedWords.some(function (w) { return w.word === a.question.word; }) : false,
-                            onToggle: function () { props.toggleSavedWord(a.question); }
-                        }) : null,
-                        a.question.reading ? createElement('span', { className: 'wrong-review-item__reading', style: { marginLeft: 'auto' } }, '(' + a.question.reading + ')') : null,
-                        (a.question.level || a.question.jlpt) ? createElement('span', { className: 'quiz-level-tag' }, (a.question.level || a.question.jlpt)) : null
-                    ),
-                    createElement('div', { className: 'wrong-review-item__answers' },
-                        createElement('div', { className: 'wrong-review-item__your-answer' },
-                            createElement('span', { className: 'wrong-review-item__label' }, 'Your answer:'),
-                            createElement('span', { className: 'wrong-review-item__value wrong-review-item__value--wrong' }, userAnsDisplay)
-                        ),
-                        createElement('div', { className: 'wrong-review-item__correct-answer' },
-                            createElement('span', { className: 'wrong-review-item__label' }, 'Correct:'),
-                            createElement('span', { className: 'wrong-review-item__value wrong-review-item__value--correct' }, correctAnsDisplay)
-                        )
-                    ),
-                    a.question.nuance ? createElement('div', { className: 'wrong-review-item__nuance' },
-                        '\uD83D\uDCA1 ', a.question.nuance
-                    ) : null,
-                    a.question.example ? createElement('div', { className: 'wrong-review-item__example' },
-                        createElement('div', { className: 'wrong-review-item__example-jp' }, a.question.example),
-                        a.question.exampleEn ? createElement('div', { className: 'wrong-review-item__example-en' }, a.question.exampleEn) : null
-                    ) : null
-                );
+                return <div key={i} className='wrong-review-item'><div className='wrong-review-item__top' style={{
+    display: 'flex',
+    gap: 8,
+    alignItems: 'center'
+  }}><span className='wrong-review-item__word' style={{
+      fontSize: '1.2rem',
+      fontWeight: 'bold'
+    }}>{a.question.word}</span><AudioButton text={a.question.word} />{props.toggleSavedWord ? <SaveButton isSaved={props.savedWords ? props.savedWords.some(function (w) {
+      return w.word === a.question.word;
+    }) : false} onToggle={() => {
+      props.toggleSavedWord(a.question);
+    }} /> : null}{a.question.reading ? <span className='wrong-review-item__reading' style={{
+      marginLeft: 'auto'
+    }}>{'(' + a.question.reading + ')'}</span> : null}{a.question.level || a.question.jlpt ? <span className='quiz-level-tag'>{a.question.level || a.question.jlpt}</span> : null}</div><div className='wrong-review-item__answers'><div className='wrong-review-item__your-answer'><span className='wrong-review-item__label'>Your answer:</span><span className='wrong-review-item__value wrong-review-item__value--wrong'>{userAnsDisplay}</span></div><div className='wrong-review-item__correct-answer'><span className='wrong-review-item__label'>Correct:</span><span className='wrong-review-item__value wrong-review-item__value--correct'>{correctAnsDisplay}</span></div></div>{a.question.nuance ? <div className='wrong-review-item__nuance'>{'\uD83D\uDCA1 '}{a.question.nuance}</div> : null}{a.question.example ? <div className='wrong-review-item__example'><div className='wrong-review-item__example-jp'>{a.question.example}</div>{a.question.exampleEn ? <div className='wrong-review-item__example-en'>{a.question.exampleEn}</div> : null}</div> : null}</div>;
             });
 
-            wrongReviewEl = createElement('div', { className: 'wrong-review' },
-                createElement('h3', { className: 'wrong-review__title' }, '\uD83D\uDD0D Review Wrong Answers (' + wrongAnswers.length + ')'),
-                wrongItems
-            );
+            wrongReviewEl = <div className='wrong-review'><h3 className='wrong-review__title'>{'\uD83D\uDD0D Review Wrong Answers (' + wrongAnswers.length + ')'}</h3>{wrongItems}</div>;
         }
 
         // Score ring visual
@@ -541,48 +457,12 @@ function QuizTab(props) {
         var strokeDashoffset = circumference - (pct / 100) * circumference;
         var scoreRingColor = pct >= 70 ? 'var(--accent-green)' : pct >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)';
 
-        return createElement('div', { className: 'glass-card', key: 'quiz-result' },
-            createElement('div', { className: 'result-panel' },
-                createElement('div', { className: 'result-panel__emoji' }, emoji),
-                createElement('div', { className: 'result-panel__title' }, timedOut ? "\u23F0 Time's Up!" : msg),
-
-                // Score ring
-                createElement('div', { className: 'score-ring-container' },
-                    createElement('svg', { width: 140, height: 140, viewBox: '0 0 120 120', className: 'score-ring' },
-                        createElement('circle', { cx: 60, cy: 60, r: 54, fill: 'none', stroke: 'rgba(255,255,255,0.08)', strokeWidth: 8 }),
-                        createElement('circle', {
-                            cx: 60, cy: 60, r: 54, fill: 'none',
-                            stroke: scoreRingColor, strokeWidth: 8,
-                            strokeDasharray: circumference,
-                            strokeDashoffset: strokeDashoffset,
-                            strokeLinecap: 'round',
-                            transform: 'rotate(-90 60 60)',
-                            style: { transition: 'stroke-dashoffset 1.5s ease-out' }
-                        })
-                    ),
-                    createElement('div', { className: 'score-ring__text' },
-                        createElement('div', { className: 'score-ring__pct' }, pct + '%'),
-                        createElement('div', { className: 'score-ring__count' }, score + '/' + answeredCount)
-                    )
-                ),
-
-                createElement('div', { className: 'result-panel__meta' },
-                    createElement('span', { className: 'result-meta-tag' }, levelLabel),
-                    createElement('span', { className: 'result-meta-tag' }, modeLabel + ' Mode'),
-                    timedOut ? createElement('span', { className: 'result-meta-tag result-meta-tag--warn' },
-                        'Answered ' + answeredCount + ' of ' + total
-                    ) : null
-                ),
-
-                createElement('button', {
-                    id: 'retry-exam-btn',
-                    className: 'btn btn--primary',
-                    onClick: resetQuiz,
-                    style: { marginTop: 20 }
-                }, '\u21BB  Try Again')
-            ),
-            wrongReviewEl
-        );
+        return <div className='glass-card' key='quiz-result'><div className='result-panel'><div className='result-panel__emoji'>{emoji}</div><div className='result-panel__title'>{timedOut ? "\u23F0 Time's Up!" : msg}</div> // Score ring
+    <div className='score-ring-container'><svg width={140} height={140} viewBox='0 0 120 120' className='score-ring'><circle cx={60} cy={60} r={54} fill='none' stroke='rgba(255,255,255,0.08)' strokeWidth={8} /><circle cx={60} cy={60} r={54} fill='none' stroke={scoreRingColor} strokeWidth={8} strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap='round' transform='rotate(-90 60 60)' style={{
+          transition: 'stroke-dashoffset 1.5s ease-out'
+        }} /></svg><div className='score-ring__text'><div className='score-ring__pct'>{pct + '%'}</div><div className='score-ring__count'>{score + '/' + answeredCount}</div></div></div><div className='result-panel__meta'><span className='result-meta-tag'>{levelLabel}</span><span className='result-meta-tag'>{modeLabel + ' Mode'}</span>{timedOut ? <span className='result-meta-tag result-meta-tag--warn'>{'Answered ' + answeredCount + ' of ' + total}</span> : null}</div><button id='retry-exam-btn' className='btn btn--primary' onClick={resetQuiz} style={{
+      marginTop: 20
+    }}>↻  Try Again</button></div>{wrongReviewEl}</div>;
     }
 
     // =============== PHASE: ACTIVE ===============
@@ -633,69 +513,36 @@ function QuizTab(props) {
         if (selected !== null && selected !== correctAnswer && quizMode === 'reverse' && props.showFurigana) {
             var matchedItem = questions.find(function(item) { return item.word === opt; });
             if (matchedItem && matchedItem.reading) {
-                optContent = createElement('span', null, 
-                    opt, 
-                    createElement('span', { style: { fontSize: '0.8em', marginLeft: '6px', opacity: 0.8 } }, '(' + matchedItem.reading + ')')
-                );
+                optContent = <span>{opt}<span style={{
+    fontSize: '0.8em',
+    marginLeft: '6px',
+    opacity: 0.8
+  }}>{'(' + matchedItem.reading + ')'}</span></span>;
             }
         }
 
-        return createElement('button', {
-            key: qIndex + '-' + i,
-            className: cls,
-            onClick: function () { handleAnswer(opt); },
-            disabled: !canAnswer || showExample,
-            style: optStyle,
-        }, optContent);
+        return <button key={qIndex + '-' + i} className={cls} onClick={() => {
+  handleAnswer(opt);
+}} disabled={!canAnswer || showExample} style={optStyle}>{optContent}</button>;
     });
 
-    return createElement('div', { className: 'glass-card', key: 'quiz-active' },
-        // Top bar: back button + question counter + JLPT level tag + countdown timer
-        createElement('div', { className: 'quiz-bar' },
-            createElement('button', {
-                className: 'quiz-bar__back',
-                onClick: resetQuiz,
-                title: 'Back to Setup',
-            }, '\u2190'),
-            createElement('div', { className: 'quiz-bar__info' },
-                'Question ',
-                createElement('strong', null, qIndex + 1),
-                ' / ' + quiz.length,
-                (q.level || q.jlpt) ? createElement('span', { className: 'quiz-level-tag' }, (q.level || q.jlpt)) : null
-            ),
-            createElement('div', { className: timerClass }, formatTime(timeLeft))
-        ),
-        // Progress bar
-        createElement('div', { className: 'progress-track' },
-            createElement('div', { className: 'progress-fill', style: { width: progress + '%' } })
-        ),
-        // Question display
-        createElement('div', { className: 'quiz-question' },
-            createElement('span', {
-                className: 'quiz-question__word',
-                style: quizMode === 'reverse' ? { fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontFamily: 'var(--font-main)' } : {}
-            }, questionWord),
-            questionReading && props.showFurigana ? createElement('span', { className: 'quiz-question__reading' }, '(' + questionReading + ')') : null,
-            createElement('span', { className: 'quiz-question__prompt' }, questionPrompt)
-        ),
-        // Answer options grid
-        createElement('div', { className: 'quiz-options' }, optionEls),
-        // Example reveal card (shown after answering)
-        createElement(ExampleReveal, {
-            visible: showExample,
-            question: q,
-            wasCorrect: wasCorrect,
-            isSaved: props.savedWords ? props.savedWords.some(function (w) { return w.word === q.word; }) : false,
-            onToggleSave: props.toggleSavedWord ? function () { props.toggleSavedWord(q); } : null,
-            showFurigana: props.showFurigana,
-            appLang: props.appLang
-        }),
-        // Next button (shown after answering)
-        showExample ? createElement('button', {
-            className: 'btn btn--primary btn--full btn--next',
-            onClick: nextQuestion,
-        }, qIndex + 1 >= quiz.length ? 'View Results \u2192' : 'Next Question \u2192') : null
-    );
+    return <div className='glass-card' key='quiz-active'> // Top bar: back button + question counter + JLPT level tag + countdown timer
+  <div className='quiz-bar'><button className='quiz-bar__back' onClick={resetQuiz} title='Back to Setup'>←</button><div className='quiz-bar__info'>{'Question '}<strong>{qIndex + 1}</strong>{' / ' + quiz.length}{q.level || q.jlpt ? <span className='quiz-level-tag'>{q.level || q.jlpt}</span> : null}</div><div className={timerClass}>{formatTime(timeLeft)}</div></div> // Progress bar
+  <div className='progress-track'><div className='progress-fill' style={{
+      width: progress + '%'
+    }} /></div> // Question display
+  <div className='quiz-question'><span className='quiz-question__word' style={quizMode === 'reverse' ? {
+      fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
+      fontFamily: 'var(--font-main)'
+    } : {}}>{questionWord}</span>{questionReading && props.showFurigana ? <span className='quiz-question__reading'>{'(' + questionReading + ')'}</span> : null}<span className='quiz-question__prompt'>{questionPrompt}</span></div> // Answer options grid
+  <div className='quiz-options'>{optionEls}</div> // Example reveal card (shown after answering)
+  <ExampleReveal visible={showExample} question={q} wasCorrect={wasCorrect} isSaved={props.savedWords ? props.savedWords.some(function (w) {
+    return w.word === q.word;
+  }) : false} onToggleSave={props.toggleSavedWord ? function () {
+    props.toggleSavedWord(q);
+  } : null} showFurigana={props.showFurigana} appLang={props.appLang} />{
+  // Next button (shown after answering)
+  showExample ? <button className='btn btn--primary btn--full btn--next' onClick={nextQuestion}>{qIndex + 1 >= quiz.length ? 'View Results \u2192' : 'Next Question \u2192'}</button> : null}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -733,74 +580,36 @@ function CustomTab(props) {
     var customListEl = null;
     if (props.customQuestions.length > 0) {
         var items = props.customQuestions.map(function (cq, idx) {
-            return createElement('div', { className: 'custom-q-item', key: idx },
-                createElement('span', { className: 'custom-q-item__word' }, cq.word),
-                createElement('span', { className: 'custom-q-item__meaning' }, '\u2192 ' + getVocabMeaning(cq, props.appLang)),
-                createElement('span', { className: 'quiz-level-tag', style: { fontSize: '0.75rem' } }, cq.level),
-                createElement('button', {
-                    className: 'custom-q-item__delete',
-                    onClick: function () { props.onDelete(idx); },
-                    title: 'Remove',
-                }, '\u2715')
-            );
+            return <div className='custom-q-item' key={idx}><span className='custom-q-item__word'>{cq.word}</span><span className='custom-q-item__meaning'>{'\u2192 ' + getVocabMeaning(cq, props.appLang)}</span><span className='quiz-level-tag' style={{
+    fontSize: '0.75rem'
+  }}>{cq.level}</span><button className='custom-q-item__delete' onClick={() => {
+    props.onDelete(idx);
+  }} title='Remove'>✕</button></div>;
         });
 
-        customListEl = createElement('div', { className: 'custom-q-list' },
-            createElement('h3', { style: { fontSize: '1.1rem', marginBottom: 12, color: 'var(--text-secondary)' } },
-                'Your Custom Questions (' + props.customQuestions.length + ')'
-            ),
-            items
-        );
+        customListEl = <div className='custom-q-list'><h3 style={{
+    fontSize: '1.1rem',
+    marginBottom: 12,
+    color: 'var(--text-secondary)'
+  }}>{'Your Custom Questions (' + props.customQuestions.length + ')'}</h3>{items}</div>;
     }
 
     function makeFormGroup(label, value, setter, placeholder, required) {
-        return createElement('div', { className: 'form-group' },
-            createElement('label', { className: 'form-label' + (required ? ' form-label--required' : '') }, label),
-            createElement('input', {
-                className: 'input-field',
-                type: 'text',
-                value: value,
-                onChange: function (e) { setter(e.target.value); },
-                placeholder: placeholder,
-            })
-        );
+        return <div className='form-group'><label className={'form-label' + (required ? ' form-label--required' : '')}>{label}</label><input className='input-field' type='text' value={value} onChange={e => {
+    setter(e.target.value);
+  }} placeholder={placeholder} /></div>;
     }
 
     var levelBtns = ['N5', 'N4', 'N3', 'N2', 'N1'].map(function (lv) {
-        return createElement('button', {
-            key: lv,
-            className: 'level-btn level-btn--sm' + (level === lv ? ' level-btn--active' : ''),
-            onClick: function () { setLevel(lv); },
-        }, lv);
+        return <button key={lv} className={'level-btn level-btn--sm' + (level === lv ? ' level-btn--active' : '')} onClick={() => {
+  setLevel(lv);
+}}>{lv}</button>;
     });
 
     // --- Render the Custom Questions Tab ---
-    return createElement('div', { className: 'glass-card', key: 'custom' },
-        createElement('h2', { className: 'section-title' }, '\u270F\uFE0F ' + t('Add Custom Questions', props.appLang)),
-        createElement('p', { className: 'section-desc' }, "Add your own vocabulary to the exam pool. They'll appear in the next quiz."),
-
-        makeFormGroup('Japanese Word (Kanji)', word, setWord, 'e.g. \u52C9\u5F37', true),
-        makeFormGroup('Reading (Hiragana)', reading, setReading, 'e.g. \u3079\u3093\u304D\u3087\u3046', false),
-        makeFormGroup('Correct English Meaning', correct, setCorrect, 'e.g. study', true),
-        makeFormGroup('Wrong Option 1', w1, setW1, 'Distractor 1...', true),
-        makeFormGroup('Wrong Option 2', w2, setW2, 'Distractor 2...', true),
-        makeFormGroup('Wrong Option 3', w3, setW3, 'Distractor 3...', true),
-
-        createElement('div', { className: 'form-group' },
-            createElement('label', { className: 'form-label' }, 'JLPT Level'),
-            createElement('div', { className: 'level-selector level-selector--compact' }, levelBtns)
-        ),
-
-        createElement('button', {
-            id: 'add-question-btn',
-            className: 'btn btn--primary btn--full',
-            onClick: handleSubmit,
-            style: { marginTop: 8 },
-        }, '\uFF0B Add to Exam Pool'),
-
-        customListEl,
-        createElement(Toast, { message: '\u2713 Question added to exam pool!', visible: toast })
-    );
+    return <div className='glass-card' key='custom'><h2 className='section-title'>{'\u270F\uFE0F ' + t('Add Custom Questions', props.appLang)}</h2><p className='section-desc'>Add your own vocabulary to the exam pool. They'll appear in the next quiz.</p>{makeFormGroup('Japanese Word (Kanji)', word, setWord, 'e.g. \u52C9\u5F37', true)}{makeFormGroup('Reading (Hiragana)', reading, setReading, 'e.g. \u3079\u3093\u304D\u3087\u3046', false)}{makeFormGroup('Correct English Meaning', correct, setCorrect, 'e.g. study', true)}{makeFormGroup('Wrong Option 1', w1, setW1, 'Distractor 1...', true)}{makeFormGroup('Wrong Option 2', w2, setW2, 'Distractor 2...', true)}{makeFormGroup('Wrong Option 3', w3, setW3, 'Distractor 3...', true)}<div className='form-group'><label className='form-label'>JLPT Level</label><div className='level-selector level-selector--compact'>{levelBtns}</div></div><button id='add-question-btn' className='btn btn--primary btn--full' onClick={handleSubmit} style={{
+    marginTop: 8
+  }}>＋ Add to Exam Pool</button>{customListEl}<Toast message='\u2713 Question added to exam pool!' visible={toast} /></div>;
 }
 
 

@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchKanjiSvg, playAudio, sanitizeHTML, shuffleArray, t } from './01-core.jsx';
 
 /* =================================================================
@@ -98,31 +96,39 @@ function StrokeViewer(props) {
         return function () { alive = false; };
     }, [props.kana]);
 
-    return createElement('div', { style: { textAlign: 'center' } },
-        createElement('div', {
-            className: 'kanji-large-display',
-            style: { margin: '0 auto', position: 'relative', cursor: 'pointer' },
-            onClick: function () { playAudio(props.kana); setReplay(function (r) { return r + 1; }); },
-            title: 'Tap to replay'
-        },
-            loading
-                ? createElement('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, '…')
-                : (svg
-                    ? createElement('div', { key: replay, className: 'kanji-svg-container', dangerouslySetInnerHTML: { __html: sanitizeHTML(svg) } })
-                    : createElement('span', null, props.kana))
-        ),
-        createElement('div', { style: { marginTop: 8, fontSize: '1.1rem', fontWeight: 700, letterSpacing: '0.05em' } }, props.romaji),
-        createElement('div', { style: { display: 'flex', gap: 8, justifyContent: 'center', marginTop: 12 } },
-            createElement('button', {
-                className: 'btn btn--outline btn--small',
-                onClick: function () { setReplay(function (r) { return r + 1; }); }
-            }, '↺ Replay strokes'),
-            createElement('button', {
-                className: 'btn btn--outline btn--small',
-                onClick: function () { playAudio(props.kana); }
-            }, '🔊 Sound')
-        )
-    );
+    return <div style={{
+  textAlign: 'center'
+}}><div className='kanji-large-display' style={{
+    margin: '0 auto',
+    position: 'relative',
+    cursor: 'pointer'
+  }} onClick={() => {
+    playAudio(props.kana);
+    setReplay(function (r) {
+      return r + 1;
+    });
+  }} title='Tap to replay'>{loading ? <span style={{
+      fontSize: '0.8rem',
+      color: 'var(--text-muted)'
+    }}>…</span> : svg ? <div key={replay} className='kanji-svg-container' dangerouslySetInnerHTML={{
+      __html: sanitizeHTML(svg)
+    }} /> : <span>{props.kana}</span>}</div><div style={{
+    marginTop: 8,
+    fontSize: '1.1rem',
+    fontWeight: 700,
+    letterSpacing: '0.05em'
+  }}>{props.romaji}</div><div style={{
+    display: 'flex',
+    gap: 8,
+    justifyContent: 'center',
+    marginTop: 12
+  }}><button className='btn btn--outline btn--small' onClick={() => {
+      setReplay(function (r) {
+        return r + 1;
+      });
+    }}>↺ Replay strokes</button><button className='btn btn--outline btn--small' onClick={() => {
+      playAudio(props.kana);
+    }}>🔊 Sound</button></div></div>;
 }
 
 /* -----------------------------------------------------------------
@@ -136,23 +142,17 @@ function KanaChart(props) {
         var kana = row[idx];
         var romaji = row[0];
         if (!kana) {
-            return createElement('div', { key: i, className: 'kana-cell kana-cell--empty' });
+            return <div key={i} className='kana-cell kana-cell--empty' />;
         }
         var isActive = props.selected === kana;
-        return createElement('button', {
-            key: i,
-            className: 'kana-cell' + (isActive ? ' kana-cell--active' : ''),
-            onClick: function () { props.onPick(kana, romaji); }
-        },
-            createElement('span', { className: 'kana-cell__char', lang: 'ja' }, kana),
-            createElement('span', { className: 'kana-cell__romaji' }, romaji)
-        );
+        return <button key={i} className={'kana-cell' + (isActive ? ' kana-cell--active' : '')} onClick={() => {
+  props.onPick(kana, romaji);
+}}><span className='kana-cell__char' lang='ja'>{kana}</span><span className='kana-cell__romaji'>{romaji}</span></button>;
     });
 
-    return createElement('div', { className: 'kana-section' },
-        props.title ? createElement('h3', { className: 'setup-label' }, props.title) : null,
-        createElement('div', { className: 'kana-grid', style: { gridTemplateColumns: 'repeat(' + cols + ', 1fr)' } }, cells)
-    );
+    return <div className='kana-section'>{props.title ? <h3 className='setup-label'>{props.title}</h3> : null}<div className='kana-grid' style={{
+    gridTemplateColumns: 'repeat(' + cols + ', 1fr)'
+  }}>{cells}</div></div>;
 }
 
 /* -----------------------------------------------------------------
@@ -211,13 +211,15 @@ function KanaQuiz(props) {
 
     if (done) {
         var pct = Math.round((score / questions.length) * 100);
-        return createElement('div', { className: 'result-panel' },
-            createElement('div', { className: 'result-panel__emoji' }, pct >= 70 ? '🎉' : '📚'),
-            createElement('div', { className: 'result-panel__title' }, pct >= 70 ? t('Great Job!', props.appLang) : t('Keep Practicing!', props.appLang)),
-            createElement('div', { style: { fontSize: '2rem', fontWeight: 700, margin: '16px 0' } }, pct + '%'),
-            createElement('div', { style: { color: 'var(--text-secondary)' } }, score + ' / ' + questions.length + ' ' + t('correct', props.appLang)),
-            createElement('button', { className: 'btn btn--primary', onClick: restart, style: { marginTop: 20 } }, '↻ ' + t('Try Again', props.appLang))
-        );
+        return <div className='result-panel'><div className='result-panel__emoji'>{pct >= 70 ? '🎉' : '📚'}</div><div className='result-panel__title'>{pct >= 70 ? t('Great Job!', props.appLang) : t('Keep Practicing!', props.appLang)}</div><div style={{
+    fontSize: '2rem',
+    fontWeight: 700,
+    margin: '16px 0'
+  }}>{pct + '%'}</div><div style={{
+    color: 'var(--text-secondary)'
+  }}>{score + ' / ' + questions.length + ' ' + t('correct', props.appLang)}</div><button className='btn btn--primary' onClick={restart} style={{
+    marginTop: 20
+  }}>{'↻ ' + t('Try Again', props.appLang)}</button></div>;
     }
 
     var q = questions[idx];
@@ -227,26 +229,16 @@ function KanaQuiz(props) {
             if (opt === q.romaji) cls += ' kana-quiz__option--correct';
             else if (opt === picked) cls += ' kana-quiz__option--wrong';
         }
-        return createElement('button', { key: opt, className: cls, onClick: function () { choose(opt); } }, opt);
+        return <button key={opt} className={cls} onClick={() => {
+  choose(opt);
+}}>{opt}</button>;
     });
 
-    return createElement('div', null,
-        createElement('div', { className: 'flashcard-header' },
-            createElement('button', { className: 'quiz-bar__back', onClick: props.onExit }, '←'),
-            createElement('span', null, (idx + 1) + ' / ' + questions.length),
-            createElement('span', null, score + ' ✓')
-        ),
-        createElement('div', { className: 'progress-track' },
-            createElement('div', { className: 'progress-fill', style: { width: ((idx + 1) / questions.length * 100) + '%' } })
-        ),
-        createElement('div', { className: 'kana-quiz__prompt', lang: 'ja' }, q.kana),
-        createElement('div', { className: 'kana-quiz__options' }, optionBtns),
-        picked !== null ? createElement('button', {
-            className: 'btn btn--primary btn--full',
-            onClick: next,
-            style: { marginTop: 16 }
-        }, idx + 1 >= questions.length ? t('View Results', props.appLang) + ' →' : t('Next', props.appLang) + ' →') : null
-    );
+    return <div><div className='flashcard-header'><button className='quiz-bar__back' onClick={props.onExit}>←</button><span>{idx + 1 + ' / ' + questions.length}</span><span>{score + ' ✓'}</span></div><div className='progress-track'><div className='progress-fill' style={{
+      width: (idx + 1) / questions.length * 100 + '%'
+    }} /></div><div className='kana-quiz__prompt' lang='ja'>{q.kana}</div><div className='kana-quiz__options'>{optionBtns}</div>{picked !== null ? <button className='btn btn--primary btn--full' onClick={next} style={{
+    marginTop: 16
+  }}>{idx + 1 >= questions.length ? t('View Results', props.appLang) + ' →' : t('Next', props.appLang) + ' →'}</button> : null}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -272,49 +264,42 @@ function KanaTab(props) {
         { id: 'hiragana', label: 'あ ' + t('Hiragana', props.appLang) },
         { id: 'katakana', label: 'ア ' + t('Katakana', props.appLang) }
     ].map(function (s) {
-        return createElement('button', {
-            key: s.id,
-            className: 'level-btn' + (script === s.id ? ' level-btn--active' : ''),
-            onClick: function () { setScript(s.id); setDetail(null); }
-        }, s.label);
+        return <button key={s.id} className={'level-btn' + (script === s.id ? ' level-btn--active' : '')} onClick={() => {
+  setScript(s.id);
+  setDetail(null);
+}}>{s.label}</button>;
     });
 
     var viewBtns = [
         { id: 'chart', label: '📋 ' + t('Chart', props.appLang) },
         { id: 'quiz', label: '🎯 ' + t('Quiz', props.appLang) }
     ].map(function (v) {
-        return createElement('button', {
-            key: v.id,
-            className: 'mode-btn' + (view === v.id ? ' mode-btn--active' : ''),
-            onClick: function () { setView(v.id); setDetail(null); }
-        }, v.label);
+        return <button key={v.id} className={'mode-btn' + (view === v.id ? ' mode-btn--active' : '')} onClick={() => {
+  setView(v.id);
+  setDetail(null);
+}}>{v.label}</button>;
     });
 
-    var detailPanel = detail ? createElement('div', { className: 'kana-detail glass-card' },
-        createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } },
-            createElement('strong', { style: { color: 'var(--text-secondary)' } }, '✍️ ' + t('How to write', props.appLang)),
-            createElement('button', { className: 'btn btn--small btn--outline', onClick: function () { setDetail(null); } }, '✕')
-        ),
-        createElement(StrokeViewer, { kana: detail.kana, romaji: detail.romaji })
-    ) : null;
+    var detailPanel = detail ? <div className='kana-detail glass-card'><div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12
+  }}><strong style={{
+      color: 'var(--text-secondary)'
+    }}>{'✍️ ' + t('How to write', props.appLang)}</strong><button className='btn btn--small btn--outline' onClick={() => {
+      setDetail(null);
+    }}>✕</button></div><StrokeViewer kana={detail.kana} romaji={detail.romaji} /></div> : null;
 
-    return createElement('div', { className: 'glass-card', key: 'kana' },
-        createElement('h2', { className: 'section-title' }, t('Hiragana & Katakana', props.appLang)),
-        createElement('p', { className: 'section-desc' }, t('Tap any character to hear it and see the stroke order. Switch to Quiz to test yourself.', props.appLang)),
-
-        createElement('div', { className: 'level-selector' }, scriptBtns),
-        createElement('div', { className: 'mode-selector', style: { marginTop: 12 } }, viewBtns),
-
-        view === 'quiz'
-            ? createElement('div', { style: { marginTop: 20 } },
-                createElement(KanaQuiz, { script: script, appLang: props.appLang, onExit: function () { setView('chart'); } }))
-            : createElement('div', { style: { marginTop: 20 } },
-                detailPanel,
-                createElement(KanaChart, { rows: GOJUON, script: script, cols: 5, title: t('Basic (Gojŭon)', props.appLang), onPick: pick, selected: detail && detail.kana }),
-                createElement(KanaChart, { rows: DAKUTEN, script: script, cols: 5, title: t('Voiced (Dakuten)', props.appLang), onPick: pick, selected: detail && detail.kana }),
-                createElement(KanaChart, { rows: YOON, script: script, cols: 3, title: t('Combinations (Yōon)', props.appLang), onPick: pick, selected: detail && detail.kana })
-            )
-    );
+    return <div className='glass-card' key='kana'><h2 className='section-title'>{t('Hiragana & Katakana', props.appLang)}</h2><p className='section-desc'>{t('Tap any character to hear it and see the stroke order. Switch to Quiz to test yourself.', props.appLang)}</p><div className='level-selector'>{scriptBtns}</div><div className='mode-selector' style={{
+    marginTop: 12
+  }}>{viewBtns}</div>{view === 'quiz' ? <div style={{
+    marginTop: 20
+  }}><KanaQuiz script={script} appLang={props.appLang} onExit={() => {
+      setView('chart');
+    }} /></div> : <div style={{
+    marginTop: 20
+  }}>{detailPanel}<KanaChart rows={GOJUON} script={script} cols={5} title={t('Basic (Gojŭon)', props.appLang)} onPick={pick} selected={detail && detail.kana} /><KanaChart rows={DAKUTEN} script={script} cols={5} title={t('Voiced (Dakuten)', props.appLang)} onPick={pick} selected={detail && detail.kana} /><KanaChart rows={YOON} script={script} cols={3} title={t('Combinations (Yōon)', props.appLang)} onPick={pick} selected={detail && detail.kana} /></div>}</div>;
 }
 
 export { KanaTab };

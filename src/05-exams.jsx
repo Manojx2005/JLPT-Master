@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { formatTime, sanitizeHTML, shuffleArray, t } from './01-core.jsx';
 import { CountSelector, LevelSelector, ModeSelector } from './03-quiz.jsx';
 import { generateGrammarOptions, getGrammarMeaning } from './04-study.jsx';
@@ -9,7 +7,6 @@ import { PDF_EXAM, PROGRESS, LEADERBOARD_API, AUTH } from './features.js';
 /* =================================================================
    JLPT Master — Exams (Grammar quiz, Shared/PDF exams, Mock exam, language & login widgets)
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
@@ -128,53 +125,30 @@ function GrammarQuizTab(props) {
     }
 
     if (phase === 'setup') {
-        return createElement('div', { className: 'glass-card' },
-            createElement('h2', { className: 'section-title' }, t('Grammar Test', props.appLang)),
-            createElement('p', { className: 'section-desc' }, 'Test your grammar knowledge.'),
-            createElement('h3', { className: 'setup-label' }, 'Select Level'),
-            createElement(LevelSelector, {
-                selected: selectedLevel,
-                onSelect: setSelectedLevel,
-                questions: questions,
-                allCount: questions.length,
-                savedWords: []
-            }),
-            createElement('h3', { className: 'setup-label' }, 'Test Mode'),
-            createElement(ModeSelector, {
-                selected: quizMode,
-                onSelect: setQuizMode,
-                appLang: props.appLang,
-                modes: [
-                    { id: 'meaning', label: '🇯🇵 → EN', desc: 'Meaning' },
-                    { id: 'pattern', label: 'EN → 🇯🇵', desc: 'Pattern' },
-                    { id: 'fill', label: '＿＿＿', desc: 'Fill-in-blank' }
-                ]
-            }),
-            createElement('h3', { className: 'setup-label' }, 'Number of Questions'),
-            createElement(CountSelector, {
-                selected: questionCount,
-                onSelect: setQuestionCount,
-                maxAvailable: filteredQuestions.length
-            }),
-            createElement('div', { className: 'setup-center', style: { marginTop: 32 } },
-                createElement('button', {
-                    className: 'btn btn--primary btn--large btn--glow',
-                    onClick: startQuiz,
-                    disabled: filteredQuestions.length === 0
-                }, filteredQuestions.length > 0 ? '▶ START TEST' : 'No Grammar Points Available')
-            )
-        );
+        return <div className='glass-card'><h2 className='section-title'>{t('Grammar Test', props.appLang)}</h2><p className='section-desc'>Test your grammar knowledge.</p><h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={[]} /><h3 className='setup-label'>Test Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} modes={[{
+    id: 'meaning',
+    label: '🇯🇵 → EN',
+    desc: 'Meaning'
+  }, {
+    id: 'pattern',
+    label: 'EN → 🇯🇵',
+    desc: 'Pattern'
+  }, {
+    id: 'fill',
+    label: '＿＿＿',
+    desc: 'Fill-in-blank'
+  }]} /><h3 className='setup-label'>Number of Questions</h3><CountSelector selected={questionCount} onSelect={setQuestionCount} maxAvailable={filteredQuestions.length} /><div className='setup-center' style={{
+    marginTop: 32
+  }}><button className='btn btn--primary btn--large btn--glow' onClick={startQuiz} disabled={filteredQuestions.length === 0}>{filteredQuestions.length > 0 ? '▶ START TEST' : 'No Grammar Points Available'}</button></div></div>;
     }
 
     if (phase === 'result') {
-        return createElement('div', { className: 'glass-card' },
-            createElement('h2', { className: 'section-title', style: { textAlign: 'center' } }, 'Test Complete!'),
-            createElement('div', { className: 'quiz-score-circle' },
-                createElement('span', { className: 'score-number' }, score + '/' + quiz.length),
-                createElement('span', { className: 'score-label' }, 'Correct')
-            ),
-            createElement('button', { className: 'btn btn--primary btn--large', onClick: resetQuiz, style: { marginTop: 32, width: '100%' } }, '↻ Test Again')
-        );
+        return <div className='glass-card'><h2 className='section-title' style={{
+    textAlign: 'center'
+  }}>Test Complete!</h2><div className='quiz-score-circle'><span className='score-number'>{score + '/' + quiz.length}</span><span className='score-label'>Correct</span></div><button className='btn btn--primary btn--large' onClick={resetQuiz} style={{
+    marginTop: 32,
+    width: '100%'
+  }}>↻ Test Again</button></div>;
     }
 
     // Active phase
@@ -238,22 +212,17 @@ function GrammarQuizTab(props) {
         
         var optContent = opt;
         if (selected !== null && selected !== correctAnswer && props.showFurigana) {
-            optContent = createElement(FuriganaText, { text: opt, show: true });
+            optContent = <FuriganaText text={opt} show={true} />;
         }
 
-        return createElement('button', {
-            key: i,
-            className: cls,
-            onClick: function () { handleAnswer(opt); },
-            disabled: !canAnswer,
-            style: optStyle,
-        }, optContent);
+        return <button key={i} className={cls} onClick={() => {
+  handleAnswer(opt);
+}} disabled={!canAnswer} style={optStyle}>{optContent}</button>;
     });
 
-    var exampleContent = currQ.examples && currQ.examples[0] ? createElement('div', { className: 'example-reveal__sentence', style: { marginTop: 16 } },
-        createElement('div', { className: 'example-reveal__jp' }, createElement(FuriganaText, { text: currQ.examples[0].jp, show: props.showFurigana })),
-        createElement('div', { className: 'example-reveal__en' }, currQ.examples[0].en)
-    ) : null;
+    var exampleContent = currQ.examples && currQ.examples[0] ? <div className='example-reveal__sentence' style={{
+  marginTop: 16
+}}><div className='example-reveal__jp'><FuriganaText text={currQ.examples[0].jp} show={props.showFurigana} /></div><div className='example-reveal__en'>{currQ.examples[0].en}</div></div> : null;
 
     var selectedObj = null;
     if (showExample && !wasCorrect && selected) {
@@ -263,60 +232,40 @@ function GrammarQuizTab(props) {
         });
     }
 
-    var resultReveal = showExample ? createElement('div', { className: 'example-reveal' },
-        createElement('div', { className: 'example-reveal__badge' + (wasCorrect ? ' example-reveal__badge--correct' : ' example-reveal__badge--wrong') },
-            wasCorrect ? '✔ Correct!' : '✘ Incorrect'
-        ),
-        !wasCorrect ? createElement('div', { className: 'example-reveal__correct-answer', style: { marginTop: 12 } },
-            'The answer is ', createElement('strong', null, correctAnswer)
-        ) : null,
-        
-        (!wasCorrect && selectedObj) ? createElement('div', { className: 'grammar-explanation', style: { marginTop: 16, padding: '12px 16px', background: 'rgba(255, 107, 107, 0.1)', borderRadius: '12px', borderLeft: '4px solid var(--danger)', fontSize: '0.95rem', lineHeight: '1.5', textAlign: 'left' } },
-            createElement('div', { style: { marginBottom: 12 } },
-                createElement('strong', { style: { color: 'var(--danger)' } }, 'Why your choice is wrong:'),
-                createElement('br'),
-                'You selected ', createElement('strong', null, selected), ' which means "', getGrammarMeaning(selectedObj, props.appLang), '". ',
-                selectedObj.notes ? createElement('span', { style: { opacity: 0.8, fontStyle: 'italic' } }, ' (' + selectedObj.notes + ')') : ''
-            ),
-            createElement('div', null,
-                createElement('strong', { style: { color: 'var(--success)' } }, 'Why the answer is correct:'),
-                createElement('br'),
-                'The correct answer is ', createElement('strong', null, correctAnswer), ' which means "', getGrammarMeaning(currQ, props.appLang), '". ',
-                currQ.notes ? createElement('span', { style: { opacity: 0.8, fontStyle: 'italic' } }, ' (' + currQ.notes + ')') : ''
-            )
-        ) : null,
+    var resultReveal = showExample ? <div className='example-reveal'><div className={'example-reveal__badge' + (wasCorrect ? ' example-reveal__badge--correct' : ' example-reveal__badge--wrong')}>{wasCorrect ? '✔ Correct!' : '✘ Incorrect'}</div>{!wasCorrect ? <div className='example-reveal__correct-answer' style={{
+    marginTop: 12
+  }}>{'The answer is '}<strong>{correctAnswer}</strong></div> : null}{!wasCorrect && selectedObj ? <div className='grammar-explanation' style={{
+    marginTop: 16,
+    padding: '12px 16px',
+    background: 'rgba(255, 107, 107, 0.1)',
+    borderRadius: '12px',
+    borderLeft: '4px solid var(--danger)',
+    fontSize: '0.95rem',
+    lineHeight: '1.5',
+    textAlign: 'left'
+  }}><div style={{
+      marginBottom: 12
+    }}><strong style={{
+        color: 'var(--danger)'
+      }}>Why your choice is wrong:</strong><br />{'You selected '}<strong>{selected}</strong>{' which means "'}{getGrammarMeaning(selectedObj, props.appLang)}{'". '}{selectedObj.notes ? <span style={{
+        opacity: 0.8,
+        fontStyle: 'italic'
+      }}>{' (' + selectedObj.notes + ')'}</span> : ''}</div><div><strong style={{
+        color: 'var(--success)'
+      }}>Why the answer is correct:</strong><br />{'The correct answer is '}<strong>{correctAnswer}</strong>{' which means "'}{getGrammarMeaning(currQ, props.appLang)}{'". '}{currQ.notes ? <span style={{
+        opacity: 0.8,
+        fontStyle: 'italic'
+      }}>{' (' + currQ.notes + ')'}</span> : ''}</div></div> : null}{exampleContent}<button className='btn btn--primary btn--large btn--glow' onClick={nextQuestion} style={{
+    marginTop: 24,
+    width: '100%'
+  }}>{qIndex + 1 >= quiz.length ? 'View Results →' : 'Next Question →'}</button></div> : null;
 
-        exampleContent,
-        createElement('button', { className: 'btn btn--primary btn--large btn--glow', onClick: nextQuestion, style: { marginTop: 24, width: '100%' } }, qIndex + 1 >= quiz.length ? 'View Results →' : 'Next Question →')
-    ) : null;
-
-    return createElement('div', { className: 'glass-card', key: 'grammar-active' },
-        createElement('div', { className: 'quiz-bar' },
-            createElement('button', {
-                className: 'quiz-bar__back',
-                onClick: resetQuiz,
-                title: 'Back to Setup',
-            }, '←'),
-            createElement('div', { className: 'quiz-bar__info' },
-                'Question ',
-                createElement('strong', null, qIndex + 1),
-                ' / ' + quiz.length,
-                currQ.level ? createElement('span', { className: 'quiz-level-tag' }, currQ.level) : null
-            )
-        ),
-        createElement('div', { className: 'progress-track' },
-            createElement('div', { className: 'progress-fill', style: { width: (((qIndex + (showExample ? 1 : 0)) / quiz.length) * 100) + '%' } })
-        ),
-        createElement('div', { className: 'quiz-question' },
-            createElement('span', {
-                className: 'quiz-question__word',
-                style: { fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontFamily: 'var(--font-jp)' }
-            }, createElement(FuriganaText, { text: promptText, show: props.showFurigana })),
-            createElement('span', { className: 'quiz-question__prompt' }, hintText)
-        ),
-        createElement('div', { className: 'quiz-options' }, optionEls),
-        resultReveal
-    );
+    return <div className='glass-card' key='grammar-active'><div className='quiz-bar'><button className='quiz-bar__back' onClick={resetQuiz} title='Back to Setup'>←</button><div className='quiz-bar__info'>{'Question '}<strong>{qIndex + 1}</strong>{' / ' + quiz.length}{currQ.level ? <span className='quiz-level-tag'>{currQ.level}</span> : null}</div></div><div className='progress-track'><div className='progress-fill' style={{
+      width: (qIndex + (showExample ? 1 : 0)) / quiz.length * 100 + '%'
+    }} /></div><div className='quiz-question'><span className='quiz-question__word' style={{
+      fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+      fontFamily: 'var(--font-jp)'
+    }}><FuriganaText text={promptText} show={props.showFurigana} /></span><span className='quiz-question__prompt'>{hintText}</span></div><div className='quiz-options'>{optionEls}</div>{resultReveal}</div>;
 }
 
 /* =================================================================
@@ -575,9 +524,7 @@ function SharedExamTab(props) {
     function sectionTypeBadge(type) {
         var icons = { vocabulary: '📝', grammar: '📐', reading: '📖', general: '📋' };
         var labels = { vocabulary: 'Vocabulary', grammar: 'Grammar', reading: 'Reading', general: 'General' };
-        return createElement('span', { className: 'exam-type-badge exam-type-badge--' + type },
-            (icons[type] || '📋') + ' ' + (labels[type] || type)
-        );
+        return <span className={'exam-type-badge exam-type-badge--' + type}>{(icons[type] || '📋') + ' ' + (labels[type] || type)}</span>;
     }
 
     // ==============================
@@ -591,18 +538,21 @@ function SharedExamTab(props) {
             // Results
             setTimerActive(false);
             var vPct = Math.round((vocabScore / vocabQuestions.length) * 100);
-            return createElement('div', { className: 'glass-card' },
-                createElement('div', { className: 'result-panel' },
-                    createElement('div', { className: 'result-panel__emoji' }, vPct >= 80 ? '🏆' : vPct >= 60 ? '🎉' : '📚'),
-                    createElement('div', { className: 'result-panel__title' }, vPct >= 80 ? 'Excellent!' : vPct >= 60 ? 'Good Job!' : 'Keep Studying!'),
-                    createElement('div', { style: { fontSize: '3rem', fontWeight: 800, margin: '16px 0', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } }, vPct + '%'),
-                    createElement('div', { style: { color: 'var(--text-secondary)' } }, vocabScore + ' / ' + vocabQuestions.length + ' correct'),
-                    createElement('div', { style: { display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 } },
-                        createElement('button', { className: 'btn btn--primary', onClick: startVocabQuiz }, '↻ Retry'),
-                        createElement('button', { className: 'btn btn--outline btn--small', onClick: resetAll }, '📄 New PDF')
-                    )
-                )
-            );
+            return <div className='glass-card'><div className='result-panel'><div className='result-panel__emoji'>{vPct >= 80 ? '🏆' : vPct >= 60 ? '🎉' : '📚'}</div><div className='result-panel__title'>{vPct >= 80 ? 'Excellent!' : vPct >= 60 ? 'Good Job!' : 'Keep Studying!'}</div><div style={{
+      fontSize: '3rem',
+      fontWeight: 800,
+      margin: '16px 0',
+      background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent'
+    }}>{vPct + '%'}</div><div style={{
+      color: 'var(--text-secondary)'
+    }}>{vocabScore + ' / ' + vocabQuestions.length + ' correct'}</div><div style={{
+      display: 'flex',
+      gap: 12,
+      justifyContent: 'center',
+      marginTop: 24
+    }}><button className='btn btn--primary' onClick={startVocabQuiz}>↻ Retry</button><button className='btn btn--outline btn--small' onClick={resetAll}>📄 New PDF</button></div></div></div>;
         }
 
         var vOptEls = vq.options.map(function (opt, i) {
@@ -611,48 +561,44 @@ function SharedExamTab(props) {
                 if (opt === vq.correct) cls += ' quiz-option--correct';
                 else if (opt === vocabSelected) cls += ' quiz-option--wrong';
             }
-            return createElement('button', {
-                key: i, className: cls, disabled: vocabShowAnswer,
-                onClick: function () {
-                    if (vocabShowAnswer) return;
-                    setVocabSelected(opt);
-                    setVocabShowAnswer(true);
-                    if (opt === vq.correct) setVocabScore(function (s) { return s + 1; });
-                }
-            }, opt);
+            return <button key={i} className={cls} disabled={vocabShowAnswer} onClick={() => {
+  if (vocabShowAnswer) return;
+  setVocabSelected(opt);
+  setVocabShowAnswer(true);
+  if (opt === vq.correct) setVocabScore(function (s) {
+    return s + 1;
+  });
+}}>{opt}</button>;
         });
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'exam-topbar' },
-                createElement('button', { className: 'quiz-bar__back', onClick: resetAll }, '✕'),
-                createElement('span', null, 'Vocab Quiz • ' + (vocabQIndex + 1) + '/' + vocabQuestions.length),
-                createElement('span', { className: 'exam-timer' }, '⏱ ' + formatTime(timer))
-            ),
-            createElement('div', { className: 'progress-track' },
-                createElement('div', { className: 'progress-fill', style: { width: vProgress + '%' } })
-            ),
-            createElement('div', { style: { textAlign: 'center', padding: '24px 0' } },
-                createElement('div', { className: 'exam-q-label' }, t('What does this mean?', props.appLang)),
-                createElement('div', { style: { fontSize: '2.8rem', fontWeight: 700, fontFamily: 'var(--font-jp)' } }, vq.word),
-                vq.reading && createElement('div', { style: { fontSize: '1rem', color: 'var(--text-muted)', fontFamily: 'var(--font-jp)', marginTop: 4 } }, vq.reading)
-            ),
-            createElement('div', { className: 'quiz-options' }, vOptEls),
-            vocabShowAnswer && createElement('button', {
-                className: 'btn btn--primary btn--full btn--next',
-                onClick: function () {
-                    if (vocabQIndex + 1 >= vocabQuestions.length) {
-                        PROGRESS.recordQuiz(vocabScore + (vocabSelected === vq.correct ? 0 : 0), vocabQuestions.length, 'PDF', 'meaning');
-                        setTimerActive(false);
-                        var finalPct = Math.round(((vocabScore) / vocabQuestions.length) * 100);
-                        setPhase('upload'); // trigger re-render
-                        // Hacky but works: set timeout to show results
-                    }
-                    setVocabQIndex(function (i) { return i + 1; });
-                    setVocabSelected(null);
-                    setVocabShowAnswer(false);
-                }
-            }, vocabQIndex + 1 >= vocabQuestions.length ? 'View Results →' : 'Next →')
-        );
+        return <div className='glass-card'><div className='exam-topbar'><button className='quiz-bar__back' onClick={resetAll}>✕</button><span>{'Vocab Quiz • ' + (vocabQIndex + 1) + '/' + vocabQuestions.length}</span><span className='exam-timer'>{'⏱ ' + formatTime(timer)}</span></div><div className='progress-track'><div className='progress-fill' style={{
+      width: vProgress + '%'
+    }} /></div><div style={{
+    textAlign: 'center',
+    padding: '24px 0'
+  }}><div className='exam-q-label'>{t('What does this mean?', props.appLang)}</div><div style={{
+      fontSize: '2.8rem',
+      fontWeight: 700,
+      fontFamily: 'var(--font-jp)'
+    }}>{vq.word}</div>{vq.reading && <div style={{
+      fontSize: '1rem',
+      color: 'var(--text-muted)',
+      fontFamily: 'var(--font-jp)',
+      marginTop: 4
+    }}>{vq.reading}</div>}</div><div className='quiz-options'>{vOptEls}</div>{vocabShowAnswer && <button className='btn btn--primary btn--full btn--next' onClick={() => {
+    if (vocabQIndex + 1 >= vocabQuestions.length) {
+      PROGRESS.recordQuiz(vocabScore + (vocabSelected === vq.correct ? 0 : 0), vocabQuestions.length, 'PDF', 'meaning');
+      setTimerActive(false);
+      var finalPct = Math.round(vocabScore / vocabQuestions.length * 100);
+      setPhase('upload'); // trigger re-render
+      // Hacky but works: set timeout to show results
+    }
+    setVocabQIndex(function (i) {
+      return i + 1;
+    });
+    setVocabSelected(null);
+    setVocabShowAnswer(false);
+  }}>{vocabQIndex + 1 >= vocabQuestions.length ? 'View Results →' : 'Next →'}</button>}</div>;
     }
 
     // ==============================
@@ -695,78 +641,30 @@ function SharedExamTab(props) {
                     
                     var optContent = opt || '—';
                     if (hasKey && !isCorrect && props.showFurigana && opt) {
-                        optContent = createElement(FuriganaText, { text: opt, show: true });
+                        optContent = <FuriganaText text={opt} show={true} />;
                     }
                     
-                    return createElement('div', { key: optIdx, className: cls },
-                        createElement('span', { className: 'exam-review-option__num' }, (optIdx + 1)),
-                        createElement('span', null, optContent)
-                    );
+                    return <div key={optIdx} className={cls}><span className='exam-review-option__num'>{optIdx + 1}</span><span>{optContent}</span></div>;
                 });
 
-                return createElement('div', { key: qIdx, className: 'exam-review-q' },
-                    createElement('div', { className: 'exam-review-q__header' },
-                        createElement('span', { className: 'exam-review-q__num' }, 'Q' + q.number),
-                        userAns === undefined ? createElement('span', { className: 'exam-review-q__skip' }, 'Skipped') :
-                            hasKey ? (isCorrect ?
-                                createElement('span', { className: 'exam-review-q__correct' }, '✓ Correct') :
-                                createElement('span', { className: 'exam-review-q__wrong' }, '✗ Wrong')
-                            ) : createElement('span', { className: 'exam-review-q__answered' }, 'Answered: ' + (userAns + 1))
-                    ),
-                    createElement('div', { className: 'exam-review-q__text', dangerouslySetInnerHTML: { __html: sanitizeHTML(q.text) } }),
-                    createElement('div', { className: 'exam-review-options' }, optionEls)
-                );
+                return <div key={qIdx} className='exam-review-q'><div className='exam-review-q__header'><span className='exam-review-q__num'>{'Q' + q.number}</span>{userAns === undefined ? <span className='exam-review-q__skip'>Skipped</span> : hasKey ? isCorrect ? <span className='exam-review-q__correct'>✓ Correct</span> : <span className='exam-review-q__wrong'>✗ Wrong</span> : <span className='exam-review-q__answered'>{'Answered: ' + (userAns + 1)}</span>}</div><div className='exam-review-q__text' dangerouslySetInnerHTML={{
+    __html: sanitizeHTML(q.text)
+  }} /><div className='exam-review-options'>{optionEls}</div></div>;
             });
 
-            return createElement('div', { key: sIdx, className: 'exam-review-section' },
-                createElement('div', { className: 'exam-review-section__header' },
-                    sectionTypeBadge(sec.type),
-                    createElement('span', null, sec.title),
-                    createElement('span', { className: 'exam-review-section__count' }, secAnswered + '/' + sec.questions.length)
-                ),
-                questionReviews
-            );
+            return <div key={sIdx} className='exam-review-section'><div className='exam-review-section__header'>{sectionTypeBadge(sec.type)}<span>{sec.title}</span><span className='exam-review-section__count'>{secAnswered + '/' + sec.questions.length}</span></div>{questionReviews}</div>;
         });
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'exam-topbar' },
-                createElement('button', { className: 'quiz-bar__back', onClick: resetAll }, '✕'),
-                createElement('span', null, 'Exam Review'),
-                createElement('span', { className: 'exam-timer' }, '⏱ ' + formatTime(timer))
-            ),
-
-            createElement('div', { className: 'exam-results-summary' },
-                createElement('h2', { className: 'section-title', style: { marginBottom: 8 } }, 'Exam Complete'),
-                createElement('div', { className: 'exam-results-stats' },
-                    createElement('div', { className: 'exam-stat' },
-                        createElement('div', { className: 'exam-stat__value' }, totalAnswered + '/' + totalQ),
-                        createElement('div', { className: 'exam-stat__label' }, 'Answered')
-                    ),
-                    createElement('div', { className: 'exam-stat' },
-                        createElement('div', { className: 'exam-stat__value' }, formatTime(timer)),
-                        createElement('div', { className: 'exam-stat__label' }, 'Time')
-                    ),
-                    hasKey && createElement('div', { className: 'exam-stat exam-stat--score' },
-                        createElement('div', { className: 'exam-stat__value' }, correctCount + '/' + totalQ),
-                        createElement('div', { className: 'exam-stat__label' }, 'Score')
-                    ),
-                    hasKey && createElement('div', { className: 'exam-stat exam-stat--score' },
-                        createElement('div', { className: 'exam-stat__value' }, Math.round((correctCount / totalQ) * 100) + '%'),
-                        createElement('div', { className: 'exam-stat__label' }, 'Accuracy')
-                    )
-                ),
-                !hasKey && createElement('div', { className: 'exam-no-key-notice' },
-                    '💡 No answer key found in the PDF. Your selected answers are shown below for self-checking.'
-                )
-            ),
-
-            createElement('div', { className: 'exam-review-body' }, reviewSections),
-
-            createElement('div', { style: { display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 } },
-                createElement('button', { className: 'btn btn--primary', onClick: function () { startExam(); } }, '↻ Retake Exam'),
-                createElement('button', { className: 'btn btn--outline btn--small', onClick: resetAll }, '📄 New PDF')
-            )
-        );
+        return <div className='glass-card'><div className='exam-topbar'><button className='quiz-bar__back' onClick={resetAll}>✕</button><span>Exam Review</span><span className='exam-timer'>{'⏱ ' + formatTime(timer)}</span></div><div className='exam-results-summary'><h2 className='section-title' style={{
+      marginBottom: 8
+    }}>Exam Complete</h2><div className='exam-results-stats'><div className='exam-stat'><div className='exam-stat__value'>{totalAnswered + '/' + totalQ}</div><div className='exam-stat__label'>Answered</div></div><div className='exam-stat'><div className='exam-stat__value'>{formatTime(timer)}</div><div className='exam-stat__label'>Time</div></div>{hasKey && <div className='exam-stat exam-stat--score'><div className='exam-stat__value'>{correctCount + '/' + totalQ}</div><div className='exam-stat__label'>Score</div></div>}{hasKey && <div className='exam-stat exam-stat--score'><div className='exam-stat__value'>{Math.round(correctCount / totalQ * 100) + '%'}</div><div className='exam-stat__label'>Accuracy</div></div>}</div>{!hasKey && <div className='exam-no-key-notice'>💡 No answer key found in the PDF. Your selected answers are shown below for self-checking.</div>}</div><div className='exam-review-body'>{reviewSections}</div><div style={{
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    marginTop: 24
+  }}><button className='btn btn--primary' onClick={() => {
+      startExam();
+    }}>↻ Retake Exam</button><button className='btn btn--outline btn--small' onClick={resetAll}>📄 New PDF</button></div></div>;
     }
 
     // ==============================
@@ -788,10 +686,10 @@ function SharedExamTab(props) {
             var cls = 'exam-sec-pill';
             if (sIdx === currentSection) cls += ' exam-sec-pill--active';
             if (answeredInSec === s.questions.length) cls += ' exam-sec-pill--complete';
-            return createElement('button', {
-                key: sIdx, className: cls,
-                onClick: function () { setCurrentSection(sIdx); setCurrentQ(0); }
-            }, s.title, createElement('span', { className: 'exam-sec-pill__count' }, answeredInSec + '/' + s.questions.length));
+            return <button key={sIdx} className={cls} onClick={() => {
+  setCurrentSection(sIdx);
+  setCurrentQ(0);
+}}>{s.title}<span className='exam-sec-pill__count'>{answeredInSec + '/' + s.questions.length}</span></button>;
         });
 
         // Question nav dots
@@ -800,10 +698,9 @@ function SharedExamTab(props) {
             var cls = 'exam-q-dot';
             if (qIdx === currentQ) cls += ' exam-q-dot--active';
             if (ans !== undefined) cls += ' exam-q-dot--answered';
-            return createElement('button', {
-                key: qIdx, className: cls,
-                onClick: function () { setCurrentQ(qIdx); }
-            }, qIdx + 1);
+            return <button key={qIdx} className={cls} onClick={() => {
+  setCurrentQ(qIdx);
+}}>{qIdx + 1}</button>;
         });
 
         // Option buttons
@@ -814,13 +711,9 @@ function SharedExamTab(props) {
                 if (!opt || opt === '—') return null;
                 var cls = 'exam-option';
                 if (selectedOpt === optIdx) cls += ' exam-option--selected';
-                return createElement('button', {
-                    key: optIdx, className: cls,
-                    onClick: function () { selectAnswer(currentSection, currentQ, optIdx); }
-                },
-                    createElement('span', { className: 'exam-option__num' }, optIdx + 1),
-                    createElement('span', { className: 'exam-option__text' }, opt)
-                );
+                return <button key={optIdx} className={cls} onClick={() => {
+  selectAnswer(currentSection, currentQ, optIdx);
+}}><span className='exam-option__num'>{optIdx + 1}</span><span className='exam-option__text'>{opt}</span></button>;
             }).filter(Boolean);
         }
 
@@ -844,73 +737,30 @@ function SharedExamTab(props) {
             }
         }
 
-        return createElement('div', { className: 'glass-card exam-card' },
-            // Top bar
-            createElement('div', { className: 'exam-topbar' },
-                createElement('button', {
-                    className: 'quiz-bar__back', onClick: function () {
-                        if (confirm('Are you sure? Your progress will be saved for review.')) finishExam();
-                    }
-                }, '✕'),
-                createElement('span', null, examData.title),
-                createElement('span', { className: 'exam-timer' }, '⏱ ' + formatTime(timer))
-            ),
-
-            // Progress
-            createElement('div', { className: 'progress-track' },
-                createElement('div', { className: 'progress-fill', style: { width: totalProgress + '%' } })
-            ),
-
-            // Section pills
-            createElement('div', { className: 'exam-sec-nav' }, sectionPills),
-
-            // Section info
-            createElement('div', { className: 'exam-section-info' },
-                sectionTypeBadge(sec.type),
-                sec.instructions && createElement('p', { className: 'exam-section-instr' }, sec.instructions)
-            ),
-
-            // Reading passage
-            sec.passage && createElement('div', { className: 'exam-passage' },
-                createElement('div', { className: 'exam-passage__label' }, '📖 Reading Passage'),
-                createElement('div', { className: 'exam-passage__text' }, sec.passage)
-            ),
-
-            // Sub-passage for this question
-            q && q.subPassage && createElement('div', { className: 'exam-passage exam-passage--sub' },
-                createElement('div', { className: 'exam-passage__text' }, q.subPassage)
-            ),
-
-            // Question dots
-            createElement('div', { className: 'exam-q-nav' }, qDots),
-
-            // Question
-            q && createElement('div', { className: 'exam-question' },
-                createElement('div', { className: 'exam-question__num' }, 'Q' + q.number),
-                createElement('div', { className: 'exam-question__text', dangerouslySetInnerHTML: { __html: sanitizeHTML(q.text) } })
-            ),
-
-            // Options
-            createElement('div', { className: 'exam-options' }, optionEls),
-
-            // Navigation
-            createElement('div', { className: 'exam-nav-btns' },
-                createElement('button', {
-                    className: 'btn btn--outline btn--small',
-                    disabled: isFirst,
-                    onClick: goPrev
-                }, '← Previous'),
-                createElement('button', {
-                    className: 'btn btn--primary',
-                    onClick: isLast ? finishExam : goNext
-                }, isLast ? '✓ Finish Exam' : 'Next →'),
-                !isLast ? createElement('button', {
-                    className: 'btn btn--outline btn--small',
-                    style: { marginLeft: '12px', borderColor: 'var(--danger)', color: 'var(--danger)' },
-                    onClick: finishExam
-                }, 'Submit Early') : null
-            )
-        );
+        return <div className='glass-card exam-card'> // Top bar
+  <div className='exam-topbar'><button className='quiz-bar__back' onClick={() => {
+      if (confirm('Are you sure? Your progress will be saved for review.')) finishExam();
+    }}>✕</button><span>{examData.title}</span><span className='exam-timer'>{'⏱ ' + formatTime(timer)}</span></div> // Progress
+  <div className='progress-track'><div className='progress-fill' style={{
+      width: totalProgress + '%'
+    }} /></div> // Section pills
+  <div className='exam-sec-nav'>{sectionPills}</div> // Section info
+  <div className='exam-section-info'>{sectionTypeBadge(sec.type)}{sec.instructions && <p className='exam-section-instr'>{sec.instructions}</p>}</div>{
+  // Reading passage
+  sec.passage && <div className='exam-passage'><div className='exam-passage__label'>📖 Reading Passage</div><div className='exam-passage__text'>{sec.passage}</div></div>}{
+  // Sub-passage for this question
+  q && q.subPassage && <div className='exam-passage exam-passage--sub'><div className='exam-passage__text'>{q.subPassage}</div></div>} // Question dots
+  <div className='exam-q-nav'>{qDots}</div>{
+  // Question
+  q && <div className='exam-question'><div className='exam-question__num'>{'Q' + q.number}</div><div className='exam-question__text' dangerouslySetInnerHTML={{
+      __html: sanitizeHTML(q.text)
+    }} /></div>} // Options
+  <div className='exam-options'>{optionEls}</div> // Navigation
+  <div className='exam-nav-btns'><button className='btn btn--outline btn--small' disabled={isFirst} onClick={goPrev}>← Previous</button><button className='btn btn--primary' onClick={isLast ? finishExam : goNext}>{isLast ? '✓ Finish Exam' : 'Next →'}</button>{!isLast ? <button className='btn btn--outline btn--small' style={{
+      marginLeft: '12px',
+      borderColor: 'var(--danger)',
+      color: 'var(--danger)'
+    }} onClick={finishExam}>Submit Early</button> : null}</div></div>;
     }
 
     // ==============================
@@ -918,27 +768,23 @@ function SharedExamTab(props) {
     // ==============================
     if (phase === 'select_exam' && allExams.length > 0) {
         var examList = allExams.map(function(exam, i) {
-            return createElement('button', {
-                key: i,
-                className: 'btn btn--outline',
-                style: { display: 'block', width: '100%', marginBottom: '12px', textAlign: 'left', padding: '16px' },
-                onClick: function() {
-                    setExamData(exam);
-                    setPhase('preview');
-                }
-            }, '📄 ' + exam.title + ' (' + exam.totalQuestions + ' questions)');
+            return <button key={i} className='btn btn--outline' style={{
+  display: 'block',
+  width: '100%',
+  marginBottom: '12px',
+  textAlign: 'left',
+  padding: '16px'
+}} onClick={() => {
+  setExamData(exam);
+  setPhase('preview');
+}}>{'📄 ' + exam.title + ' (' + exam.totalQuestions + ' questions)'}</button>;
         });
         
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'flashcard-header' },
-                createElement('button', { className: 'quiz-bar__back', onClick: resetAll }, '←'),
-                createElement('span', null, '📄 ' + fileName),
-                createElement('span', null, '')
-            ),
-            createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, 'Select Exam to Take'),
-            createElement('p', { className: 'section-desc' }, 'This file contains multiple tests. Please select one:'),
-            createElement('div', { style: { marginTop: 24 } }, examList)
-        );
+        return <div className='glass-card'><div className='flashcard-header'><button className='quiz-bar__back' onClick={resetAll}>←</button><span>{'📄 ' + fileName}</span><span /></div><h2 className='section-title' style={{
+    marginTop: 16
+  }}>Select Exam to Take</h2><p className='section-desc'>This file contains multiple tests. Please select one:</p><div style={{
+    marginTop: 24
+  }}>{examList}</div></div>;
     }
 
     // ==============================
@@ -948,79 +794,32 @@ function SharedExamTab(props) {
         // === EXAM MODE PREVIEW ===
         if (examData.mode === 'exam') {
             var secSummary = examData.sections.map(function (sec, i) {
-                return createElement('div', { key: i, className: 'exam-preview-sec' },
-                    sectionTypeBadge(sec.type),
-                    createElement('div', { className: 'exam-preview-sec__info' },
-                        createElement('div', { className: 'exam-preview-sec__title' }, sec.title),
-                        createElement('div', { className: 'exam-preview-sec__detail' },
-                            sec.questions.length + ' questions' +
-                            (sec.passage ? ' • Has reading passage' : '') +
-                            (sec.instructions ? ' • ' + sec.instructions.substring(0, 60) + (sec.instructions.length > 60 ? '...' : '') : '')
-                        )
-                    )
-                );
+                return <div key={i} className='exam-preview-sec'>{sectionTypeBadge(sec.type)}<div className='exam-preview-sec__info'><div className='exam-preview-sec__title'>{sec.title}</div><div className='exam-preview-sec__detail'>{sec.questions.length + ' questions' + (sec.passage ? ' • Has reading passage' : '') + (sec.instructions ? ' • ' + sec.instructions.substring(0, 60) + (sec.instructions.length > 60 ? '...' : '') : '')}</div></div></div>;
             });
 
-            return createElement('div', { className: 'glass-card' },
-                createElement('div', { className: 'flashcard-header' },
-                    createElement('button', { className: 'quiz-bar__back', onClick: resetAll }, '←'),
-                    createElement('span', null, '📄 ' + fileName),
-                    createElement('span', null, '')
-                ),
-
-                createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, examData.title),
-                createElement('p', { className: 'section-desc' },
-                    'Found ' + examData.sections.length + ' sections with ' + examData.totalQuestions + ' questions total.'
-                ),
-
-                (examData.answerKey && Object.keys(examData.answerKey).length > 0) && createElement('div', { className: 'exam-key-notice' },
-                    '✅ Answer key detected! Your exam will be auto-graded.'
-                ),
-
-                createElement('div', { className: 'exam-preview-sections' }, secSummary),
-
-                createElement('div', { className: 'setup-center' },
-                    createElement('button', {
-                        className: 'btn btn--primary btn--large btn--glow',
-                        onClick: startExam,
-                        style: { marginTop: 24 }
-                    }, '▶  Start Exam (Timed)')
-                )
-            );
+            return <div className='glass-card'><div className='flashcard-header'><button className='quiz-bar__back' onClick={resetAll}>←</button><span>{'📄 ' + fileName}</span><span /></div><h2 className='section-title' style={{
+    marginTop: 16
+  }}>{examData.title}</h2><p className='section-desc'>{'Found ' + examData.sections.length + ' sections with ' + examData.totalQuestions + ' questions total.'}</p>{examData.answerKey && Object.keys(examData.answerKey).length > 0 && <div className='exam-key-notice'>✅ Answer key detected! Your exam will be auto-graded.</div>}<div className='exam-preview-sections'>{secSummary}</div><div className='setup-center'><button className='btn btn--primary btn--large btn--glow' onClick={startExam} style={{
+      marginTop: 24
+    }}>▶  Start Exam (Timed)</button></div></div>;
         }
 
         // === VOCAB MODE PREVIEW (fallback) ===
         if (examData.mode === 'vocab') {
             var previewWords = vocabMatches.slice(0, 15).map(function (m, i) {
-                return createElement('div', { key: i, className: 'pdf-word-chip' },
-                    createElement('span', { className: 'pdf-word-chip__word' }, m.word),
-                    createElement('span', { className: 'pdf-word-chip__meaning' }, m.correct),
-                    m.level && createElement('span', { className: 'pdf-word-chip__level' }, m.level)
-                );
+                return <div key={i} className='pdf-word-chip'><span className='pdf-word-chip__word'>{m.word}</span><span className='pdf-word-chip__meaning'>{m.correct}</span>{m.level && <span className='pdf-word-chip__level'>{m.level}</span>}</div>;
             });
 
-            return createElement('div', { className: 'glass-card' },
-                createElement('div', { className: 'flashcard-header' },
-                    createElement('button', { className: 'quiz-bar__back', onClick: resetAll }, '←'),
-                    createElement('span', null, '📄 ' + fileName),
-                    createElement('span', null, '')
-                ),
-                createElement('h2', { className: 'section-title', style: { marginTop: 16 } }, 'Vocabulary Mode'),
-                createElement('p', { className: 'section-desc' },
-                    'No structured exam found. Found ' + vocabMatches.length + ' JLPT vocabulary words — generating a vocab quiz instead.'
-                ),
-                createElement('div', { className: 'pdf-words-preview' }, previewWords),
-                vocabMatches.length > 15 && createElement('p', { style: { textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 8 } },
-                    '...and ' + (vocabMatches.length - 15) + ' more words'
-                ),
-                createElement('div', { className: 'setup-center' },
-                    createElement('button', {
-                        className: 'btn btn--primary btn--large btn--glow',
-                        onClick: startVocabQuiz,
-                        style: { marginTop: 24 }
-                    }, '▶  Start Vocab Quiz')
-                )
-            );
+            return <div className='glass-card'><div className='flashcard-header'><button className='quiz-bar__back' onClick={resetAll}>←</button><span>{'📄 ' + fileName}</span><span /></div><h2 className='section-title' style={{
+    marginTop: 16
+  }}>Vocabulary Mode</h2><p className='section-desc'>{'No structured exam found. Found ' + vocabMatches.length + ' JLPT vocabulary words — generating a vocab quiz instead.'}</p><div className='pdf-words-preview'>{previewWords}</div>{vocabMatches.length > 15 && <p style={{
+    textAlign: 'center',
+    color: 'var(--text-muted)',
+    fontSize: '0.85rem',
+    marginTop: 8
+  }}>{'...and ' + (vocabMatches.length - 15) + ' more words'}</p>}<div className='setup-center'><button className='btn btn--primary btn--large btn--glow' onClick={startVocabQuiz} style={{
+      marginTop: 24
+    }}>▶  Start Vocab Quiz</button></div></div>;
         }
     }
 
@@ -1028,64 +827,45 @@ function SharedExamTab(props) {
     // PROCESSING PHASE
     // ==============================
     if (phase === 'processing') {
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { style: { textAlign: 'center', padding: '60px 20px' } },
-                createElement('div', { className: 'pdf-processing-icon' }, '📄'),
-                createElement('h3', { style: { marginTop: 16, marginBottom: 8 } }, 'Analyzing PDF...'),
-                createElement('p', { style: { color: 'var(--text-muted)' } }, 'Detecting exam structure, sections, and questions'),
-                createElement('div', { className: 'pdf-processing-bar' },
-                    createElement('div', { className: 'pdf-processing-bar__fill' })
-                )
-            )
-        );
+        return <div className='glass-card'><div style={{
+    textAlign: 'center',
+    padding: '60px 20px'
+  }}><div className='pdf-processing-icon'>📄</div><h3 style={{
+      marginTop: 16,
+      marginBottom: 8
+    }}>Analyzing PDF...</h3><p style={{
+      color: 'var(--text-muted)'
+    }}>Detecting exam structure, sections, and questions</p><div className='pdf-processing-bar'><div className='pdf-processing-bar__fill' /></div></div></div>;
     }
 
     // ==============================
     // UPLOAD PHASE
     // ==============================
     if (isMock) return null; // Mock exam doesn't use upload phase anymore
-    return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, isMock ? '🎓 Mock Exam' : '📄 PDF Exam'),
-        createElement('p', { className: 'section-desc' },
-            isMock ? 'Loading the mock exam...' : 'Upload a real JLPT practice exam PDF. The app will parse sections (語彙・文法・読解), extract questions with options, and let you take a timed exam.'
-        ),
-
-        createElement('div', {
-            className: 'pdf-upload-zone' + (dragOver ? ' pdf-upload-zone--dragover' : ''),
-            onDrop: function (e) { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); },
-            onDragOver: function (e) { e.preventDefault(); setDragOver(true); },
-            onDragLeave: function () { setDragOver(false); },
-            onClick: function () { if (fileInputRef.current) fileInputRef.current.click(); }
-        },
-            createElement('div', { className: 'pdf-upload-zone__icon' }, isMock ? '📝' : '📁'),
-            createElement('div', { className: 'pdf-upload-zone__title' }, isMock ? 'Drop your exam DOCX here' : 'Drop your exam PDF here'),
-            createElement('div', { className: 'pdf-upload-zone__hint' }, 'or click to browse • Supports JLPT N5–N1 practice exams'),
-            createElement('input', {
-                ref: fileInputRef, type: 'file', accept: isMock ? '.docx' : '.pdf',
-                style: { display: 'none' },
-                onChange: function (e) { if (e.target.files[0]) handleFile(e.target.files[0]); }
-            })
-        ),
-
-        error && createElement('div', { className: 'pdf-error' }, '⚠️ ' + error),
-
-        createElement('div', { className: 'pdf-info' },
-            createElement('h3', { style: { fontSize: '1rem', marginBottom: 12 } }, '🎯 What this supports'),
-            createElement('ul', { className: 'pdf-info__list' },
-                createElement('li', null, '語彙 (Vocabulary) — Kanji readings, word meanings, usage'),
-                createElement('li', null, '文法 (Grammar) — Sentence completion, grammar forms'),
-                createElement('li', null, '読解 (Reading) — Passages with comprehension questions'),
-                createElement('li', null, 'Timed exam mode with section navigation'),
-                createElement('li', null, 'Auto-grading when answer key is included'),
-                !isMock && createElement('li', null, 'Fallback vocab quiz mode for non-exam PDFs')
-            )
-        )
-    );
+    return <div className='glass-card'><h2 className='section-title'>{isMock ? '🎓 Mock Exam' : '📄 PDF Exam'}</h2><p className='section-desc'>{isMock ? 'Loading the mock exam...' : 'Upload a real JLPT practice exam PDF. The app will parse sections (語彙・文法・読解), extract questions with options, and let you take a timed exam.'}</p><div className={'pdf-upload-zone' + (dragOver ? ' pdf-upload-zone--dragover' : '')} onDrop={e => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  }} onDragOver={e => {
+    e.preventDefault();
+    setDragOver(true);
+  }} onDragLeave={() => {
+    setDragOver(false);
+  }} onClick={() => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  }}><div className='pdf-upload-zone__icon'>{isMock ? '📝' : '📁'}</div><div className='pdf-upload-zone__title'>{isMock ? 'Drop your exam DOCX here' : 'Drop your exam PDF here'}</div><div className='pdf-upload-zone__hint'>or click to browse • Supports JLPT N5–N1 practice exams</div><input ref={fileInputRef} type='file' accept={isMock ? '.docx' : '.pdf'} style={{
+      display: 'none'
+    }} onChange={e => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    }} /></div>{error && <div className='pdf-error'>{'⚠️ ' + error}</div>}<div className='pdf-info'><h3 style={{
+      fontSize: '1rem',
+      marginBottom: 12
+    }}>🎯 What this supports</h3><ul className='pdf-info__list'><li>語彙 (Vocabulary) — Kanji readings, word meanings, usage</li><li>文法 (Grammar) — Sentence completion, grammar forms</li><li>読解 (Reading) — Passages with comprehension questions</li><li>Timed exam mode with section navigation</li><li>Auto-grading when answer key is included</li>{!isMock && <li>Fallback vocab quiz mode for non-exam PDFs</li>}</ul></div></div>;
 }
 
 
 function PDFExamTab() {
-    return createElement(SharedExamTab, { mode: 'pdf' });
+    return <SharedExamTab mode='pdf' />;
 }
 
 function MockExamTab(props) {
@@ -1199,29 +979,40 @@ function MockExamTab(props) {
     }
 
     if (phase === 'loading') {
-        return createElement('div', { className: 'glass-card', style: { textAlign: 'center', padding: '40px' } }, 
-            createElement('h2', null, t('Loading Mock Exam...', props.appLang)),
-            createElement('p', {style: {color: 'var(--text-muted)'}}, t('Fetching N2test.json', props.appLang))
-        );
+        return <div className='glass-card' style={{
+  textAlign: 'center',
+  padding: '40px'
+}}><h2>{t('Loading Mock Exam...', props.appLang)}</h2><p style={{
+    color: 'var(--text-muted)'
+  }}>{t('Fetching N2test.json', props.appLang)}</p></div>;
     }
 
     if (phase === 'error') {
-        return createElement('div', { className: 'glass-card', style: { textAlign: 'center', padding: '40px' } }, 
-            createElement('h2', {style: {color: 'var(--danger)'}}, t('Error', props.appLang)),
-            createElement('p', null, error)
-        );
+        return <div className='glass-card' style={{
+  textAlign: 'center',
+  padding: '40px'
+}}><h2 style={{
+    color: 'var(--danger)'
+  }}>{t('Error', props.appLang)}</h2><p>{error}</p></div>;
     }
 
     if (phase === 'setup' && examData) {
-        return createElement('div', { className: 'glass-card mock-exam-wrapper', style: { textAlign: 'center', padding: '40px' } },
-            createElement('div', { className: 'mock-header-card' },
-                createElement('h2', { className: 'section-title', style: { marginBottom: '10px' } }, '📝 ' + t('Mock Exam', props.appLang)),
-                createElement('h3', { style: { margin: '15px 0', fontSize: '1.5rem', color: 'var(--primary)' } }, examData.title),
-                createElement('p', { style: { marginBottom: '10px', fontSize: '1.1rem' } }, t('Total Questions: ', props.appLang) + examData.totalQuestions),
-                createElement('p', { style: { marginBottom: '30px', fontSize: '1.1rem' } }, t('Time Limit: ', props.appLang) + examData.timeLimit + ' ' + t('minutes', props.appLang)),
-                createElement('button', { className: 'btn btn--primary btn--large btn--glow', onClick: startExam }, '▶ ' + t('START EXAM', props.appLang))
-            )
-        );
+        return <div className='glass-card mock-exam-wrapper' style={{
+  textAlign: 'center',
+  padding: '40px'
+}}><div className='mock-header-card'><h2 className='section-title' style={{
+      marginBottom: '10px'
+    }}>{'📝 ' + t('Mock Exam', props.appLang)}</h2><h3 style={{
+      margin: '15px 0',
+      fontSize: '1.5rem',
+      color: 'var(--primary)'
+    }}>{examData.title}</h3><p style={{
+      marginBottom: '10px',
+      fontSize: '1.1rem'
+    }}>{t('Total Questions: ', props.appLang) + examData.totalQuestions}</p><p style={{
+      marginBottom: '30px',
+      fontSize: '1.1rem'
+    }}>{t('Time Limit: ', props.appLang) + examData.timeLimit + ' ' + t('minutes', props.appLang)}</p><button className='btn btn--primary btn--large btn--glow' onClick={startExam}>{'▶ ' + t('START EXAM', props.appLang)}</button></div></div>;
     }
 
     if (phase === 'exam' && examData) {
@@ -1232,78 +1023,74 @@ function MockExamTab(props) {
             var isSelected = getAnswer(currentSection, currentQ) === idx;
             var cls = 'mock-option-btn';
             if (isSelected) cls += ' selected';
-            return createElement('button', {
-                key: idx, className: cls,
-                onClick: function() { selectAnswer(currentSection, currentQ, idx); }
-            },
-                createElement('span', { className: 'mock-option-num' }, idx + 1),
-                createElement('span', null, opt)
-            );
+            return <button key={idx} className={cls} onClick={() => {
+  selectAnswer(currentSection, currentQ, idx);
+}}><span className='mock-option-num'>{idx + 1}</span><span>{opt}</span></button>;
         });
 
         var isFirst = currentSection === 0 && currentQ === 0;
         var isLast = currentSection === examData.sections.length - 1 && currentQ === sec.questions.length - 1;
 
-        return createElement('div', { className: 'glass-card mock-exam-wrapper' },
-            createElement('div', { className: 'exam-topbar', style: { marginBottom: '20px' } },
-                createElement('button', { className: 'quiz-bar__back', style: { width: 'auto', padding: '0 16px', borderRadius: '20px' }, onClick: function() { setPhase('setup'); setTimerActive(false); } }, '✕ ' + t('Quit', props.appLang)),
-                createElement('span', { style: { fontWeight: 'bold', color: 'var(--text-secondary)' } }, sec.title + ' (' + (currentQ + 1) + '/' + sec.questions.length + ')'),
-                createElement('span', { className: 'exam-timer', style: { fontWeight: 'bold' } }, '⏱ ' + formatTime(timer))
-            ),
-            
-            sec.instructions && createElement('div', { style: { margin: '20px 0', padding: '15px', background: 'rgba(var(--primary-rgb),0.05)', borderLeft: '4px solid var(--primary)', borderRadius: '4px' } }, sec.instructions),
-
-            q.passage && createElement('div', { className: 'mock-passage-box' },
-                createElement('div', { className: 'exam-passage__text' }, q.passage)
-            ),
-
-            createElement('div', { className: 'mock-question-text' },
-                createElement('span', { style: { color: 'var(--primary)', marginRight: '12px' } }, 'Q' + q.number + '.'),
-                createElement('span', { dangerouslySetInnerHTML: { __html: sanitizeHTML(q.text) } })
-            ),
-
-            createElement('div', { style: { marginTop: '20px' } }, optionEls),
-
-            createElement('div', { className: 'exam-nav', style: { display: 'flex', justifyContent: 'space-between', marginTop: '40px', paddingTop: '20px', borderTop: '1px solid rgba(0,0,0,0.05)' } },
-                createElement('button', { 
-                    className: 'btn btn--outline', 
-                    disabled: isFirst,
-                    onClick: function() {
-                        if (currentQ > 0) setCurrentQ(currentQ - 1);
-                        else {
-                            setCurrentSection(currentSection - 1);
-                            setCurrentQ(examData.sections[currentSection - 1].questions.length - 1);
-                        }
-                    }
-                }, '← ' + t('Previous', props.appLang)),
-                !isLast ? createElement('div', { style: { display: 'flex', gap: '10px' } },
-                    createElement('button', {
-                        className: 'btn btn--outline',
-                        style: { color: 'var(--danger)', borderColor: 'var(--danger)' },
-                        onClick: function() {
-                            if (confirm(t('Are you sure you want to submit early?', props.appLang) || 'Are you sure you want to submit early?')) {
-                                setPhase('review'); 
-                                setTimerActive(false);
-                            }
-                        }
-                    }, t('Submit Early', props.appLang) || 'Submit Early'),
-                    createElement('button', { 
-                        className: 'btn btn--primary',
-                        onClick: function() {
-                            if (currentQ < sec.questions.length - 1) setCurrentQ(currentQ + 1);
-                            else {
-                                setCurrentSection(currentSection + 1);
-                                setCurrentQ(0);
-                            }
-                        }
-                    }, t('Next', props.appLang) + ' →')
-                ) : createElement('button', {
-                    className: 'btn btn--primary',
-                    style: { background: 'var(--success)' },
-                    onClick: function() { setPhase('review'); setTimerActive(false); }
-                }, t('Submit Exam', props.appLang) + ' ✓')
-            )
-        );
+        return <div className='glass-card mock-exam-wrapper'><div className='exam-topbar' style={{
+    marginBottom: '20px'
+  }}><button className='quiz-bar__back' style={{
+      width: 'auto',
+      padding: '0 16px',
+      borderRadius: '20px'
+    }} onClick={() => {
+      setPhase('setup');
+      setTimerActive(false);
+    }}>{'✕ ' + t('Quit', props.appLang)}</button><span style={{
+      fontWeight: 'bold',
+      color: 'var(--text-secondary)'
+    }}>{sec.title + ' (' + (currentQ + 1) + '/' + sec.questions.length + ')'}</span><span className='exam-timer' style={{
+      fontWeight: 'bold'
+    }}>{'⏱ ' + formatTime(timer)}</span></div>{sec.instructions && <div style={{
+    margin: '20px 0',
+    padding: '15px',
+    background: 'rgba(var(--primary-rgb),0.05)',
+    borderLeft: '4px solid var(--primary)',
+    borderRadius: '4px'
+  }}>{sec.instructions}</div>}{q.passage && <div className='mock-passage-box'><div className='exam-passage__text'>{q.passage}</div></div>}<div className='mock-question-text'><span style={{
+      color: 'var(--primary)',
+      marginRight: '12px'
+    }}>{'Q' + q.number + '.'}</span><span dangerouslySetInnerHTML={{
+      __html: sanitizeHTML(q.text)
+    }} /></div><div style={{
+    marginTop: '20px'
+  }}>{optionEls}</div><div className='exam-nav' style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '40px',
+    paddingTop: '20px',
+    borderTop: '1px solid rgba(0,0,0,0.05)'
+  }}><button className='btn btn--outline' disabled={isFirst} onClick={() => {
+      if (currentQ > 0) setCurrentQ(currentQ - 1);else {
+        setCurrentSection(currentSection - 1);
+        setCurrentQ(examData.sections[currentSection - 1].questions.length - 1);
+      }
+    }}>{'← ' + t('Previous', props.appLang)}</button>{!isLast ? <div style={{
+      display: 'flex',
+      gap: '10px'
+    }}><button className='btn btn--outline' style={{
+        color: 'var(--danger)',
+        borderColor: 'var(--danger)'
+      }} onClick={() => {
+        if (confirm(t('Are you sure you want to submit early?', props.appLang) || 'Are you sure you want to submit early?')) {
+          setPhase('review');
+          setTimerActive(false);
+        }
+      }}>{t('Submit Early', props.appLang) || 'Submit Early'}</button><button className='btn btn--primary' onClick={() => {
+        if (currentQ < sec.questions.length - 1) setCurrentQ(currentQ + 1);else {
+          setCurrentSection(currentSection + 1);
+          setCurrentQ(0);
+        }
+      }}>{t('Next', props.appLang) + ' →'}</button></div> : <button className='btn btn--primary' style={{
+      background: 'var(--success)'
+    }} onClick={() => {
+      setPhase('review');
+      setTimerActive(false);
+    }}>{t('Submit Exam', props.appLang) + ' ✓'}</button>}</div></div>;
     }
 
     if (phase === 'review' && examData) {
@@ -1326,10 +1113,22 @@ function MockExamTab(props) {
                     if (isCorrectOpt) { bg = 'rgba(16, 185, 129, 0.1)'; border = '2px solid var(--success)'; }
                     else if (isSelected && !isCorrect) { bg = 'rgba(239, 68, 68, 0.1)'; border = '2px solid var(--danger)'; }
                     
-                    return createElement('div', { key: optIdx, style: { padding: '12px', marginBottom: '8px', borderRadius: '8px', background: bg, border: border, display: 'flex', alignItems: 'center' } },
-                        createElement('span', { className: 'mock-option-num', style: { width: '24px', height: '24px', marginRight: '12px', fontSize: '0.9rem', background: isCorrectOpt ? 'var(--success)' : (isSelected ? 'var(--danger)' : 'rgba(0,0,0,0.05)'), color: (isCorrectOpt || isSelected) ? 'white' : 'inherit' } }, (optIdx + 1)),
-                        createElement('span', null, opt)
-                    );
+                    return <div key={optIdx} style={{
+  padding: '12px',
+  marginBottom: '8px',
+  borderRadius: '8px',
+  background: bg,
+  border: border,
+  display: 'flex',
+  alignItems: 'center'
+}}><span className='mock-option-num' style={{
+    width: '24px',
+    height: '24px',
+    marginRight: '12px',
+    fontSize: '0.9rem',
+    background: isCorrectOpt ? 'var(--success)' : isSelected ? 'var(--danger)' : 'rgba(0,0,0,0.05)',
+    color: isCorrectOpt || isSelected ? 'white' : 'inherit'
+  }}>{optIdx + 1}</span><span>{opt}</span></div>;
                 });
 
                 var qCls = 'mock-review-card';
@@ -1337,33 +1136,38 @@ function MockExamTab(props) {
                 else if (userAns === undefined) qCls += ' mock-review-skipped';
                 else qCls += ' mock-review-wrong';
 
-                return createElement('div', { key: qIdx, className: qCls },
-                    createElement('div', { style: { fontWeight: 'bold', marginBottom: '15px', color: 'var(--text-secondary)' } }, 'Q' + q.number + ' ' + (isCorrect ? '✅ Correct' : (userAns === undefined ? '⚪ Skipped' : '❌ Wrong'))),
-                    createElement('div', { dangerouslySetInnerHTML: { __html: sanitizeHTML(q.text) }, className: 'mock-question-text', style: { borderBottom: 'none', paddingBottom: '0' } }),
-                    createElement('div', { style: { marginTop: '15px' } }, opts)
-                );
+                return <div key={qIdx} className={qCls}><div style={{
+    fontWeight: 'bold',
+    marginBottom: '15px',
+    color: 'var(--text-secondary)'
+  }}>{'Q' + q.number + ' ' + (isCorrect ? '✅ Correct' : userAns === undefined ? '⚪ Skipped' : '❌ Wrong')}</div><div dangerouslySetInnerHTML={{
+    __html: sanitizeHTML(q.text)
+  }} className='mock-question-text' style={{
+    borderBottom: 'none',
+    paddingBottom: '0'
+  }} /><div style={{
+    marginTop: '15px'
+  }}>{opts}</div></div>;
             });
 
-            return createElement('div', { key: sIdx, style: { marginTop: '30px' } },
-                createElement('h3', { className: 'section-title', style: { fontSize: '1.2rem', marginBottom: '15px' } }, sec.title),
-                qReviews
-            );
+            return <div key={sIdx} style={{
+  marginTop: '30px'
+}}><h3 className='section-title' style={{
+    fontSize: '1.2rem',
+    marginBottom: '15px'
+  }}>{sec.title}</h3>{qReviews}</div>;
         });
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'exam-topbar' },
-                createElement('button', { className: 'quiz-bar__back', onClick: function() { setPhase('setup'); } }, '✕ Back'),
-                createElement('span', null, 'Exam Review'),
-                createElement('span', { className: 'exam-timer' }, '⏱ ' + formatTime(timer))
-            ),
-            
-            createElement('div', { style: { textAlign: 'center', padding: '30px 0', borderBottom: '1px solid #ddd' } },
-                createElement('h2', { style: { fontSize: '2rem', marginBottom: '10px' } }, 'Score: ' + correctCount + ' / ' + examData.totalQuestions),
-                createElement('p', null, 'Answered ' + answeredCount + ' out of ' + examData.totalQuestions + ' questions.')
-            ),
-
-            createElement('div', null, reviewSections)
-        );
+        return <div className='glass-card'><div className='exam-topbar'><button className='quiz-bar__back' onClick={() => {
+      setPhase('setup');
+    }}>✕ Back</button><span>Exam Review</span><span className='exam-timer'>{'⏱ ' + formatTime(timer)}</span></div><div style={{
+    textAlign: 'center',
+    padding: '30px 0',
+    borderBottom: '1px solid #ddd'
+  }}><h2 style={{
+      fontSize: '2rem',
+      marginBottom: '10px'
+    }}>{'Score: ' + correctCount + ' / ' + examData.totalQuestions}</h2><p>{'Answered ' + answeredCount + ' out of ' + examData.totalQuestions + ' questions.'}</p></div><div>{reviewSections}</div></div>;
     }
 
     return null;
@@ -1448,21 +1252,14 @@ function LanguageSelector(props) {
     ];
     var selected = options.find(function(o) { return o.id === props.value; }) || options[0];
 
-    return createElement('div', { className: 'custom-lang-selector', ref: menuRef },
-        createElement('button', {
-            className: 'lang-selector-btn',
-            onClick: function() { setIsOpen(!isOpen); }
-        }, selected.label, createElement('span', { className: 'arrow' + (isOpen ? ' up' : '') }, '▼')),
-        isOpen && createElement('div', { className: 'lang-dropdown' },
-            options.map(function(opt) {
-                return createElement('button', {
-                    key: opt.id,
-                    className: 'lang-option' + (opt.id === props.value ? ' active' : ''),
-                    onClick: function() { props.onChange(opt.id); setIsOpen(false); }
-                }, opt.label);
-            })
-        )
-    );
+    return <div className='custom-lang-selector' ref={menuRef}><button className='lang-selector-btn' onClick={() => {
+    setIsOpen(!isOpen);
+  }}>{selected.label}<span className={'arrow' + (isOpen ? ' up' : '')}>▼</span></button>{isOpen && <div className='lang-dropdown'>{options.map(function (opt) {
+      return <button key={opt.id} className={'lang-option' + (opt.id === props.value ? ' active' : '')} onClick={() => {
+        props.onChange(opt.id);
+        setIsOpen(false);
+      }}>{opt.label}</button>;
+    })}</div>}</div>;
 }
 
 function HeaderLoginWidget() {
@@ -1535,40 +1332,14 @@ function HeaderLoginWidget() {
     }
 
     var avatarEl = (isGoogleUser && firebaseUser.photoURL)
-        ? createElement('img', { src: firebaseUser.photoURL, className: 'login-widget__avatar-img', alt: '' })
-        : createElement('span', null, displayAvatar);
+        ? <img src={firebaseUser.photoURL} className='login-widget__avatar-img' alt='' />
+        : <span>{displayAvatar}</span>;
 
-    var dropdownMenu = isOpen ? createElement('div', { className: 'login-widget__dropdown' },
-        createElement('div', { className: 'login-widget__dropdown-header' },
-            createElement('strong', { className: 'login-widget__dropdown-name' }, displayName),
-            createElement('div', { className: 'login-widget__dropdown-label' }, accountLabel)
-        ),
-        !isGoogleUser && createElement('button', {
-            className: 'login-widget__action login-widget__action--google',
-            onClick: handleGoogleLogin
-        }, '🔑 Sign in with Google'),
-        !isSignedIn && createElement('button', {
-            className: 'login-widget__action login-widget__action--ghost',
-            onClick: handleGuestLogin
-        }, '👤 Continue as Guest'),
-        isSignedIn && createElement('button', {
-            className: 'login-widget__action login-widget__action--ghost',
-            onClick: handleLogout
-        }, 'Sign Out')
-    ) : null;
+    var dropdownMenu = isOpen ? <div className='login-widget__dropdown'><div className='login-widget__dropdown-header'><strong className='login-widget__dropdown-name'>{displayName}</strong><div className='login-widget__dropdown-label'>{accountLabel}</div></div>{!isGoogleUser && <button className='login-widget__action login-widget__action--google' onClick={handleGoogleLogin}>🔑 Sign in with Google</button>}{!isSignedIn && <button className='login-widget__action login-widget__action--ghost' onClick={handleGuestLogin}>👤 Continue as Guest</button>}{isSignedIn && <button className='login-widget__action login-widget__action--ghost' onClick={handleLogout}>Sign Out</button>}</div> : null;
 
-    return createElement('div', { className: 'login-widget' },
-        createElement('button', {
-            className: 'login-widget__btn' + (isGoogleUser ? ' login-widget__btn--google' : isAnonymous ? ' login-widget__btn--guest' : ''),
-            onClick: function() { setIsOpen(!isOpen); },
-            'aria-expanded': isOpen,
-            'aria-label': 'Account: ' + displayName
-        },
-            createElement('div', { className: 'login-widget__avatar' }, avatarEl),
-            createElement('span', { className: 'login-widget__name' }, displayName)
-        ),
-        dropdownMenu
-    );
+    return <div className='login-widget'><button className={'login-widget__btn' + (isGoogleUser ? ' login-widget__btn--google' : isAnonymous ? ' login-widget__btn--guest' : '')} onClick={() => {
+    setIsOpen(!isOpen);
+  }} aria-expanded={isOpen} aria-label={'Account: ' + displayName}><div className='login-widget__avatar'>{avatarEl}</div><span className='login-widget__name'>{displayName}</span></button>{dropdownMenu}</div>;
 }
 
 function FuriganaText(props) {
@@ -1589,10 +1360,7 @@ function FuriganaText(props) {
             parts.push(text.slice(lastIndex, match.index));
         }
         if (show) {
-            parts.push(createElement('ruby', { key: match.index }, 
-                match[1], 
-                createElement('rt', null, match[2])
-            ));
+            parts.push(<ruby key={match.index}>{match[1]}<rt>{match[2]}</rt></ruby>);
         } else {
             parts.push(match[1]); // Just the Kanji
         }
@@ -1602,7 +1370,7 @@ function FuriganaText(props) {
         parts.push(text.slice(lastIndex));
     }
     
-    return createElement('span', null, parts);
+    return <span>{parts}</span>;
 }
 
 function CustomSelect(props) {
@@ -1622,41 +1390,43 @@ function CustomSelect(props) {
 
     var selectedOpt = props.options.find(function(o) { return o.value === props.value; }) || props.options[0];
 
-    return createElement('div', { className: 'custom-select-wrapper', ref: menuRef, style: { position: 'relative', display: 'inline-block', width: props.width || 'auto' } },
-        createElement('button', {
-            className: 'input-field',
-            onClick: function() { setIsOpen(!isOpen); },
-            style: { 
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                width: '100%', textAlign: 'left',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                padding: '12px 16px', borderRadius: '12px',
-                color: 'var(--text-primary)', fontWeight: '500'
-            }
-        }, 
-            createElement('span', null, selectedOpt ? selectedOpt.label : ''),
-            createElement('span', { style: { fontSize: '0.7rem', marginLeft: '15px', transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', color: 'rgba(255,255,255,0.5)' } }, '▼')
-        ),
-        isOpen && createElement('div', { 
-            className: 'lang-dropdown custom-scrollbar', 
-            style: { 
-                width: '100%', 
-                boxSizing: 'border-box',
-                maxHeight: '250px',
-                overflowY: 'auto'
-            } 
-        },
-            props.options.map(function(opt) {
-                var isActive = opt.value === props.value;
-                return createElement('button', {
-                    key: opt.value,
-                    className: 'lang-option' + (isActive ? ' active' : ''),
-                    onClick: function() { props.onChange(opt.value); setIsOpen(false); }
-                }, opt.label);
-            })
-        )
-    );
+    return <div className='custom-select-wrapper' ref={menuRef} style={{
+  position: 'relative',
+  display: 'inline-block',
+  width: props.width || 'auto'
+}}><button className='input-field' onClick={() => {
+    setIsOpen(!isOpen);
+  }} style={{
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    textAlign: 'left',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    padding: '12px 16px',
+    borderRadius: '12px',
+    color: 'var(--text-primary)',
+    fontWeight: '500'
+  }}><span>{selectedOpt ? selectedOpt.label : ''}</span><span style={{
+      fontSize: '0.7rem',
+      marginLeft: '15px',
+      transition: 'transform 0.2s',
+      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      color: 'rgba(255,255,255,0.5)'
+    }}>▼</span></button>{isOpen && <div className='lang-dropdown custom-scrollbar' style={{
+    width: '100%',
+    boxSizing: 'border-box',
+    maxHeight: '250px',
+    overflowY: 'auto'
+  }}>{props.options.map(function (opt) {
+      var isActive = opt.value === props.value;
+      return <button key={opt.value} className={'lang-option' + (isActive ? ' active' : '')} onClick={() => {
+        props.onChange(opt.value);
+        setIsOpen(false);
+      }}>{opt.label}</button>;
+    })}</div>}</div>;
 }
 
 

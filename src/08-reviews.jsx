@@ -1,13 +1,10 @@
-import React from 'react';
-const { useState, useEffect, useRef } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef } from 'react';
 import { t } from './01-core.jsx';
 import { AUTH, LEADERBOARD_API } from './features.js';
 
 /* =================================================================
    JLPT Master — Reviews & Ratings tab
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
 
    Reviews are stored in the Firebase Realtime Database under
@@ -69,20 +66,18 @@ function StarRating(props) {
 
     var stars = [1, 2, 3, 4, 5].map(function (n) {
         var active = (hover || value) >= n;
-        return createElement('button', {
-            key: n,
-            type: 'button',
-            className: 'review-star' + (active ? ' review-star--active' : '') + (interactive ? '' : ' review-star--readonly'),
-            style: { fontSize: size },
-            disabled: !interactive,
-            onMouseEnter: interactive ? function () { setHover(n); } : null,
-            onMouseLeave: interactive ? function () { setHover(0); } : null,
-            onClick: interactive ? function () { props.onRate(n); } : null,
-            'aria-label': n + ' star' + (n > 1 ? 's' : '')
-        }, active ? '★' : '☆');
+        return <button key={n} type='button' className={'review-star' + (active ? ' review-star--active' : '') + (interactive ? '' : ' review-star--readonly')} style={{
+  fontSize: size
+}} disabled={!interactive} onMouseEnter={interactive ? function () {
+  setHover(n);
+} : null} onMouseLeave={interactive ? function () {
+  setHover(0);
+} : null} onClick={interactive ? function () {
+  props.onRate(n);
+} : null} aria-label={n + ' star' + (n > 1 ? 's' : '')}>{active ? '★' : '☆'}</button>;
     });
 
-    return createElement('div', { className: 'review-stars' }, stars);
+    return <div className='review-stars'>{stars}</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -169,7 +164,7 @@ function ReviewsTab(props) {
 
     function renderAvatar(avatar) {
         if (avatar && avatar.indexOf('http') === 0) {
-            return createElement('img', { src: avatar, alt: '', className: 'review-avatar__img' });
+            return <img src={avatar} alt='' className='review-avatar__img' />;
         }
         return avatar || '👤';
     }
@@ -195,116 +190,40 @@ function ReviewsTab(props) {
 
     var isSignedIn = !!user;
 
-    return createElement('div', { className: 'glass-card reviews-container' },
-        // Header
-        createElement('div', { className: 'reviews-header' },
-            createElement('div', null,
-                createElement('h2', { className: 'section-title', style: { margin: 0 } }, '💬 ' + t('Reviews & Ratings', appLang)),
-                createElement('p', { className: 'section-desc', style: { margin: '4px 0 0' } }, t('See what learners think — and share your own experience.', appLang))
-            ),
-            createElement('button', {
-                className: 'btn btn--outline',
-                onClick: loadReviews,
-                disabled: state.loading
-            }, state.loading ? '↻ ' + t('Loading…', appLang) : '↻ ' + t('Refresh', appLang))
-        ),
-
-        // Summary
-        createElement('div', { className: 'reviews-summary' },
-            createElement('div', { className: 'reviews-summary__score' },
-                createElement('div', { className: 'reviews-summary__avg' }, count ? avg.toFixed(1) : '—'),
-                createElement(StarRating, { value: roundedAvg, size: '1.1rem' }),
-                createElement('div', { className: 'reviews-summary__count' },
-                    count ? (count + ' ' + t(count === 1 ? 'review' : 'reviews', appLang)) : t('No reviews yet', appLang))
-            ),
-            createElement('div', { className: 'reviews-summary__bars' },
-                dist.map(function (d) {
-                    return createElement('div', { key: d.star, className: 'review-bar' },
-                        createElement('span', { className: 'review-bar__label' }, d.star + '★'),
-                        createElement('div', { className: 'review-bar__track' },
-                            createElement('div', { className: 'review-bar__fill', style: { width: d.pct + '%' } })
-                        ),
-                        createElement('span', { className: 'review-bar__count' }, d.count)
-                    );
-                })
-            )
-        ),
-
-        // Write a review
-        createElement('div', { className: 'review-form' },
-            createElement('h3', { className: 'review-form__title' }, t('Write a review', appLang)),
-            isSignedIn
-                ? createElement('div', null,
-                    createElement('div', { className: 'review-form__rate-row' },
-                        createElement('span', { className: 'review-form__rate-label' }, t('Your rating', appLang) + ':'),
-                        createElement(StarRating, { value: rating, onRate: setRating, size: '1.8rem' })
-                    ),
-                    createElement('textarea', {
-                        className: 'input-field review-form__textarea',
-                        placeholder: t('Share your thoughts about JLPT Master (optional)…', appLang),
-                        value: text,
-                        maxLength: 1000,
-                        onChange: function (e) { setText(e.target.value); }
-                    }),
-                    createElement('div', { className: 'review-form__actions' },
-                        createElement('span', { className: 'review-form__counter' }, text.length + '/1000'),
-                        createElement('button', {
-                            className: 'btn btn--primary',
-                            onClick: submit,
-                            disabled: submitting || !rating
-                        }, submitting ? t('Submitting…', appLang) : t('Submit Review', appLang))
-                    )
-                )
-                : createElement('div', { className: 'review-form__signin' },
-                    createElement('p', { style: { margin: '0 0 14px', color: 'var(--text-secondary)' } },
-                        t('Sign in to leave a review.', appLang)),
-                    createElement('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap' } },
-                        createElement('button', {
-                            className: 'btn btn--primary',
-                            onClick: handleGoogleLogin,
-                            style: { background: '#4285F4', color: '#fff', border: 'none' }
-                        }, t('Sign in with Google', appLang)),
-                        createElement('button', { className: 'btn btn--outline', onClick: handleGuestLogin },
-                            t('Continue as Guest', appLang))
-                    )
-                ),
-            notice ? createElement('div', {
-                className: 'review-notice review-notice--' + notice.type
-            }, notice.msg) : null
-        ),
-
-        // Error / loading / list
-        state.error ? createElement('div', { className: 'review-empty', style: { color: 'var(--accent-red)' } },
-            t('Could not load reviews:', appLang) + ' ' + state.error) : null,
-
-        state.loading && count === 0
-            ? createElement('div', { className: 'review-empty' }, t('Loading reviews…', appLang))
-            : null,
-
-        !state.loading && count === 0 && !state.error
-            ? createElement('div', { className: 'review-empty' },
-                createElement('div', { style: { fontSize: '2.5rem', marginBottom: '8px' } }, '🌸'),
-                t('No reviews yet — be the first to leave one!', appLang))
-            : null,
-
-        count > 0 ? createElement('div', { className: 'review-list' },
-            reviews.map(function (r) {
-                return createElement('div', { key: r.id, className: 'review-card' },
-                    createElement('div', { className: 'review-card__head' },
-                        createElement('div', { className: 'review-avatar' }, renderAvatar(r.avatar)),
-                        createElement('div', { className: 'review-card__meta' },
-                            createElement('div', { className: 'review-card__name' }, r.name),
-                            createElement('div', { className: 'review-card__sub' },
-                                createElement(StarRating, { value: r.rating, size: '0.95rem' }),
-                                createElement('span', { className: 'review-card__date' }, formatDate(r.createdAt))
-                            )
-                        )
-                    ),
-                    r.text ? createElement('p', { className: 'review-card__text' }, r.text) : null
-                );
-            })
-        ) : null
-    );
+    return <div className='glass-card reviews-container'> // Header
+  <div className='reviews-header'><div><h2 className='section-title' style={{
+        margin: 0
+      }}>{'💬 ' + t('Reviews & Ratings', appLang)}</h2><p className='section-desc' style={{
+        margin: '4px 0 0'
+      }}>{t('See what learners think — and share your own experience.', appLang)}</p></div><button className='btn btn--outline' onClick={loadReviews} disabled={state.loading}>{state.loading ? '↻ ' + t('Loading…', appLang) : '↻ ' + t('Refresh', appLang)}</button></div> // Summary
+  <div className='reviews-summary'><div className='reviews-summary__score'><div className='reviews-summary__avg'>{count ? avg.toFixed(1) : '—'}</div><StarRating value={roundedAvg} size='1.1rem' /><div className='reviews-summary__count'>{count ? count + ' ' + t(count === 1 ? 'review' : 'reviews', appLang) : t('No reviews yet', appLang)}</div></div><div className='reviews-summary__bars'>{dist.map(function (d) {
+        return <div key={d.star} className='review-bar'><span className='review-bar__label'>{d.star + '★'}</span><div className='review-bar__track'><div className='review-bar__fill' style={{
+              width: d.pct + '%'
+            }} /></div><span className='review-bar__count'>{d.count}</span></div>;
+      })}</div></div> // Write a review
+  <div className='review-form'><h3 className='review-form__title'>{t('Write a review', appLang)}</h3>{isSignedIn ? <div><div className='review-form__rate-row'><span className='review-form__rate-label'>{t('Your rating', appLang) + ':'}</span><StarRating value={rating} onRate={setRating} size='1.8rem' /></div><textarea className='input-field review-form__textarea' placeholder={t('Share your thoughts about JLPT Master (optional)…', appLang)} value={text} maxLength={1000} onChange={e => {
+        setText(e.target.value);
+      }} /><div className='review-form__actions'><span className='review-form__counter'>{text.length + '/1000'}</span><button className='btn btn--primary' onClick={submit} disabled={submitting || !rating}>{submitting ? t('Submitting…', appLang) : t('Submit Review', appLang)}</button></div></div> : <div className='review-form__signin'><p style={{
+        margin: '0 0 14px',
+        color: 'var(--text-secondary)'
+      }}>{t('Sign in to leave a review.', appLang)}</p><div style={{
+        display: 'flex',
+        gap: '10px',
+        flexWrap: 'wrap'
+      }}><button className='btn btn--primary' onClick={handleGoogleLogin} style={{
+          background: '#4285F4',
+          color: '#fff',
+          border: 'none'
+        }}>{t('Sign in with Google', appLang)}</button><button className='btn btn--outline' onClick={handleGuestLogin}>{t('Continue as Guest', appLang)}</button></div></div>}{notice ? <div className={'review-notice review-notice--' + notice.type}>{notice.msg}</div> : null}</div>{
+  // Error / loading / list
+  state.error ? <div className='review-empty' style={{
+    color: 'var(--accent-red)'
+  }}>{t('Could not load reviews:', appLang) + ' ' + state.error}</div> : null}{state.loading && count === 0 ? <div className='review-empty'>{t('Loading reviews…', appLang)}</div> : null}{!state.loading && count === 0 && !state.error ? <div className='review-empty'><div style={{
+      fontSize: '2.5rem',
+      marginBottom: '8px'
+    }}>🌸</div>{t('No reviews yet — be the first to leave one!', appLang)}</div> : null}{count > 0 ? <div className='review-list'>{reviews.map(function (r) {
+      return <div key={r.id} className='review-card'><div className='review-card__head'><div className='review-avatar'>{renderAvatar(r.avatar)}</div><div className='review-card__meta'><div className='review-card__name'>{r.name}</div><div className='review-card__sub'><StarRating value={r.rating} size='0.95rem' /><span className='review-card__date'>{formatDate(r.createdAt)}</span></div></div></div>{r.text ? <p className='review-card__text'>{r.text}</p> : null}</div>;
+    })}</div> : null}</div>;
 }
 
 export { ReviewsTab, StarRating };

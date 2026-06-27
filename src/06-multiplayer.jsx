@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { generateOptions, getVocabMeaning, t } from './01-core.jsx';
 import { CustomSelect } from './05-exams.jsx';
 import { LEADERBOARD_API, MULTIPLAYER_API } from './features.js';
@@ -8,7 +6,6 @@ import { LEADERBOARD_API, MULTIPLAYER_API } from './features.js';
 /* =================================================================
    JLPT Master — Multiplayer head-to-head quiz
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
@@ -183,51 +180,80 @@ function MultiplayerTab(props) {
     }
 
     if (state.phase === 'lobby') {
-        return createElement('div', { className: 'glass-card', style: { overflow: 'visible' } },
-            createElement('h2', { className: 'section-title' }, 'Multiplayer Quiz'),
-            createElement('p', { className: 'section-desc' }, 'Race against your friends or find a public match!'),
-            state.error ? createElement('div', { style: { color: 'var(--accent-red)', marginBottom: 15 } }, state.error) : null,
-            
-            createElement('div', { style: { display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' } },
-                createElement('div', { style: { flex: 1, minWidth: '180px' } },
-                    createElement('strong', { style: { display: 'block', marginBottom: '10px', color: 'var(--text-secondary)' } }, 'Level:'),
-                    createElement(CustomSelect, { 
-                        width: '100%',
-                        value: roomConfig.level, 
-                        onChange: function(val) { setRoomConfig(Object.assign({}, roomConfig, { level: val })); },
-                        options: [
-                            { value: 'All', label: 'All Levels (Mixed)' },
-                            { value: 'N5', label: 'JLPT N5 (Beginner)' },
-                            { value: 'N4', label: 'JLPT N4 (Basic)' },
-                            { value: 'N3', label: 'JLPT N3 (Intermediate)' },
-                            { value: 'N2', label: 'JLPT N2 (Advanced)' },
-                            { value: 'N1', label: 'JLPT N1 (Fluent)' }
-                        ]
-                    })
-                ),
-                createElement('div', { style: { flex: 1, minWidth: '180px' } },
-                    createElement('strong', { style: { display: 'block', marginBottom: '10px', color: 'var(--text-secondary)' } }, 'Game Mode:'),
-                    createElement(CustomSelect, { 
-                        width: '100%',
-                        value: roomConfig.mode, 
-                        onChange: function(val) { setRoomConfig(Object.assign({}, roomConfig, { mode: val })); },
-                        options: [
-                            { value: 'meaning', label: '📖 Guess the Meaning' },
-                            { value: 'reading', label: '🗣️ Guess the Reading' }
-                        ]
-                    })
-                )
-            ),
-
-            createElement('div', { style: { display: 'flex', gap: 15, marginTop: 20, flexWrap: 'wrap' } },
-                createElement('button', { className: 'btn btn--primary', onClick: handleFindMatch, style: { background: 'linear-gradient(135deg, #10b981, #3b82f6)' } }, '🌍 Find Public Match'),
-                createElement('button', { className: 'btn btn--primary', onClick: handleCreate }, 'Create Private Room'),
-                createElement('div', { style: { display: 'flex', gap: 10 } },
-                    createElement('input', { className: 'input-field', placeholder: 'Enter 4-digit code', value: codeIn, onChange: function(e) { setCodeIn(e.target.value); } }),
-                    createElement('button', { className: 'btn btn--outline', onClick: handleJoin }, 'Join')
-                )
-            )
-        );
+        return <div className='glass-card' style={{
+  overflow: 'visible'
+}}><h2 className='section-title'>Multiplayer Quiz</h2><p className='section-desc'>Race against your friends or find a public match!</p>{state.error ? <div style={{
+    color: 'var(--accent-red)',
+    marginBottom: 15
+  }}>{state.error}</div> : null}<div style={{
+    display: 'flex',
+    gap: '20px',
+    marginBottom: '30px',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    background: 'rgba(0,0,0,0.2)',
+    padding: '20px',
+    borderRadius: '16px',
+    border: '1px solid rgba(255,255,255,0.05)'
+  }}><div style={{
+      flex: 1,
+      minWidth: '180px'
+    }}><strong style={{
+        display: 'block',
+        marginBottom: '10px',
+        color: 'var(--text-secondary)'
+      }}>Level:</strong><CustomSelect width='100%' value={roomConfig.level} onChange={val => {
+        setRoomConfig(Object.assign({}, roomConfig, {
+          level: val
+        }));
+      }} options={[{
+        value: 'All',
+        label: 'All Levels (Mixed)'
+      }, {
+        value: 'N5',
+        label: 'JLPT N5 (Beginner)'
+      }, {
+        value: 'N4',
+        label: 'JLPT N4 (Basic)'
+      }, {
+        value: 'N3',
+        label: 'JLPT N3 (Intermediate)'
+      }, {
+        value: 'N2',
+        label: 'JLPT N2 (Advanced)'
+      }, {
+        value: 'N1',
+        label: 'JLPT N1 (Fluent)'
+      }]} /></div><div style={{
+      flex: 1,
+      minWidth: '180px'
+    }}><strong style={{
+        display: 'block',
+        marginBottom: '10px',
+        color: 'var(--text-secondary)'
+      }}>Game Mode:</strong><CustomSelect width='100%' value={roomConfig.mode} onChange={val => {
+        setRoomConfig(Object.assign({}, roomConfig, {
+          mode: val
+        }));
+      }} options={[{
+        value: 'meaning',
+        label: '📖 Guess the Meaning'
+      }, {
+        value: 'reading',
+        label: '🗣️ Guess the Reading'
+      }]} /></div></div><div style={{
+    display: 'flex',
+    gap: 15,
+    marginTop: 20,
+    flexWrap: 'wrap'
+  }}><button className='btn btn--primary' onClick={handleFindMatch} style={{
+      background: 'linear-gradient(135deg, #10b981, #3b82f6)'
+    }}>🌍 Find Public Match</button><button className='btn btn--primary' onClick={handleCreate}>Create Private Room</button><div style={{
+      display: 'flex',
+      gap: 10
+    }}><input className='input-field' placeholder='Enter 4-digit code' value={codeIn} onChange={e => {
+        setCodeIn(e.target.value);
+      }} /><button className='btn btn--outline' onClick={handleJoin}>Join</button></div></div></div>;
     }
 
     if (state.phase === 'waiting') {
@@ -236,23 +262,28 @@ function MultiplayerTab(props) {
         var myPlayer = state.room && profile ? state.room.players[profile.id] : null;
         var isReady = myPlayer ? myPlayer.ready : false;
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('h2', { className: 'section-title' }, isPublic ? 'Public Match' : 'Waiting Room: ' + state.code),
-            createElement('p', { className: 'section-desc' }, isPublic ? 'Waiting for an opponent to join...' : 'Share this code with your friends.'),
-            createElement('div', { style: { display: 'flex', gap: 15, flexWrap: 'wrap', margin: '20px 0' } },
-                players.map(function(p, i) {
-                    return createElement('div', { key: i, style: { background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10 } },
-                        createElement('span', null, p.avatar || '👤'),
-                        createElement('strong', null, p.name),
-                        p.ready ? createElement('span', { style: { color: 'var(--accent-green)' } }, '✓') : null
-                    );
-                })
-            ),
-            createElement('div', { style: { marginTop: 20 } },
-                !isReady ? createElement('button', { className: 'btn btn--primary', onClick: handleReady }, 'Ready') 
-                : createElement('p', { style: { color: 'var(--accent-green)', fontWeight: 'bold' } }, '✓ Ready! Waiting for others...')
-            )
-        );
+        return <div className='glass-card'><h2 className='section-title'>{isPublic ? 'Public Match' : 'Waiting Room: ' + state.code}</h2><p className='section-desc'>{isPublic ? 'Waiting for an opponent to join...' : 'Share this code with your friends.'}</p><div style={{
+    display: 'flex',
+    gap: 15,
+    flexWrap: 'wrap',
+    margin: '20px 0'
+  }}>{players.map(function (p, i) {
+      return <div key={i} style={{
+        background: 'rgba(255,255,255,0.1)',
+        padding: '10px 20px',
+        borderRadius: 8,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10
+      }}><span>{p.avatar || '👤'}</span><strong>{p.name}</strong>{p.ready ? <span style={{
+          color: 'var(--accent-green)'
+        }}>✓</span> : null}</div>;
+    })}</div><div style={{
+    marginTop: 20
+  }}>{!isReady ? <button className='btn btn--primary' onClick={handleReady}>Ready</button> : <p style={{
+      color: 'var(--accent-green)',
+      fontWeight: 'bold'
+    }}>✓ Ready! Waiting for others...</p>}</div></div>;
     }
 
     if (state.phase === 'playing') {
@@ -261,59 +292,82 @@ function MultiplayerTab(props) {
         
         var progressPct = (timeLeft / 5) * 100;
         var timerColor = timeLeft <= 2 ? 'var(--accent-red)' : 'var(--accent-green)';
-        var timerEl = createElement('div', { style: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', marginBottom: '20px', overflow: 'hidden' } },
-            createElement('div', { style: { width: progressPct + '%', height: '100%', background: timerColor, transition: 'width 1s linear, background-color 0.3s ease' } })
-        );
+        var timerEl = <div style={{
+  width: '100%',
+  height: '6px',
+  background: 'rgba(255,255,255,0.1)',
+  borderRadius: '3px',
+  marginBottom: '20px',
+  overflow: 'hidden'
+}}><div style={{
+    width: progressPct + '%',
+    height: '100%',
+    background: timerColor,
+    transition: 'width 1s linear, background-color 0.3s ease'
+  }} /></div>;
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { style: { display: 'flex', gap: 15, marginBottom: 20, padding: 15, background: 'rgba(0,0,0,0.2)', borderRadius: 12, overflowX: 'auto' } },
-                players.map(function(p, i) {
-                    var isMe = p.name === profile.name;
-                    return createElement('div', { key: i, style: { textAlign: 'center', opacity: p.finished ? 0.5 : 1 } },
-                        createElement('div', { style: { fontSize: '1.5rem' } }, p.avatar),
-                        createElement('div', { style: { fontWeight: isMe ? 'bold' : 'normal' } }, p.score),
-                        p.finished ? createElement('div', { style: { fontSize: '0.7rem', color: 'var(--accent-green)' } }, 'Done') : null
-                    );
-                })
-            ),
-
-            createElement('div', { className: 'quiz-question' },
-                timerEl,
-                createElement('div', { className: 'quiz-question__word' }, currQ.word),
-                (currQ.reading && state.room.config.mode !== 'reading' && !(state.room.config.mode === 'meaning' && ['N3', 'N2', 'N1'].includes(currQ.level))) ? createElement('div', { className: 'quiz-question__reading' }, currQ.reading) : null
-            ),
-            createElement('div', { className: 'quiz-options' },
-                quizState.options.map(function(opt, i) {
-                    return createElement('button', {
-                        key: i,
-                        className: 'quiz-option',
-                        onClick: function() { handleAnswer(opt); }
-                    }, opt);
-                })
-            )
-        );
+        return <div className='glass-card'><div style={{
+    display: 'flex',
+    gap: 15,
+    marginBottom: 20,
+    padding: 15,
+    background: 'rgba(0,0,0,0.2)',
+    borderRadius: 12,
+    overflowX: 'auto'
+  }}>{players.map(function (p, i) {
+      var isMe = p.name === profile.name;
+      return <div key={i} style={{
+        textAlign: 'center',
+        opacity: p.finished ? 0.5 : 1
+      }}><div style={{
+          fontSize: '1.5rem'
+        }}>{p.avatar}</div><div style={{
+          fontWeight: isMe ? 'bold' : 'normal'
+        }}>{p.score}</div>{p.finished ? <div style={{
+          fontSize: '0.7rem',
+          color: 'var(--accent-green)'
+        }}>Done</div> : null}</div>;
+    })}</div><div className='quiz-question'>{timerEl}<div className='quiz-question__word'>{currQ.word}</div>{currQ.reading && state.room.config.mode !== 'reading' && !(state.room.config.mode === 'meaning' && ['N3', 'N2', 'N1'].includes(currQ.level)) ? <div className='quiz-question__reading'>{currQ.reading}</div> : null}</div><div className='quiz-options'>{quizState.options.map(function (opt, i) {
+      return <button key={i} className='quiz-option' onClick={() => {
+        handleAnswer(opt);
+      }}>{opt}</button>;
+    })}</div></div>;
     }
 
     if (state.phase === 'results') {
         var players = state.room && state.room.players ? Object.keys(state.room.players).map(function(k) { return state.room.players[k]; }) : [];
         players.sort(function(a, b) { return b.score - a.score; });
         
-        return createElement('div', { className: 'glass-card', style: { textAlign: 'center' } },
-            createElement('h2', { className: 'section-title' }, 'Game Over!'),
-            createElement('div', { style: { marginTop: 30, display: 'flex', flexDirection: 'column', gap: 15 } },
-                players.map(function(p, i) {
-                    var rankIcon = i === 0 ? '🏆' : i === 1 ? '🥈' : i === 2 ? '🥉' : '👏';
-                    return createElement('div', { key: i, style: { background: 'rgba(255,255,255,0.1)', padding: '15px 20px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', fontSize: i === 0 ? '1.2rem' : '1rem', fontWeight: i === 0 ? 'bold' : 'normal' } },
-                        createElement('span', null, rankIcon + ' ' + p.avatar + ' ' + p.name),
-                        createElement('span', null, p.score + ' pts')
-                    );
-                })
-            ),
-            createElement('button', { className: 'btn btn--outline', style: { marginTop: 30 }, onClick: function() { 
-                MULTIPLAYER_API.stopListening(state.code);
-                setState({ phase: 'lobby', code: '', isHost: false, room: null, error: '' }); 
-            } }, 'Back to Lobby')
-        );
+        return <div className='glass-card' style={{
+  textAlign: 'center'
+}}><h2 className='section-title'>Game Over!</h2><div style={{
+    marginTop: 30,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 15
+  }}>{players.map(function (p, i) {
+      var rankIcon = i === 0 ? '🏆' : i === 1 ? '🥈' : i === 2 ? '🥉' : '👏';
+      return <div key={i} style={{
+        background: 'rgba(255,255,255,0.1)',
+        padding: '15px 20px',
+        borderRadius: 12,
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontSize: i === 0 ? '1.2rem' : '1rem',
+        fontWeight: i === 0 ? 'bold' : 'normal'
+      }}><span>{rankIcon + ' ' + p.avatar + ' ' + p.name}</span><span>{p.score + ' pts'}</span></div>;
+    })}</div><button className='btn btn--outline' style={{
+    marginTop: 30
+  }} onClick={() => {
+    MULTIPLAYER_API.stopListening(state.code);
+    setState({
+      phase: 'lobby',
+      code: '',
+      isHost: false,
+      room: null,
+      error: ''
+    });
+  }}>Back to Lobby</button></div>;
     }
 
     return null;

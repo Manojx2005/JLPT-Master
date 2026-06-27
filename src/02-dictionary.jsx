@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
 import { installDict, getInstalledInfo } from './dict-local.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
@@ -9,7 +7,6 @@ import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 /* =================================================================
    JLPT Master — Dictionary & Saved words
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
@@ -53,30 +50,24 @@ function KanjiBreakdown(props) {
     if (!kanjiData.length && !loading) return null;
 
     if (loading) {
-        return createElement('div', { className: 'kanji-breakdown loading' }, 
-            createElement('div', { className: 'spinner-small' }), ' Loading Kanji...'
-        );
+        return <div className='kanji-breakdown loading'><div className='spinner-small' />{' Loading Kanji...'}</div>;
     }
 
     var els = kanjiData.map(function(k, idx) {
         var details = [];
         if (k.data) {
-            if (k.data.meanings && k.data.meanings.length) details.push(createElement('div', { key: 'm', className: 'k-meaning' }, k.data.meanings.join(', ')));
-            if (k.data.kun_readings && k.data.kun_readings.length) details.push(createElement('div', { key: 'kun', className: 'k-kun' }, 'Kun: ' + k.data.kun_readings.join(', ')));
-            if (k.data.on_readings && k.data.on_readings.length) details.push(createElement('div', { key: 'on', className: 'k-on' }, 'On: ' + k.data.on_readings.join(', ')));
-            if (k.data.jlpt) details.push(createElement('div', { key: 'jlpt', className: 'k-jlpt' }, 'JLPT N' + k.data.jlpt));
+            if (k.data.meanings && k.data.meanings.length) details.push(<div key='m' className='k-meaning'>{k.data.meanings.join(', ')}</div>);
+            if (k.data.kun_readings && k.data.kun_readings.length) details.push(<div key='kun' className='k-kun'>{'Kun: ' + k.data.kun_readings.join(', ')}</div>);
+            if (k.data.on_readings && k.data.on_readings.length) details.push(<div key='on' className='k-on'>{'On: ' + k.data.on_readings.join(', ')}</div>);
+            if (k.data.jlpt) details.push(<div key='jlpt' className='k-jlpt'>{'JLPT N' + k.data.jlpt}</div>);
         }
         
-        return createElement('div', { key: idx, className: 'kanji-card' },
-            k.svg ? createElement('div', { className: 'k-svg', dangerouslySetInnerHTML: { __html: sanitizeHTML(k.svg) } }) : createElement('div', { className: 'k-char' }, k.kanji),
-            createElement('div', { className: 'k-details' }, details)
-        );
+        return <div key={idx} className='kanji-card'>{k.svg ? <div className='k-svg' dangerouslySetInnerHTML={{
+    __html: sanitizeHTML(k.svg)
+  }} /> : <div className='k-char'>{k.kanji}</div>}<div className='k-details'>{details}</div></div>;
     });
 
-    return createElement('div', { className: 'kanji-breakdown' },
-        createElement('h4', { className: 'kanji-breakdown-title' }, 'Kanji Breakdown'),
-        createElement('div', { className: 'kanji-list' }, els)
-    );
+    return <div className='kanji-breakdown'><h4 className='kanji-breakdown-title'>Kanji Breakdown</h4><div className='kanji-list'>{els}</div></div>;
 }
 
 function DictionaryTab(props) {
@@ -293,61 +284,45 @@ function DictionaryTab(props) {
             var meaningEls = finalMeanings.map(function (m, i) {
                 // In collapsed mode, show only first 2 meanings
                 if (!isExpanded && i >= 2) return null;
-                return createElement('div', { key: i, className: 'dict-result__meaning-item' },
-                    createElement('span', { className: 'dict-result__meaning-num' }, (i + 1) + '.'),
-                    createElement('span', null, m)
-                );
+                return <div key={i} className='dict-result__meaning-item'><span className='dict-result__meaning-num'>{i + 1 + '.'}</span><span>{m}</span></div>;
             }).filter(Boolean);
 
             // Show "...and X more meanings" if collapsed and there are more
             var moreCount = finalMeanings.length - 2;
             if (!isExpanded && moreCount > 0) {
                 meaningEls.push(
-                    createElement('div', { key: 'more', className: 'dict-result__more-meanings' },
-                        '+ ' + moreCount + ' more meaning' + (moreCount > 1 ? 's' : '')
-                    )
+                    <div key='more' className='dict-result__more-meanings'>{'+ ' + moreCount + ' more meaning' + (moreCount > 1 ? 's' : '')}</div>
                 );
             }
 
             // Render part-of-speech tags (e.g., "Noun", "Ichidan verb")
             var tagEls = (res.tags || []).map(function (t, i) {
-                return createElement('span', { key: i, className: 'dict-result__tag' }, t);
+                return <span key={i} className='dict-result__tag'>{t}</span>;
             });
 
             // Other forms section
             var otherFormsEl = null;
             if (isExpanded && res.otherForms && res.otherForms.length > 0) {
                 var formEls = res.otherForms.map(function (f, i) {
-                    return createElement('span', { key: i, className: 'dict-result__other-form' },
-                        f.word + (f.reading && f.word !== f.reading ? ' 【' + f.reading + '】' : '')
-                    );
+                    return <span key={i} className='dict-result__other-form'>{f.word + (f.reading && f.word !== f.reading ? ' 【' + f.reading + '】' : '')}</span>;
                 });
-                otherFormsEl = createElement('div', { className: 'dict-result__other-forms' },
-                    createElement('span', { className: 'dict-result__label' }, 'Other forms'),
-                    createElement('div', { className: 'dict-result__forms-list' }, formEls)
-                );
+                otherFormsEl = <div className='dict-result__other-forms'><span className='dict-result__label'>Other forms</span><div className='dict-result__forms-list'>{formEls}</div></div>;
             }
 
             // Render nuance/context if available (offline data)
             var nuanceEl = null;
             if (isExpanded && res.nuance) {
-                nuanceEl = createElement('div', { className: 'dict-result__nuance' },
-                    createElement('span', { className: 'dict-result__nuance-label' }, '💡 Context'),
-                    createElement('span', null, res.nuance)
-                );
+                nuanceEl = <div className='dict-result__nuance'><span className='dict-result__nuance-label'>💡 Context</span><span>{res.nuance}</span></div>;
             }
 
             // Render example sentence if available (offline data)
             var exampleEl = null;
             if (isExpanded && res.example) {
-                exampleEl = createElement('div', { className: 'dict-result__example' },
-                    createElement('div', { className: 'dict-result__example-jp' }, res.example),
-                    res.exampleEn ? createElement('div', { className: 'dict-result__example-en' }, res.exampleEn) : null
-                );
+                exampleEl = <div className='dict-result__example'><div className='dict-result__example-jp'>{res.example}</div>{res.exampleEn ? <div className='dict-result__example-en'>{res.exampleEn}</div> : null}</div>;
             }
             
             // Render Kanji Breakdown if expanded
-            var kanjiBreakdownEl = isExpanded ? createElement(KanjiBreakdown, { word: res.word }) : null;
+            var kanjiBreakdownEl = isExpanded ? <KanjiBreakdown word={res.word} /> : null;
 
             // Determine if word is saved
             var isSaved = props.savedWords ? props.savedWords.some(function (w) { return w.word === res.word; }) : false;
@@ -355,47 +330,33 @@ function DictionaryTab(props) {
             // Build badges row (Common, JLPT)
             var badgeEls = [];
             if (res.isCommon) {
-                badgeEls.push(createElement('span', { key: 'common', className: 'dict-result__badge dict-result__badge--common' }, '★ Common'));
+                badgeEls.push(<span key='common' className='dict-result__badge dict-result__badge--common'>★ Common</span>);
             }
             if (res.jlpt) {
-                badgeEls.push(createElement('span', { key: 'jlpt', className: 'dict-result__badge dict-result__badge--jlpt' }, res.jlpt));
+                badgeEls.push(<span key='jlpt' className='dict-result__badge dict-result__badge--jlpt'>{res.jlpt}</span>);
             }
 
             // Compose a single result card
-            return createElement('div', {
-                key: idx,
-                className: 'dict-result' + (isExpanded ? ' dict-result--expanded' : ' dict-result--collapsed'),
-                onClick: function () { if (!isExpanded) setExpandedIdx(idx); },
-                style: !isExpanded ? { cursor: 'pointer' } : {},
-            },
-                // Top row: word + reading + actions
-                createElement('div', { className: 'dict-result__header' },
-                    createElement('div', { className: 'dict-result__word-group' },
-                        createElement('span', { className: 'dict-result__word' + (isExpanded ? '' : ' dict-result__word--compact') }, res.word),
-                        res.reading && res.reading !== res.word ? createElement('span', { className: 'dict-result__reading' }, res.reading) : null,
-                        badgeEls.length > 0 ? createElement('div', { className: 'dict-result__badges' }, badgeEls) : null
-                    ),
-                    createElement('div', { className: 'dict-result__actions' },
-                        createElement(AudioButton, { text: res.word, audioUrl: res.audioUrl }),
-                        props.toggleSavedWord ? createElement(SaveButton, { isSaved: isSaved, onToggle: function () { props.toggleSavedWord(res); } }) : null,
-                        isExpanded && results.length > 1 ? createElement('button', {
-                            className: 'dict-result__collapse-btn',
-                            onClick: function (e) { e.stopPropagation(); setExpandedIdx(-1); },
-                            title: 'Collapse',
-                        }, '▲') : null
-                    )
-                ),
-                // Meanings
-                createElement('div', { className: 'dict-result__meanings' }, meaningEls),
-                // Tags (shown when expanded)
-                isExpanded && tagEls.length > 0 ? createElement('div', { className: 'dict-result__tags-row' }, tagEls) : null,
-                // Other forms
-                otherFormsEl,
-                // Nuance (offline)
-                nuanceEl,
-                // Example (offline)
-                exampleEl
-            );
+            return <div key={idx} className={'dict-result' + (isExpanded ? ' dict-result--expanded' : ' dict-result--collapsed')} onClick={() => {
+  if (!isExpanded) setExpandedIdx(idx);
+}} style={!isExpanded ? {
+  cursor: 'pointer'
+} : {}}> // Top row: word + reading + actions
+  <div className='dict-result__header'><div className='dict-result__word-group'><span className={'dict-result__word' + (isExpanded ? '' : ' dict-result__word--compact')}>{res.word}</span>{res.reading && res.reading !== res.word ? <span className='dict-result__reading'>{res.reading}</span> : null}{badgeEls.length > 0 ? <div className='dict-result__badges'>{badgeEls}</div> : null}</div><div className='dict-result__actions'><AudioButton text={res.word} audioUrl={res.audioUrl} />{props.toggleSavedWord ? <SaveButton isSaved={isSaved} onToggle={() => {
+        props.toggleSavedWord(res);
+      }} /> : null}{isExpanded && results.length > 1 ? <button className='dict-result__collapse-btn' onClick={e => {
+        e.stopPropagation();
+        setExpandedIdx(-1);
+      }} title='Collapse'>▲</button> : null}</div></div> // Meanings
+  <div className='dict-result__meanings'>{meaningEls}</div>{
+  // Tags (shown when expanded)
+  isExpanded && tagEls.length > 0 ? <div className='dict-result__tags-row'>{tagEls}</div> : null}{
+  // Other forms
+  otherFormsEl}{
+  // Nuance (offline)
+  nuanceEl}{
+  // Example (offline)
+  exampleEl}</div>;
         });
 
         // Result count header
@@ -407,50 +368,26 @@ function DictionaryTab(props) {
                     ? t('Results from Local & online dictionaries', props.appLang)
                     : t('Results from offline dictionary', props.appLang) + ' (' + MOCK_DICT.length + ')';
 
-        resultEls = createElement('div', { className: 'dict-results-container' },
-            createElement('div', { className: 'dict-results__header' },
-                createElement('span', { className: 'dict-results__count' }, results.length + ' result' + (results.length > 1 ? 's' : '') + ' found'),
-                createElement('span', { className: 'dict-results__source' }, sourceLabel)
-            ),
-            createElement('div', { className: 'dict-results__list' }, cards)
-        );
+        resultEls = <div className='dict-results-container'><div className='dict-results__header'><span className='dict-results__count'>{results.length + ' result' + (results.length > 1 ? 's' : '') + ' found'}</span><span className='dict-results__source'>{sourceLabel}</span></div><div className='dict-results__list'>{cards}</div></div>;
     }
 
     // Error display (e.g., "Word not found")
     var errorEl = null;
     if (error) {
-        errorEl = createElement('div', { className: 'dict-result dict-result--error' },
-            createElement('div', { className: 'dict-error__icon' }, '🔍'),
-            createElement('p', { className: 'dict-error__text' }, error),
-            createElement('p', { className: 'dict-error__hint' },
-                'Try searching in Japanese (hiragana, katakana, or kanji) or English.'
-            )
-        );
+        errorEl = <div className='dict-result dict-result--error'><div className='dict-error__icon'>🔍</div><p className='dict-error__text'>{error}</p><p className='dict-error__hint'>Try searching in Japanese (hiragana, katakana, or kanji) or English.</p></div>;
     }
 
     // Loading skeleton
     var loadingEl = null;
     if (loading) {
-        loadingEl = createElement('div', { className: 'dict-loading' },
-            createElement('div', { className: 'dict-loading__spinner' }),
-            createElement('span', { className: 'dict-loading__text' }, 'Searching dictionaries…')
-        );
+        loadingEl = <div className='dict-loading'><div className='dict-loading__spinner' /><span className='dict-loading__text'>Searching dictionaries…</span></div>;
     }
 
     // --- Daily Word ---
     var dailyWord = DAILY_WORD.get();
     var dailyWordEl = null;
     if (dailyWord && !results && !loading) {
-        dailyWordEl = createElement('div', { className: 'daily-word-card' },
-            createElement('div', { className: 'daily-word-card__header' },
-                createElement('span', { className: 'daily-word-card__label' }, t('Word of the Day', props.appLang)),
-                createElement(AudioButton, { text: dailyWord.word })
-            ),
-            createElement('div', { className: 'daily-word-card__word' }, dailyWord.word),
-            dailyWord.reading ? createElement('div', { className: 'daily-word-card__reading' }, dailyWord.reading) : null,
-            createElement('div', { className: 'daily-word-card__meaning' }, getVocabMeaning(dailyWord, props.appLang)),
-            dailyWord.level ? createElement('span', { className: 'dict-result__badge dict-result__badge--jlpt' }, dailyWord.level) : null
-        );
+        dailyWordEl = <div className='daily-word-card'><div className='daily-word-card__header'><span className='daily-word-card__label'>{t('Word of the Day', props.appLang)}</span><AudioButton text={dailyWord.word} /></div><div className='daily-word-card__word'>{dailyWord.word}</div>{dailyWord.reading ? <div className='daily-word-card__reading'>{dailyWord.reading}</div> : null}<div className='daily-word-card__meaning'>{getVocabMeaning(dailyWord, props.appLang)}</div>{dailyWord.level ? <span className='dict-result__badge dict-result__badge--jlpt'>{dailyWord.level}</span> : null}</div>;
     }
 
     // --- Search History ---
@@ -458,122 +395,63 @@ function DictionaryTab(props) {
     var history = SEARCH_HISTORY.get();
     if (history.length > 0 && !results && !loading) {
         var chips = history.slice(0, 10).map(function (h, i) {
-            return createElement('button', {
-                key: i,
-                className: 'search-history-chip',
-                onClick: function () { setQuery(h); }
-            }, h);
+            return <button key={i} className='search-history-chip' onClick={() => {
+  setQuery(h);
+}}>{h}</button>;
         });
-        historyEls = createElement('div', { className: 'search-history' },
-            createElement('div', { className: 'search-history__header' },
-                createElement('span', null, '🕐 Recent Searches'),
-                createElement('button', {
-                    className: 'search-history__clear',
-                    onClick: function () { SEARCH_HISTORY.clear(); }
-                }, 'Clear')
-            ),
-            createElement('div', { className: 'search-history__chips' }, chips)
-        );
+        historyEls = <div className='search-history'><div className='search-history__header'><span>🕐 Recent Searches</span><button className='search-history__clear' onClick={() => {
+      SEARCH_HISTORY.clear();
+    }}>Clear</button></div><div className='search-history__chips'>{chips}</div></div>;
     }
 
     // --- Offline dictionary banner (opt-in download / progress / installed) ---
     var dictOfflineEl = null;
     if (dictState === 'not-installed') {
-        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--prompt' },
-            createElement('div', { className: 'dict-offline__info' },
-                createElement('span', { className: 'dict-offline__icon' }, '⚡'),
-                createElement('div', null,
-                    createElement('div', { className: 'dict-offline__title' }, t('Use the dictionary offline', props.appLang)),
-                    createElement('div', { className: 'dict-offline__sub' }, t('Download the full dictionary (218,000+ words, ~20 MB) to search instantly with no internet. WiFi recommended.', props.appLang))
-                )
-            ),
-            createElement('button', {
-                className: 'btn btn--primary dict-offline__btn',
-                onClick: handleDownloadDict,
-            }, '⬇️ ' + t('Download', props.appLang) + ' (20 MB)')
-        );
+        dictOfflineEl = <div className='dict-offline dict-offline--prompt'><div className='dict-offline__info'><span className='dict-offline__icon'>⚡</span><div><div className='dict-offline__title'>{t('Use the dictionary offline', props.appLang)}</div><div className='dict-offline__sub'>{t('Download the full dictionary (218,000+ words, ~20 MB) to search instantly with no internet. WiFi recommended.', props.appLang)}</div></div></div><button className='btn btn--primary dict-offline__btn' onClick={handleDownloadDict}>{'⬇️ ' + t('Download', props.appLang) + ' (20 MB)'}</button></div>;
     } else if (dictState === 'installing') {
         var known = dictProgress > 0;
         var pct = Math.round(dictProgress * 100);
-        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--installing' },
-            createElement('div', { className: 'dict-offline__title' },
-                known ? (t('Building offline dictionary…', props.appLang) + ' ' + pct + '%')
-                      : t('Downloading offline dictionary…', props.appLang)),
-            createElement('div', { className: 'dict-offline__bar' + (known ? '' : ' dict-offline__bar--indeterminate') },
-                createElement('div', { className: 'dict-offline__fill', style: known ? { width: pct + '%' } : null })
-            )
-        );
+        dictOfflineEl = <div className='dict-offline dict-offline--installing'><div className='dict-offline__title'>{known ? t('Building offline dictionary…', props.appLang) + ' ' + pct + '%' : t('Downloading offline dictionary…', props.appLang)}</div><div className={'dict-offline__bar' + (known ? '' : ' dict-offline__bar--indeterminate')}><div className='dict-offline__fill' style={known ? {
+      width: pct + '%'
+    } : null} /></div></div>;
     } else if (dictState === 'ready') {
-        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--ready' },
-            createElement('span', { className: 'dict-offline__icon' }, '✓'),
-            createElement('span', null,
-                t('Offline dictionary ready', props.appLang) +
-                (dictCount ? ' — ' + dictCount.toLocaleString() + ' ' + t('words', props.appLang) : ''))
-        );
+        dictOfflineEl = <div className='dict-offline dict-offline--ready'><span className='dict-offline__icon'>✓</span><span>{t('Offline dictionary ready', props.appLang) + (dictCount ? ' — ' + dictCount.toLocaleString() + ' ' + t('words', props.appLang) : '')}</span></div>;
     } else if (dictState === 'error') {
-        dictOfflineEl = createElement('div', { className: 'dict-offline dict-offline--error' },
-            createElement('span', null, t('Couldn’t download the offline dictionary.', props.appLang)),
-            createElement('button', {
-                className: 'btn btn--outline btn--small',
-                onClick: handleDownloadDict,
-            }, t('Retry', props.appLang))
-        );
+        dictOfflineEl = <div className='dict-offline dict-offline--error'><span>{t('Couldn’t download the offline dictionary.', props.appLang)}</span><button className='btn btn--outline btn--small' onClick={handleDownloadDict}>{t('Retry', props.appLang)}</button></div>;
     }
 
     // --- Render the Dictionary Tab ---
-    return createElement('div', { className: 'glass-card', key: 'dict' },
-        createElement('h2', { className: 'section-title' }, t('Dictionary Search', props.appLang)),
-        createElement('p', { className: 'section-desc' },
-            t('Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.', props.appLang) +
-            ' ' + MOCK_DICT.length + ' ' + t('words available offline.', props.appLang)
-        ),
-        // Search input row (text field + search button)
-        createElement('div', { className: 'input-row' },
-            createElement('input', {
-                id: 'dict-search-input',
-                className: 'input-field',
-                type: 'text',
-                placeholder: 'e.g. water, 猫, たべる, 経済, love, カタカナ...',
-                value: query,
-                onChange: function (e) { setQuery(e.target.value); },
-                onKeyDown: handleKey,
-            }),
-            // One-tap clear: wipes the typed word and any results, then refocuses
-            // the field. Only shown when there's something to clear.
-            query ? createElement('button', {
-                className: 'btn btn--outline dict-clear-btn',
-                title: 'Clear',
-                'aria-label': 'Clear search',
-                onClick: function () {
-                    setQuery('');
-                    setResults(null);
-                    var el = document.getElementById('dict-search-input');
-                    if (el) el.focus();
-                },
-            }, '\u2715') : null,
-            createElement('button', {
-                className: 'btn btn--outline',
-                title: 'Draw a kanji to search',
-                onClick: function () { setShowDraw(!showDraw); },
-            }, '\u270d\ufe0f'),
-            createElement('button', {
-                id: 'dict-search-btn',
-                className: 'btn btn--primary',
-                onClick: doSearch,
-                disabled: loading,
-            }, loading ? 'Searching\u2026' : 'Search')
-        ),
-        showDraw ? createElement(HandwritingInput, {
-            onSelect: function (char) { setQuery(function (q) { return q + char; }); },
-            onClose: function () { setShowDraw(false); }
-        }) : null,
-        dictOfflineEl, // Offline dictionary: download prompt / progress / installed
-        historyEls,  // Search history chips
-        loadingEl,   // Loading indicator
-        dailyWordEl, // Daily word card
-        resultEls,   // Search results (or null)
-        errorEl      // Error message (or null)
-    );
+    return <div className='glass-card' key='dict'><h2 className='section-title'>{t('Dictionary Search', props.appLang)}</h2><p className='section-desc'>{t('Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.', props.appLang) + ' ' + MOCK_DICT.length + ' ' + t('words available offline.', props.appLang)}</p> // Search input row (text field + search button)
+  <div className='input-row'><input id='dict-search-input' className='input-field' type='text' placeholder='e.g. water, 猫, たべる, 経済, love, カタカナ...' value={query} onChange={e => {
+      setQuery(e.target.value);
+    }} onKeyDown={handleKey} />{
+    // One-tap clear: wipes the typed word and any results, then refocuses
+    // the field. Only shown when there's something to clear.
+    query ? <button className='btn btn--outline dict-clear-btn' title='Clear' aria-label='Clear search' onClick={() => {
+      setQuery('');
+      setResults(null);
+      var el = document.getElementById('dict-search-input');
+      if (el) el.focus();
+    }}>✕</button> : null}<button className='btn btn--outline' title='Draw a kanji to search' onClick={() => {
+      setShowDraw(!showDraw);
+    }}>✍️</button><button id='dict-search-btn' className='btn btn--primary' onClick={doSearch} disabled={loading}>{loading ? 'Searching\u2026' : 'Search'}</button></div>{showDraw ? <HandwritingInput onSelect={char => {
+    setQuery(function (q) {
+      return q + char;
+    });
+  }} onClose={() => {
+    setShowDraw(false);
+  }} /> : null}{dictOfflineEl}{
+  // Offline dictionary: download prompt / progress / installed
+  historyEls}{
+  // Search history chips
+  loadingEl}{
+  // Loading indicator
+  dailyWordEl}{
+  // Daily word card
+  resultEls}{
+  // Search results (or null)
+  errorEl // Error message (or null)
+  }</div>;
 }
 
 /* -----------------------------------------------------------------
@@ -618,79 +496,47 @@ function SavedTab(props) {
             }
         }
 
-        return createElement('div', { key: idx, className: 'dict-result', style: { marginBottom: '16px' } },
-            createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' } },
-                createElement('div', { className: 'dict-result__word', style: { marginBottom: 0 } }, w.word),
-                createElement('div', null,
-                    createElement(AudioButton, { text: w.word }),
-                    createElement(SaveButton, { isSaved: true, onToggle: function () { props.toggleSavedWord(w); } })
-                )
-            ),
-            w.reading ? createElement('div', { className: 'dict-result__row' },
-                createElement('span', { className: 'dict-result__label' }, 'Reading'),
-                createElement('span', null, w.reading)
-            ) : null,
-            (w.level || w.jlpt) ? createElement('div', { className: 'dict-result__row' },
-                createElement('span', { className: 'dict-result__label' }, 'JLPT'),
-                createElement('span', { className: 'dict-result__tag' }, (w.level || w.jlpt))
-            ) : null,
-            createElement('div', { className: 'dict-result__row', style: { marginTop: 12 } },
-                createElement('span', { className: 'dict-result__label' }, 'Meaning'),
-                createElement('span', null, getVocabMeaning(w, props.appLang))
-            )
-        );
+        return <div key={idx} className='dict-result' style={{
+  marginBottom: '16px'
+}}><div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '8px'
+  }}><div className='dict-result__word' style={{
+      marginBottom: 0
+    }}>{w.word}</div><div><AudioButton text={w.word} /><SaveButton isSaved={true} onToggle={() => {
+        props.toggleSavedWord(w);
+      }} /></div></div>{w.reading ? <div className='dict-result__row'><span className='dict-result__label'>Reading</span><span>{w.reading}</span></div> : null}{w.level || w.jlpt ? <div className='dict-result__row'><span className='dict-result__label'>JLPT</span><span className='dict-result__tag'>{w.level || w.jlpt}</span></div> : null}<div className='dict-result__row' style={{
+    marginTop: 12
+  }}><span className='dict-result__label'>Meaning</span><span>{getVocabMeaning(w, props.appLang)}</span></div></div>;
     });
 
     if (words.length === 0) {
-        listEls = createElement('div', { className: 'dict-result', style: { textAlign: 'center', padding: '40px 20px' } },
-            createElement('p', { style: { fontSize: '1.2rem', color: 'var(--text-secondary)' } }, 'You havent saved any words yet!'),
-            createElement('p', { style: { marginTop: '8px', color: 'var(--text-muted)' } }, 'Search for words in the Dictionary or Kanji tab and click the star icon to save them.')
-        );
+        listEls = <div className='dict-result' style={{
+  textAlign: 'center',
+  padding: '40px 20px'
+}}><p style={{
+    fontSize: '1.2rem',
+    color: 'var(--text-secondary)'
+  }}>You havent saved any words yet!</p><p style={{
+    marginTop: '8px',
+    color: 'var(--text-muted)'
+  }}>Search for words in the Dictionary or Kanji tab and click the star icon to save them.</p></div>;
     }
 
     // Import file input (hidden)
     var fileInputRef = React.useRef(null);
 
-    return createElement('div', { className: 'glass-card', key: 'saved' },
-        createElement('h2', { className: 'section-title' }, t('Saved Words', props.appLang)),
-        createElement('p', { className: 'section-desc' }, 'Review your starred vocabulary. ' + words.length + ' word' + (words.length !== 1 ? 's' : '') + ' saved.'),
-
-        // Import/Export toolbar
-        words.length > 0 || props.onImport || props.onSyncSaved ? createElement('div', { className: 'saved-toolbar' },
-            props.onSyncSaved ? createElement('button', {
-                className: 'btn btn--small btn--primary',
-                onClick: handleSyncSaved,
-                disabled: syncState === 'syncing',
-                title: 'Download saved words from your account on other devices'
-            },
-                syncState === 'syncing' ? '↻ Syncing…'
-                : syncState === 'done' ? '✓ Synced'
-                : syncState === 'not-logged-in' ? '⚠ Sign in first'
-                : syncState === 'error' ? '⚠ Retry'
-                : '☁ Sync Saved Words') : null,
-            words.length > 0 && props.onExport ? createElement('button', {
-                className: 'btn btn--small btn--outline',
-                onClick: props.onExport
-            }, '📥 Export JSON') : null,
-            words.length > 0 && props.onExportPDF ? createElement('button', {
-                className: 'btn btn--small btn--outline',
-                onClick: props.onExportPDF
-            }, '📄 Export PDF') : null,
-            props.onImport ? createElement('button', {
-                className: 'btn btn--small btn--outline',
-                onClick: function () { if (fileInputRef.current) fileInputRef.current.click(); }
-            }, '📤 Import JSON') : null,
-            props.onImport ? createElement('input', {
-                ref: fileInputRef,
-                type: 'file',
-                accept: '.json',
-                style: { display: 'none' },
-                onChange: props.onImport
-            }) : null
-        ) : null,
-
-        createElement('div', { style: { marginTop: '24px' } }, listEls)
-    );
+    return <div className='glass-card' key='saved'><h2 className='section-title'>{t('Saved Words', props.appLang)}</h2><p className='section-desc'>{'Review your starred vocabulary. ' + words.length + ' word' + (words.length !== 1 ? 's' : '') + ' saved.'}</p>{
+  // Import/Export toolbar
+  words.length > 0 || props.onImport || props.onSyncSaved ? <div className='saved-toolbar'>{props.onSyncSaved ? <button className='btn btn--small btn--primary' onClick={handleSyncSaved} disabled={syncState === 'syncing'} title='Download saved words from your account on other devices'>{syncState === 'syncing' ? '↻ Syncing…' : syncState === 'done' ? '✓ Synced' : syncState === 'not-logged-in' ? '⚠ Sign in first' : syncState === 'error' ? '⚠ Retry' : '☁ Sync Saved Words'}</button> : null}{words.length > 0 && props.onExport ? <button className='btn btn--small btn--outline' onClick={props.onExport}>📥 Export JSON</button> : null}{words.length > 0 && props.onExportPDF ? <button className='btn btn--small btn--outline' onClick={props.onExportPDF}>📄 Export PDF</button> : null}{props.onImport ? <button className='btn btn--small btn--outline' onClick={() => {
+      if (fileInputRef.current) fileInputRef.current.click();
+    }}>📤 Import JSON</button> : null}{props.onImport ? <input ref={fileInputRef} type='file' accept='.json' style={{
+      display: 'none'
+    }} onChange={props.onImport} /> : null}</div> : null}<div style={{
+    marginTop: '24px'
+  }}>{listEls}</div></div>;
 }
 
 

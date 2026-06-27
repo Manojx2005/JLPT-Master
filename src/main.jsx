@@ -6,7 +6,6 @@ import { CUSTOM_DICT } from './features.js';
 import './styles.css';
 import { App, ErrorBoundary } from './07-app.jsx';
 import { _localDataMissing } from './01-core.jsx';
-const createElement = React.createElement;
 
 // Service worker policy differs by platform:
 //  - Web/PWA (prod): register sw.js for installability + offline.
@@ -57,7 +56,7 @@ if (isNativeShell) {
 var root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mountApp() {
-    root.render(createElement(ErrorBoundary, null, createElement(App, null)));
+    root.render(<ErrorBoundary><App /></ErrorBoundary>);
 }
 
 if (_localDataMissing && typeof firebase !== 'undefined' && firebase.database) {

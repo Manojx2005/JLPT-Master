@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { searchLocal } from './dict-local.jsx';
 import { deinflect } from './deinflect.js';
@@ -9,15 +7,12 @@ import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 /* =================================================================
    JLPT Master — Core: setup, helpers, shared UI primitives
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
 /* =================================================================
-   JLPT Master — Application Logic (React 18, no JSX)
 
    This file contains all React components for the JLPT Master app.
-   It uses React.createElement() instead of JSX, so no build step
    (Babel/Webpack) is needed. React 18 is loaded via CDN in index.html.
 
    Dependencies:
@@ -141,7 +136,7 @@ function AnimatedCounter(props) {
         raf.current = requestAnimationFrame(step);
         return function () { if (raf.current) cancelAnimationFrame(raf.current); };
     }, [target]);
-    return createElement('span', null, count.toLocaleString());
+    return <span>{count.toLocaleString()}</span>;
 }
 
 /* =================================================================
@@ -1108,12 +1103,11 @@ if (window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== 
 
 /* Inline stroke icon helper for core controls (moon / sun / speaker) */
 function coreIcon(paths, size) {
-    return createElement('svg', {
-        width: size || 18, height: size || 18, viewBox: '0 0 24 24',
-        fill: 'none', stroke: 'currentColor', strokeWidth: 2,
-        strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true,
-        style: { display: 'block' }
-    }, paths.map(function (d, i) { return createElement('path', { key: i, d: d }); }));
+    return <svg width={size || 18} height={size || 18} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth={2} strokeLinecap='round' strokeLinejoin='round' aria-hidden={true} style={{
+  display: 'block'
+}}>{paths.map(function (d, i) {
+    return <path key={i} d={d} />;
+  })}</svg>;
 }
 
 var ICON_MOON = ['M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z'];
@@ -1121,29 +1115,21 @@ var ICON_SUN = ['M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', 'M12 2v2', 'M12 20v2', 'm4
 var ICON_SPEAKER = ['M11 5 6 9H2v6h4l5 4z', 'M15.54 8.46a5 5 0 0 1 0 7.07', 'M19.07 4.93a10 10 0 0 1 0 14.14'];
 
 function ThemeToggle(props) {
-    return createElement('button', {
-        className: 'theme-toggle-btn',
-        onClick: props.onToggle,
-        title: 'Toggle Light/Dark Mode',
-        'aria-label': 'Toggle Light/Dark Mode'
-    }, coreIcon(props.isLight ? ICON_MOON : ICON_SUN));
+    return <button className='theme-toggle-btn' onClick={props.onToggle} title='Toggle Light/Dark Mode' aria-label='Toggle Light/Dark Mode'>{coreIcon(props.isLight ? ICON_MOON : ICON_SUN)}</button>;
 }
 
 function AudioButton(props) {
-    return createElement('button', {
-        className: 'audio-btn' + (props.audioUrl ? ' audio-btn--native' : ''),
-        onClick: function (e) { e.stopPropagation(); playAudio(props.text, props.audioUrl); },
-        title: props.audioUrl ? 'Listen (Native Speaker)' : 'Listen (TTS)',
-        'aria-label': 'Pronounce word'
-    }, coreIcon(ICON_SPEAKER, 14));
+    return <button className={'audio-btn' + (props.audioUrl ? ' audio-btn--native' : '')} onClick={e => {
+  e.stopPropagation();
+  playAudio(props.text, props.audioUrl);
+}} title={props.audioUrl ? 'Listen (Native Speaker)' : 'Listen (TTS)'} aria-label='Pronounce word'>{coreIcon(ICON_SPEAKER, 14)}</button>;
 }
 
 function SaveButton(props) {
-    return createElement('button', {
-        className: 'save-btn' + (props.isSaved ? ' save-btn--active' : ''),
-        onClick: function (e) { e.stopPropagation(); props.onToggle(); },
-        title: props.isSaved ? 'Remove from Study List' : 'Save to Study List'
-    }, props.isSaved ? '★' : '☆');
+    return <button className={'save-btn' + (props.isSaved ? ' save-btn--active' : '')} onClick={e => {
+  e.stopPropagation();
+  props.onToggle();
+}} title={props.isSaved ? 'Remove from Study List' : 'Save to Study List'}>{props.isSaved ? '★' : '☆'}</button>;
 }
 
 /* -----------------------------------------------------------------
@@ -1153,7 +1139,7 @@ function SaveButton(props) {
    ----------------------------------------------------------------- */
 function Toast(props) {
     if (!props.visible) return null;
-    return createElement('div', { className: 'toast' }, props.message);
+    return <div className='toast'>{props.message}</div>;
 }
 
 /* -----------------------------------------------------------------

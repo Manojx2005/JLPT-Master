@@ -1,6 +1,4 @@
-import React from 'react';
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
-const createElement = React.createElement;
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 import { SRS, PROGRESS, CONJUGATION, GRAMMAR_DATA, AUTH, LEADERBOARD_API } from './features.js';
@@ -8,7 +6,6 @@ import { SRS, PROGRESS, CONJUGATION, GRAMMAR_DATA, AUTH, LEADERBOARD_API } from 
 /* =================================================================
    JLPT Master — Study tools (Kanji, Leaderboard, Dashboard, Flashcards, Conjugation, Grammar)
    Part of the app, split from the original app.js for readability.
-   Uses React 18 via CDN (React.createElement, no JSX/build step).
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
@@ -114,120 +111,99 @@ function KanjiTab(props) {
     var resultEls = results.map(function (res, idx) {
         // Meanings
         var meaningsEl = res.meanings.map(function (m, i) {
-            return createElement('span', { key: i, className: 'kanji-meaning-tag' }, m);
+            return <span key={i} className='kanji-meaning-tag'>{m}</span>;
         });
 
         // Onyomi
         var onEl = null;
         if (res.on_readings && res.on_readings.length > 0) {
-            onEl = createElement('div', { className: 'dict-result__row' },
-                createElement('span', { className: 'dict-result__label' }, 'Onyomi'),
-                createElement('span', null, res.on_readings.join(', '))
-            );
+            onEl = <div className='dict-result__row'><span className='dict-result__label'>Onyomi</span><span>{res.on_readings.join(', ')}</span></div>;
         }
 
         // Kunyomi
         var kunEl = null;
         if (res.kun_readings && res.kun_readings.length > 0) {
-            kunEl = createElement('div', { className: 'dict-result__row' },
-                createElement('span', { className: 'dict-result__label' }, 'Kunyomi'),
-                createElement('span', null, res.kun_readings.join(', '))
-            );
+            kunEl = <div className='dict-result__row'><span className='dict-result__label'>Kunyomi</span><span>{res.kun_readings.join(', ')}</span></div>;
         }
 
         var jlptEl = null;
         if (res.jlpt !== null) {
-            jlptEl = createElement('span', { className: 'result-meta-tag' }, 'JLPT N' + res.jlpt);
+            jlptEl = <span className='result-meta-tag'>{'JLPT N' + res.jlpt}</span>;
         }
 
         var gradeEl = null;
         if (res.grade !== null) {
-            gradeEl = createElement('span', { className: 'result-meta-tag' }, 'Grade ' + res.grade);
+            gradeEl = <span className='result-meta-tag'>{'Grade ' + res.grade}</span>;
         }
 
-        var strokesEl = createElement('span', { className: 'result-meta-tag' }, res.stroke_count + ' strokes');
+        var strokesEl = <span className='result-meta-tag'>{res.stroke_count + ' strokes'}</span>;
 
         // Check if saved
         var isSaved = props.savedWords ? props.savedWords.some(function (w) { return w.word === res.kanji; }) : false;
 
-        return createElement('div', { key: idx, className: 'dict-result', style: { marginBottom: '16px' } },
-            createElement('div', { style: { display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' } },
-                // Large Character Display — tap anywhere to replay the
-                // reading (and restart the stroke-order animation via key).
-                createElement('div', {
-                    className: 'kanji-large-display',
-                    style: { position: 'relative', cursor: 'pointer' },
-                    onClick: function () { playAudio(res.kanji); setReplayKey(function (n) { return n + 1; }); },
-                    title: t('Tap to replay', props.appLang)
-                },
-                    res.svg ? createElement('div', { key: replayKey, dangerouslySetInnerHTML: { __html: sanitizeHTML(res.svg) }, className: 'kanji-svg-container' }) : res.kanji,
-                    createElement('div', { style: { position: 'absolute', top: 8, right: 8, display: 'flex', flexDirection: 'column', gap: 4 } },
-                        createElement(AudioButton, { text: res.kanji }),
-                        props.toggleSavedWord ? createElement(SaveButton, {
-                            isSaved: isSaved,
-                            onToggle: function () {
-                                props.toggleSavedWord({
-                                    word: res.kanji,
-                                    reading: res.kun_readings && res.kun_readings.length > 0 ? res.kun_readings[0] : (res.on_readings && res.on_readings.length > 0 ? res.on_readings[0] : ''),
-                                    correct: res.meanings.join(', '),
-                                    level: res.jlpt !== null ? 'N' + res.jlpt : 'None'
-                                });
-                            }
-                        }) : null
-                    )
-                ),
-
-                // Details
-                createElement('div', { style: { flex: 1, minWidth: '200px' } },
-                    createElement('div', { style: { marginBottom: '16px' } }, meaningsEl),
-                    onEl,
-                    kunEl,
-                    createElement('div', { className: 'result-panel__meta', style: { justifyContent: 'flex-start', marginTop: '16px' } },
-                        jlptEl, gradeEl, strokesEl
-                    )
-                )
-            )
-        );
+        return <div key={idx} className='dict-result' style={{
+  marginBottom: '16px'
+}}><div style={{
+    display: 'flex',
+    gap: '24px',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap'
+  }}> // Large Character Display — tap anywhere to replay the
+    // reading (and restart the stroke-order animation via key).
+    <div className='kanji-large-display' style={{
+      position: 'relative',
+      cursor: 'pointer'
+    }} onClick={() => {
+      playAudio(res.kanji);
+      setReplayKey(function (n) {
+        return n + 1;
+      });
+    }} title={t('Tap to replay', props.appLang)}>{res.svg ? <div key={replayKey} dangerouslySetInnerHTML={{
+        __html: sanitizeHTML(res.svg)
+      }} className='kanji-svg-container' /> : res.kanji}<div style={{
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4
+      }}><AudioButton text={res.kanji} />{props.toggleSavedWord ? <SaveButton isSaved={isSaved} onToggle={() => {
+          props.toggleSavedWord({
+            word: res.kanji,
+            reading: res.kun_readings && res.kun_readings.length > 0 ? res.kun_readings[0] : res.on_readings && res.on_readings.length > 0 ? res.on_readings[0] : '',
+            correct: res.meanings.join(', '),
+            level: res.jlpt !== null ? 'N' + res.jlpt : 'None'
+          });
+        }} /> : null}</div></div> // Details
+    <div style={{
+      flex: 1,
+      minWidth: '200px'
+    }}><div style={{
+        marginBottom: '16px'
+      }}>{meaningsEl}</div>{onEl}{kunEl}<div className='result-panel__meta' style={{
+        justifyContent: 'flex-start',
+        marginTop: '16px'
+      }}>{jlptEl}{gradeEl}{strokesEl}</div></div></div></div>;
     });
 
     var errorEl = null;
     if (error) {
-        errorEl = createElement('div', { className: 'dict-result dict-result--error' },
-            createElement('p', { style: { color: 'var(--accent-red)' } }, error)
-        );
+        errorEl = <div className='dict-result dict-result--error'><p style={{
+    color: 'var(--accent-red)'
+  }}>{error}</p></div>;
     }
 
-    return createElement('div', { className: 'glass-card', key: 'kanji' },
-        createElement('h2', { className: 'section-title' }, t('Kanji Search', props.appLang)),
-        createElement('p', { className: 'section-desc' }, t('Enter a kanji, a Japanese word, or a word in your language (e.g. "water") to see details for every kanji involved.', props.appLang)),
-
-        createElement('div', { className: 'input-row' },
-            createElement('input', {
-                className: 'input-field',
-                type: 'text',
-                placeholder: 'e.g. 食べる, 水, water, eau...',
-                value: query,
-                onChange: function (e) { setQuery(e.target.value); },
-                onKeyDown: handleKey,
-            }),
-            createElement('button', {
-                className: 'btn btn--outline',
-                title: 'Draw a kanji to search',
-                onClick: function () { setShowDraw(!showDraw); },
-            }, '✍️'),
-            createElement('button', {
-                className: 'btn btn--primary',
-                onClick: doSearch,
-                disabled: loading,
-            }, loading ? t('Searching\u2026', props.appLang) : t('Search', props.appLang))
-        ),
-        showDraw ? createElement(HandwritingInput, {
-            onSelect: function (char) { setQuery(function (q) { return q + char; }); },
-            onClose: function () { setShowDraw(false); }
-        }) : null,
-        resultEls.length > 0 ? createElement('div', null, resultEls) : null,
-        errorEl
-    );
+    return <div className='glass-card' key='kanji'><h2 className='section-title'>{t('Kanji Search', props.appLang)}</h2><p className='section-desc'>{t('Enter a kanji, a Japanese word, or a word in your language (e.g. "water") to see details for every kanji involved.', props.appLang)}</p><div className='input-row'><input className='input-field' type='text' placeholder='e.g. 食べる, 水, water, eau...' value={query} onChange={e => {
+      setQuery(e.target.value);
+    }} onKeyDown={handleKey} /><button className='btn btn--outline' title='Draw a kanji to search' onClick={() => {
+      setShowDraw(!showDraw);
+    }}>✍️</button><button className='btn btn--primary' onClick={doSearch} disabled={loading}>{loading ? t('Searching\u2026', props.appLang) : t('Search', props.appLang)}</button></div>{showDraw ? <HandwritingInput onSelect={char => {
+    setQuery(function (q) {
+      return q + char;
+    });
+  }} onClose={() => {
+    setShowDraw(false);
+  }} /> : null}{resultEls.length > 0 ? <div>{resultEls}</div> : null}{errorEl}</div>;
 }
 
 /* =================================================================
@@ -388,7 +364,12 @@ function LeaderboardTab(props) {
     function renderAvatar(avatar) {
         // Render real images (Google photo URL or uploaded data URL); emojis as text.
         if (avatar && (avatar.startsWith('http') || avatar.startsWith('data:'))) {
-            return createElement('img', { src: avatar, style: { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' } });
+            return <img src={avatar} style={{
+  width: '100%',
+  height: '100%',
+  borderRadius: '50%',
+  objectFit: 'cover'
+}} />;
         }
         return avatar || '👤';
     }
@@ -402,127 +383,143 @@ function LeaderboardTab(props) {
     var profileImg = renderAvatar(effAvatar);
     var hasCustomIdentity = profile && (profile.nameLocked || profile.customPhoto);
 
-    return createElement('div', { className: 'glass-card leaderboard-container' },
-        createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' } },
-            createElement('h2', { className: 'section-title', style: { margin: 0 } }, t('Global Leaderboard', props.appLang)),
-            createElement('button', { className: 'btn btn--outline', onClick: loadData, disabled: state.loading }, state.loading ? '↻ Loading...' : '↻ Refresh')
-        ),
-        
-        // Profile Edit Section
-        createElement('div', { style: { padding: '15px', background: 'rgba(0,0,0,0.1)', borderRadius: '12px', marginBottom: '30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-            isEditing ? createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '14px', flex: 1, width: '100%' } },
-                // Live preview + name input
-                createElement('div', { style: { display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' } },
-                    createElement('div', { style: { width: '56px', height: '56px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', background: '#fff', borderRadius: '50%', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' } }, renderAvatar(editAvatar)),
-                    createElement('input', { type: 'text', className: 'search-input', value: editName, onChange: function(e) { setEditName(e.target.value); }, style: { flex: 1, padding: '10px', minWidth: '160px' }, placeholder: t('Display name', props.appLang), maxLength: 24 })
-                ),
-                // Emoji avatar picker
-                createElement('div', null,
-                    createElement('div', { style: { fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px' } }, t('Choose an avatar', props.appLang)),
-                    createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
-                        AVATAR_EMOJIS.map(function(em) {
-                            return createElement('button', {
-                                key: em,
-                                onClick: function() { setEditAvatar(em); },
-                                className: 'avatar-pick' + (editAvatar === em ? ' avatar-pick--active' : ''),
-                            }, em);
-                        }),
-                        // Upload custom photo
-                        createElement('button', {
-                            className: 'avatar-pick',
-                            title: t('Upload photo', props.appLang),
-                            onClick: function() { if (fileRef.current) fileRef.current.click(); }
-                        }, '📷'),
-                        // Use Google photo (only if signed in and one exists)
-                        isGoogleLinked && profile.photoURL ? createElement('button', {
-                            className: 'avatar-pick' + (editAvatar === profile.photoURL ? ' avatar-pick--active' : ''),
-                            title: t('Use Google photo', props.appLang),
-                            onClick: function() { setEditAvatar(profile.photoURL); },
-                            style: { padding: 0, overflow: 'hidden' }
-                        }, createElement('img', { src: profile.photoURL, style: { width: '100%', height: '100%', objectFit: 'cover' } })) : null
-                    ),
-                    createElement('input', { ref: fileRef, type: 'file', accept: 'image/*', style: { display: 'none' }, onChange: handleAvatarUpload })
-                ),
-                // Actions
-                createElement('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
-                    createElement('button', { className: 'btn btn--primary', onClick: saveProfile }, t('Save', props.appLang)),
-                    createElement('button', { className: 'btn btn--outline', onClick: function() { setIsEditing(false); setEditName(profile.name); } }, t('Cancel', props.appLang)),
-                    (isGoogleLinked && hasCustomIdentity) ? createElement('button', { className: 'btn btn--outline', onClick: handleResetIdentity, title: t('Show your real Google name and photo again', props.appLang) }, '↺ ' + t('Reset to Google', props.appLang)) : null
-                ),
-                isGoogleLinked ? createElement('div', { style: { fontSize: '0.78rem', color: 'var(--text-muted)' } }, t('Your custom name and photo are shown publicly instead of your Google identity.', props.appLang)) : null
-            ) : createElement('div', { style: { display: 'flex', gap: '15px', alignItems: 'center', flex: 1, flexWrap: 'wrap' } },
-                createElement('div', { style: { fontSize: '2.5rem', background: '#fff', borderRadius: '50%', width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', overflow: 'hidden' } }, profileImg),
-                createElement('div', { style: { flex: 1, minWidth: '120px' } },
-                    createElement('div', { style: { fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' } }, 
-                        profile.name,
-                        isGoogleLinked && createElement('span', { title: 'Verified Google Account', style: { fontSize: '1rem' } }, '✅')
-                    ),
-                    createElement('div', { style: { color: 'var(--primary)', fontWeight: 'bold' } }, (PROGRESS.getTotalStats().xp || 0).toLocaleString() + ' XP')
-                ),
-                createElement('div', { style: { display: 'flex', gap: '10px', marginLeft: 'auto', flexWrap: 'wrap' } },
-                    isGoogleLinked && props.onSync
-                        ? createElement('button', {
-                            className: 'btn btn--outline',
-                            onClick: handleSyncNow,
-                            disabled: syncState === 'syncing',
-                            title: 'Sync progress and saved words now'
-                        },
-                            syncState === 'syncing' ? '↻ Syncing…'
-                            : syncState === 'done' ? '✓ Synced'
-                            : syncState === 'error' ? '⚠ Retry Sync'
-                            : '☁ Sync Now')
-                        : null,
-                    createElement('button', { className: 'btn btn--outline', onClick: openEditor }, '✎ ' + t('Edit Profile', props.appLang)),
-                    isGoogleLinked
-                        ? createElement('button', { className: 'btn btn--outline', onClick: handleGoogleLogout }, t('Sign Out', props.appLang))
-                        : createElement('button', { className: 'btn btn--primary', onClick: handleGoogleLogin, style: { background: '#4285F4', color: '#fff', border: 'none' } }, t('Sign in with Google', props.appLang))
-                )
-            )
-        ),
-        
-        state.error ? createElement('div', { style: { color: 'var(--danger)', padding: '20px', textAlign: 'center' } }, 'Error loading leaderboard: ' + state.error) : null,
-        state.loading && state.users.length === 0 ? createElement('div', { style: { textAlign: 'center', padding: '50px', fontSize: '1.2rem' } }, 'Loading top players...') : null,
-        
-        state.users.length > 0 && createElement('div', { className: 'podium-container' },
-            top3[1] && createElement('div', { className: 'podium-item podium-silver' },
-                createElement('div', { className: 'podium-avatar' }, renderAvatar(top3[1].avatar)),
-                createElement('div', { className: 'podium-name' }, top3[1].name),
-                createElement('div', { className: 'podium-xp' }, top3[1].xp.toLocaleString() + ' XP'),
-                createElement('div', { className: 'podium-step' }, createElement('span', null, '2'))
-            ),
-            top3[0] && createElement('div', { className: 'podium-item podium-gold' },
-                createElement('div', { className: 'podium-avatar' }, renderAvatar(top3[0].avatar)),
-                createElement('div', { className: 'podium-name' }, top3[0].name),
-                createElement('div', { className: 'podium-xp' }, top3[0].xp.toLocaleString() + ' XP'),
-                createElement('div', { className: 'podium-step' }, createElement('span', null, '1'))
-            ),
-            top3[2] && createElement('div', { className: 'podium-item podium-bronze' },
-                createElement('div', { className: 'podium-avatar' }, renderAvatar(top3[2].avatar)),
-                createElement('div', { className: 'podium-name' }, top3[2].name),
-                createElement('div', { className: 'podium-xp' }, top3[2].xp.toLocaleString() + ' XP'),
-                createElement('div', { className: 'podium-step' }, createElement('span', null, '3'))
-            )
-        ),
-        
-        state.myRank > 3 && createElement('div', { className: 'my-rank-banner' },
-            createElement('div', { className: 'my-rank-info' },
-                createElement('span', { className: 'my-rank-number' }, '#' + state.myRank),
-                createElement('span', { className: 'my-rank-text' }, t('Your Rank', props.appLang) || 'Your Rank')
-            ),
-            createElement('div', { className: 'my-rank-xp' }, (PROGRESS.getTotalStats().xp || 0).toLocaleString() + ' XP')
-        ),
-        
-        state.users.length > 0 && createElement('div', { className: 'leaderboard-list' },
-            rest.map(function(u) {
-                return createElement('div', { key: u.id, className: 'leaderboard-row' + (u.isMe ? ' leaderboard-row--me' : '') },
-                    createElement('div', { className: 'leaderboard-row__rank' }, u.rank),
-                    createElement('div', { className: 'leaderboard-row__avatar' }, renderAvatar(u.avatar)),
-                    createElement('div', { className: 'leaderboard-row__name' }, u.name + (u.isMe ? ' (You)' : '')),
-                    createElement('div', { className: 'leaderboard-row__xp' }, u.xp.toLocaleString() + ' XP')
-                );
-            })
-        )
-    );
+    return <div className='glass-card leaderboard-container'><div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px'
+  }}><h2 className='section-title' style={{
+      margin: 0
+    }}>{t('Global Leaderboard', props.appLang)}</h2><button className='btn btn--outline' onClick={loadData} disabled={state.loading}>{state.loading ? '↻ Loading...' : '↻ Refresh'}</button></div> // Profile Edit Section
+  <div style={{
+    padding: '15px',
+    background: 'rgba(0,0,0,0.1)',
+    borderRadius: '12px',
+    marginBottom: '30px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }}>{isEditing ? <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '14px',
+      flex: 1,
+      width: '100%'
+    }}> // Live preview + name input
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        alignItems: 'center',
+        flexWrap: 'wrap'
+      }}><div style={{
+          width: '56px',
+          height: '56px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '2rem',
+          background: '#fff',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>{renderAvatar(editAvatar)}</div><input type='text' className='search-input' value={editName} onChange={e => {
+          setEditName(e.target.value);
+        }} style={{
+          flex: 1,
+          padding: '10px',
+          minWidth: '160px'
+        }} placeholder={t('Display name', props.appLang)} maxLength={24} /></div> // Emoji avatar picker
+      <div><div style={{
+          fontSize: '0.78rem',
+          color: 'var(--text-muted)',
+          marginBottom: '6px'
+        }}>{t('Choose an avatar', props.appLang)}</div><div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '6px'
+        }}>{AVATAR_EMOJIS.map(function (em) {
+            return <button key={em} onClick={() => {
+              setEditAvatar(em);
+            }} className={'avatar-pick' + (editAvatar === em ? ' avatar-pick--active' : '')}>{em}</button>;
+          })} // Upload custom photo
+          <button className='avatar-pick' title={t('Upload photo', props.appLang)} onClick={() => {
+            if (fileRef.current) fileRef.current.click();
+          }}>📷</button>{
+          // Use Google photo (only if signed in and one exists)
+          isGoogleLinked && profile.photoURL ? <button className={'avatar-pick' + (editAvatar === profile.photoURL ? ' avatar-pick--active' : '')} title={t('Use Google photo', props.appLang)} onClick={() => {
+            setEditAvatar(profile.photoURL);
+          }} style={{
+            padding: 0,
+            overflow: 'hidden'
+          }}><img src={profile.photoURL} style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }} /></button> : null}</div><input ref={fileRef} type='file' accept='image/*' style={{
+          display: 'none'
+        }} onChange={handleAvatarUpload} /></div> // Actions
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        flexWrap: 'wrap'
+      }}><button className='btn btn--primary' onClick={saveProfile}>{t('Save', props.appLang)}</button><button className='btn btn--outline' onClick={() => {
+          setIsEditing(false);
+          setEditName(profile.name);
+        }}>{t('Cancel', props.appLang)}</button>{isGoogleLinked && hasCustomIdentity ? <button className='btn btn--outline' onClick={handleResetIdentity} title={t('Show your real Google name and photo again', props.appLang)}>{'↺ ' + t('Reset to Google', props.appLang)}</button> : null}</div>{isGoogleLinked ? <div style={{
+        fontSize: '0.78rem',
+        color: 'var(--text-muted)'
+      }}>{t('Your custom name and photo are shown publicly instead of your Google identity.', props.appLang)}</div> : null}</div> : <div style={{
+      display: 'flex',
+      gap: '15px',
+      alignItems: 'center',
+      flex: 1,
+      flexWrap: 'wrap'
+    }}><div style={{
+        fontSize: '2.5rem',
+        background: '#fff',
+        borderRadius: '50%',
+        width: '60px',
+        height: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+        overflow: 'hidden'
+      }}>{profileImg}</div><div style={{
+        flex: 1,
+        minWidth: '120px'
+      }}><div style={{
+          fontSize: '1.2rem',
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>{profile.name}{isGoogleLinked && <span title='Verified Google Account' style={{
+            fontSize: '1rem'
+          }}>✅</span>}</div><div style={{
+          color: 'var(--primary)',
+          fontWeight: 'bold'
+        }}>{(PROGRESS.getTotalStats().xp || 0).toLocaleString() + ' XP'}</div></div><div style={{
+        display: 'flex',
+        gap: '10px',
+        marginLeft: 'auto',
+        flexWrap: 'wrap'
+      }}>{isGoogleLinked && props.onSync ? <button className='btn btn--outline' onClick={handleSyncNow} disabled={syncState === 'syncing'} title='Sync progress and saved words now'>{syncState === 'syncing' ? '↻ Syncing…' : syncState === 'done' ? '✓ Synced' : syncState === 'error' ? '⚠ Retry Sync' : '☁ Sync Now'}</button> : null}<button className='btn btn--outline' onClick={openEditor}>{'✎ ' + t('Edit Profile', props.appLang)}</button>{isGoogleLinked ? <button className='btn btn--outline' onClick={handleGoogleLogout}>{t('Sign Out', props.appLang)}</button> : <button className='btn btn--primary' onClick={handleGoogleLogin} style={{
+          background: '#4285F4',
+          color: '#fff',
+          border: 'none'
+        }}>{t('Sign in with Google', props.appLang)}</button>}</div></div>}</div>{state.error ? <div style={{
+    color: 'var(--danger)',
+    padding: '20px',
+    textAlign: 'center'
+  }}>{'Error loading leaderboard: ' + state.error}</div> : null}{state.loading && state.users.length === 0 ? <div style={{
+    textAlign: 'center',
+    padding: '50px',
+    fontSize: '1.2rem'
+  }}>Loading top players...</div> : null}{state.users.length > 0 && <div className='podium-container'>{top3[1] && <div className='podium-item podium-silver'><div className='podium-avatar'>{renderAvatar(top3[1].avatar)}</div><div className='podium-name'>{top3[1].name}</div><div className='podium-xp'>{top3[1].xp.toLocaleString() + ' XP'}</div><div className='podium-step'><span>2</span></div></div>}{top3[0] && <div className='podium-item podium-gold'><div className='podium-avatar'>{renderAvatar(top3[0].avatar)}</div><div className='podium-name'>{top3[0].name}</div><div className='podium-xp'>{top3[0].xp.toLocaleString() + ' XP'}</div><div className='podium-step'><span>1</span></div></div>}{top3[2] && <div className='podium-item podium-bronze'><div className='podium-avatar'>{renderAvatar(top3[2].avatar)}</div><div className='podium-name'>{top3[2].name}</div><div className='podium-xp'>{top3[2].xp.toLocaleString() + ' XP'}</div><div className='podium-step'><span>3</span></div></div>}</div>}{state.myRank > 3 && <div className='my-rank-banner'><div className='my-rank-info'><span className='my-rank-number'>{'#' + state.myRank}</span><span className='my-rank-text'>{t('Your Rank', props.appLang) || 'Your Rank'}</span></div><div className='my-rank-xp'>{(PROGRESS.getTotalStats().xp || 0).toLocaleString() + ' XP'}</div></div>}{state.users.length > 0 && <div className='leaderboard-list'>{rest.map(function (u) {
+      return <div key={u.id} className={'leaderboard-row' + (u.isMe ? ' leaderboard-row--me' : '')}><div className='leaderboard-row__rank'>{u.rank}</div><div className='leaderboard-row__avatar'>{renderAvatar(u.avatar)}</div><div className='leaderboard-row__name'>{u.name + (u.isMe ? ' (You)' : '')}</div><div className='leaderboard-row__xp'>{u.xp.toLocaleString() + ' XP'}</div></div>;
+    })}</div>}</div>;
 }
 
 /* =================================================================
@@ -547,27 +544,16 @@ function DashboardTab(props) {
     var chartBars = weeklyData.map(function (d, i) {
         var height = maxReviews > 0 ? Math.max(4, (d.reviews / maxReviews) * 120) : 4;
         var isToday = i === 6;
-        return createElement('div', { key: i, className: 'chart-bar-wrapper' },
-            createElement('div', { className: 'chart-bar-value' }, d.reviews > 0 ? d.reviews : ''),
-            createElement('div', {
-                className: 'chart-bar' + (isToday ? ' chart-bar--today' : ''),
-                style: { height: height + 'px' }
-            }),
-            createElement('div', { className: 'chart-bar-label' }, d.label)
-        );
+        return <div key={i} className='chart-bar-wrapper'><div className='chart-bar-value'>{d.reviews > 0 ? d.reviews : ''}</div><div className={'chart-bar' + (isToday ? ' chart-bar--today' : '')} style={{
+    height: height + 'px'
+  }} /><div className='chart-bar-label'>{d.label}</div></div>;
     });
 
     // Quiz history cards
     var quizCards = quizHistory.map(function (q, i) {
         var d = new Date(q.date);
         var dateStr = (d.getMonth() + 1) + '/' + d.getDate();
-        return createElement('div', { key: i, className: 'quiz-history-card' },
-            createElement('div', { className: 'quiz-history-card__score' }, q.pct + '%'),
-            createElement('div', { className: 'quiz-history-card__detail' },
-                q.score + '/' + q.total + ' · ' + q.level
-            ),
-            createElement('div', { className: 'quiz-history-card__date' }, dateStr)
-        );
+        return <div key={i} className='quiz-history-card'><div className='quiz-history-card__score'>{q.pct + '%'}</div><div className='quiz-history-card__detail'>{q.score + '/' + q.total + ' · ' + q.level}</div><div className='quiz-history-card__date'>{dateStr}</div></div>;
     });
 
     // SRS distribution
@@ -580,14 +566,16 @@ function DashboardTab(props) {
 
     var srsBarEls = srsParts.map(function (p, i) {
         var pct = srsTotal > 0 ? (p.count / srsTotal) * 100 : 0;
-        return createElement('div', { key: i, className: 'srs-bar-segment', style: { width: pct + '%', background: p.color } });
+        return <div key={i} className='srs-bar-segment' style={{
+  width: pct + '%',
+  background: p.color
+}} />;
     });
 
     var srsLabelEls = srsParts.map(function (p, i) {
-        return createElement('div', { key: i, className: 'srs-label' },
-            createElement('span', { className: 'srs-label__dot', style: { background: p.color } }),
-            createElement('span', null, p.label + ': ' + p.count)
-        );
+        return <div key={i} className='srs-label'><span className='srs-label__dot' style={{
+    background: p.color
+  }} /><span>{p.label + ': ' + p.count}</span></div>;
     });
 
     // Rank Progress Bar
@@ -602,16 +590,12 @@ function DashboardTab(props) {
         nextRankLabel = 'Max Rank Achieved!';
     }
 
-    var rankCard = createElement('div', { className: 'dash-rank-card' },
-        createElement('div', { className: 'dash-rank-title' }, rankInfo.current.name),
-        createElement('div', { className: 'dash-rank-xp' },
-            createElement(AnimatedCounter, { value: rankInfo.xp }),
-            ' XP / ' + (rankInfo.next ? rankInfo.next.minXP : '∞') + ' XP'),
-        createElement('div', { className: 'xp-bar-container' },
-            createElement('div', { className: 'xp-bar-fill', style: { width: xpProgress + '%' } })
-        ),
-        createElement('div', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' } }, nextRankLabel)
-    );
+    var rankCard = <div className='dash-rank-card'><div className='dash-rank-title'>{rankInfo.current.name}</div><div className='dash-rank-xp'><AnimatedCounter value={rankInfo.xp} />{' XP / ' + (rankInfo.next ? rankInfo.next.minXP : '∞') + ' XP'}</div><div className='xp-bar-container'><div className='xp-bar-fill' style={{
+      width: xpProgress + '%'
+    }} /></div><div style={{
+    fontSize: '0.8rem',
+    color: 'var(--text-muted)'
+  }}>{nextRankLabel}</div></div>;
 
     // Daily Quests
     var questCards = quests.map(function (q, i) {
@@ -626,124 +610,75 @@ function DashboardTab(props) {
 
         var actionBtn = null;
         if (clickable) {
-            actionBtn = createElement('button', {
-                className: 'btn btn--primary',
-                style: { marginLeft: 'auto', padding: '0.4rem 1rem', fontSize: '0.9rem' },
-                onClick: function(e) {
-                    e.stopPropagation();
-                    if (props.setTab) props.setTab(targetTab);
-                }
-            }, targetTab === 'saved' ? 'Go to Saved' : (targetTab === 'flash' ? 'Go to Flashcards' : 'Go to Quiz'));
+            actionBtn = <button className='btn btn--primary' style={{
+  marginLeft: 'auto',
+  padding: '0.4rem 1rem',
+  fontSize: '0.9rem'
+}} onClick={e => {
+  e.stopPropagation();
+  if (props.setTab) props.setTab(targetTab);
+}}>{targetTab === 'saved' ? 'Go to Saved' : targetTab === 'flash' ? 'Go to Flashcards' : 'Go to Quiz'}</button>;
         }
 
-        return createElement('div', { 
-            key: i, 
-            className: cls,
-            onClick: function() { 
-                if (clickable && props.setTab) {
-                    props.setTab(targetTab);
-                }
-            },
-            style: clickable ? { cursor: 'pointer', transition: 'transform 0.2s' } : {}
-        },
-            createElement('div', { className: 'quest-icon' }, q.completed ? '✓' : '🎯'),
-            createElement('div', { className: 'quest-details' },
-                createElement('div', { className: 'quest-title' }, q.title),
-                createElement('div', { className: 'quest-progress' }, Math.min(q.current, q.target) + ' / ' + q.target)
-            ),
-            actionBtn
-        );
+        return <div key={i} className={cls} onClick={() => {
+  if (clickable && props.setTab) {
+    props.setTab(targetTab);
+  }
+}} style={clickable ? {
+  cursor: 'pointer',
+  transition: 'transform 0.2s'
+} : {}}><div className='quest-icon'>{q.completed ? '✓' : '🎯'}</div><div className='quest-details'><div className='quest-title'>{q.title}</div><div className='quest-progress'>{Math.min(q.current, q.target) + ' / ' + q.target}</div></div>{actionBtn}</div>;
     });
 
-    var questsSection = createElement('div', { className: 'dash-section' },
-        createElement('h3', { className: 'dash-section__title' }, 'Daily Quests'),
-        createElement('div', { className: 'daily-quests-grid' }, questCards)
-    );
+    var questsSection = <div className='dash-section'><h3 className='dash-section__title'>Daily Quests</h3><div className='daily-quests-grid'>{questCards}</div></div>;
 
     // AI Insights Section
     var insights = PROGRESS.analyzeWeaknesses();
     var insightsSection = null;
     if (!insights.hasEnoughData) {
-        insightsSection = createElement('div', { className: 'dash-section insights-section' },
-            createElement('h3', { className: 'dash-section__title' }, '🧠 AI Insights'),
-            createElement('div', { className: 'insights-card insights-card--empty', style: { padding: '20px', background: 'var(--bg-secondary)', borderRadius: '12px', textAlign: 'center', fontStyle: 'italic', color: 'var(--text-muted)' } },
-                'Take at least 3 quizzes to unlock personalized study recommendations!'
-            )
-        );
+        insightsSection = <div className='dash-section insights-section'><h3 className='dash-section__title'>🧠 AI Insights</h3><div className='insights-card insights-card--empty' style={{
+    padding: '20px',
+    background: 'var(--bg-secondary)',
+    borderRadius: '12px',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    color: 'var(--text-muted)'
+  }}>Take at least 3 quizzes to unlock personalized study recommendations!</div></div>;
     } else {
         var weaknessCards = insights.weaknesses.map(function(w, i) {
-            return createElement('div', { key: i, className: 'insight-item', style: { background: 'var(--bg-primary)', padding: '16px', borderRadius: '12px', borderLeft: '4px solid ' + (w.pct < 50 ? 'var(--danger)' : 'var(--accent-amber)') } },
-                createElement('div', { className: 'insight-item__header', style: { display: 'flex', justifyContent: 'space-between', marginBottom: '8px' } },
-                    createElement('strong', { style: { fontSize: '1.1rem' } }, w.level + ' ' + w.mode),
-                    createElement('span', { className: 'insight-item__pct', style: { fontWeight: 'bold', color: w.pct < 50 ? 'var(--danger)' : 'var(--accent-amber)' } }, w.pct + '% Accuracy')
-                ),
-                createElement('div', { className: 'insight-item__desc', style: { fontSize: '0.9rem', color: 'var(--text-muted)' } }, 'You have answered ' + w.totalQuestions + ' questions in this category. Focusing your practice here will maximize your score improvement.')
-            );
+            return <div key={i} className='insight-item' style={{
+  background: 'var(--bg-primary)',
+  padding: '16px',
+  borderRadius: '12px',
+  borderLeft: '4px solid ' + (w.pct < 50 ? 'var(--danger)' : 'var(--accent-amber)')
+}}><div className='insight-item__header' style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '8px'
+  }}><strong style={{
+      fontSize: '1.1rem'
+    }}>{w.level + ' ' + w.mode}</strong><span className='insight-item__pct' style={{
+      fontWeight: 'bold',
+      color: w.pct < 50 ? 'var(--danger)' : 'var(--accent-amber)'
+    }}>{w.pct + '% Accuracy'}</span></div><div className='insight-item__desc' style={{
+    fontSize: '0.9rem',
+    color: 'var(--text-muted)'
+  }}>{'You have answered ' + w.totalQuestions + ' questions in this category. Focusing your practice here will maximize your score improvement.'}</div></div>;
         });
 
-        insightsSection = createElement('div', { className: 'dash-section insights-section' },
-            createElement('h3', { className: 'dash-section__title' }, '🎯 Target Areas for Improvement'),
-            createElement('div', { className: 'insights-grid', style: { display: 'grid', gap: '15px' } }, weaknessCards)
-        );
+        insightsSection = <div className='dash-section insights-section'><h3 className='dash-section__title'>🎯 Target Areas for Improvement</h3><div className='insights-grid' style={{
+    display: 'grid',
+    gap: '15px'
+  }}>{weaknessCards}</div></div>;
     }
 
-    return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, t('Dashboard', props.appLang)),
-
-        insightsSection,
-        rankCard,
-        questsSection,
-
-        // Streak & Today stats
-        createElement('div', { className: 'dash-stats-grid' },
-            createElement('div', { className: 'dash-stat-card dash-stat-card--streak' },
-                createElement('div', { className: 'dash-stat-card__icon' }, streak > 0 ? '🔥' : '❄️'),
-                createElement('div', { className: 'dash-stat-card__value' }, streak),
-                createElement('div', { className: 'dash-stat-card__label' }, 'Day Streak')
-            ),
-            createElement('div', { className: 'dash-stat-card' },
-                createElement('div', { className: 'dash-stat-card__icon' }, '📝'),
-                createElement('div', { className: 'dash-stat-card__value' }, todayStats.wordsReviewed),
-                createElement('div', { className: 'dash-stat-card__label' }, 'Reviews Today')
-            ),
-            createElement('div', { className: 'dash-stat-card' },
-                createElement('div', { className: 'dash-stat-card__icon' }, '🎯'),
-                createElement('div', { className: 'dash-stat-card__value' }, todayStats.quizzesTaken),
-                createElement('div', { className: 'dash-stat-card__label' }, 'Quizzes Today')
-            ),
-            createElement('div', { className: 'dash-stat-card' },
-                createElement('div', { className: 'dash-stat-card__icon' }, '⏰'),
-                createElement('div', { className: 'dash-stat-card__value' }, srsStats.dueToday),
-                createElement('div', { className: 'dash-stat-card__label' }, 'Due for Review')
-            )
-        ),
-
-        // SRS Distribution
-        createElement('div', { className: 'dash-section' },
-            createElement('h3', { className: 'dash-section__title' }, 'SRS Progress'),
-            createElement('div', { className: 'srs-bar' }, srsBarEls),
-            createElement('div', { className: 'srs-labels' }, srsLabelEls)
-        ),
-
-        // Weekly Activity Chart
-        createElement('div', { className: 'dash-section' },
-            createElement('h3', { className: 'dash-section__title' }, 'Weekly Activity'),
-            createElement('div', { className: 'weekly-chart' }, chartBars)
-        ),
-
-        // Quiz History
-        quizCards.length > 0 ? createElement('div', { className: 'dash-section' },
-            createElement('h3', { className: 'dash-section__title' }, 'Recent Quizzes'),
-            createElement('div', { className: 'quiz-history-grid' }, quizCards)
-        ) : null,
-
-        // Totals
-        createElement('div', { className: 'dash-totals' },
-            createElement('span', null, '📅 ' + totalStats.daysActive + ' days active'),
-            createElement('span', null, '📖 ' + totalStats.totalReviews + ' total reviews'),
-            createElement('span', null, '📝 ' + totalStats.totalQuizzes + ' quizzes taken')
-        )
-    );
+    return <div className='glass-card'><h2 className='section-title'>{t('Dashboard', props.appLang)}</h2>{insightsSection}{rankCard}{questsSection} // Streak & Today stats
+  <div className='dash-stats-grid'><div className='dash-stat-card dash-stat-card--streak'><div className='dash-stat-card__icon'>{streak > 0 ? '🔥' : '❄️'}</div><div className='dash-stat-card__value'>{streak}</div><div className='dash-stat-card__label'>Day Streak</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>📝</div><div className='dash-stat-card__value'>{todayStats.wordsReviewed}</div><div className='dash-stat-card__label'>Reviews Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>🎯</div><div className='dash-stat-card__value'>{todayStats.quizzesTaken}</div><div className='dash-stat-card__label'>Quizzes Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>⏰</div><div className='dash-stat-card__value'>{srsStats.dueToday}</div><div className='dash-stat-card__label'>Due for Review</div></div></div> // SRS Distribution
+  <div className='dash-section'><h3 className='dash-section__title'>SRS Progress</h3><div className='srs-bar'>{srsBarEls}</div><div className='srs-labels'>{srsLabelEls}</div></div> // Weekly Activity Chart
+  <div className='dash-section'><h3 className='dash-section__title'>Weekly Activity</h3><div className='weekly-chart'>{chartBars}</div></div>{
+  // Quiz History
+  quizCards.length > 0 ? <div className='dash-section'><h3 className='dash-section__title'>Recent Quizzes</h3><div className='quiz-history-grid'>{quizCards}</div></div> : null} // Totals
+  <div className='dash-totals'><span>{'📅 ' + totalStats.daysActive + ' days active'}</span><span>{'📖 ' + totalStats.totalReviews + ' total reviews'}</span><span>{'📝 ' + totalStats.totalQuizzes + ' quizzes taken'}</span></div></div>;
 }
 
 
@@ -837,24 +772,17 @@ function FlashcardTab(props) {
 
     // Session complete screen
     if (!sessionActive && sessionStats.total > 0) {
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'flashcard-complete' },
-                createElement('div', { className: 'flashcard-complete__icon' }, '🎉'),
-                createElement('h2', null, 'Session Complete!'),
-                createElement('p', null, 'You reviewed ' + sessionStats.total + ' cards'),
-                createElement('div', { className: 'flashcard-complete__stats' },
-                    createElement('span', { className: 'fc-stat fc-stat--again' }, '🔄 Again: ' + sessionStats.again),
-                    createElement('span', { className: 'fc-stat fc-stat--hard' }, '😓 Hard: ' + sessionStats.hard),
-                    createElement('span', { className: 'fc-stat fc-stat--good' }, '👍 Good: ' + sessionStats.good),
-                    createElement('span', { className: 'fc-stat fc-stat--easy' }, '🌟 Easy: ' + sessionStats.easy)
-                ),
-                createElement('button', {
-                    className: 'btn btn--primary',
-                    onClick: function () { setSessionStats({ total: 0, again: 0, hard: 0, good: 0, easy: 0 }); },
-                    style: { marginTop: 20 }
-                }, 'Start New Session')
-            )
-        );
+        return <div className='glass-card'><div className='flashcard-complete'><div className='flashcard-complete__icon'>🎉</div><h2>Session Complete!</h2><p>{'You reviewed ' + sessionStats.total + ' cards'}</p><div className='flashcard-complete__stats'><span className='fc-stat fc-stat--again'>{'🔄 Again: ' + sessionStats.again}</span><span className='fc-stat fc-stat--hard'>{'😓 Hard: ' + sessionStats.hard}</span><span className='fc-stat fc-stat--good'>{'👍 Good: ' + sessionStats.good}</span><span className='fc-stat fc-stat--easy'>{'🌟 Easy: ' + sessionStats.easy}</span></div><button className='btn btn--primary' onClick={() => {
+      setSessionStats({
+        total: 0,
+        again: 0,
+        hard: 0,
+        good: 0,
+        easy: 0
+      });
+    }} style={{
+      marginTop: 20
+    }}>Start New Session</button></div></div>;
     }
 
     // Active flashcard
@@ -862,49 +790,35 @@ function FlashcardTab(props) {
         var card = cards[index];
         var progress = ((index + 1) / cards.length) * 100;
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'flashcard-header' },
-                createElement('button', {
-                    className: 'quiz-bar__back',
-                    onClick: function () { setSessionActive(false); setSessionStats({ total: 0, again: 0, hard: 0, good: 0, easy: 0 }); }
-                }, '←'),
-                createElement('span', null, 'Card ' + (index + 1) + ' / ' + cards.length),
-                createElement('span', { className: 'quiz-level-tag' }, card.level || '')
-            ),
-            createElement('div', { className: 'progress-track' },
-                createElement('div', { className: 'progress-fill', style: { width: progress + '%' } })
-            ),
-
-            createElement('div', {
-                className: 'flashcard-container' + (flipped ? ' flashcard--flipped' : ''),
-                onClick: function () { if (!flipped) setFlipped(true); }
-            },
-                createElement('div', { className: 'flashcard-inner' },
-                    createElement('div', { className: 'flashcard-front' },
-                        createElement('div', { className: 'flashcard-word' }, card.word),
-                        (card.reading && props.showFurigana) ? createElement('div', { className: 'flashcard-reading' }, card.reading) : null,
-                        createElement('div', { className: 'flashcard-hint' }, 'Tap to reveal')
-                    ),
-                    createElement('div', { className: 'flashcard-back' },
-                        createElement('div', { className: 'flashcard-word', style: { fontSize: '1.5rem' } }, card.word),
-                        card.reading ? createElement('div', { className: 'flashcard-reading' }, card.reading) : null,
-                        createElement('div', { className: 'flashcard-meaning' }, getVocabMeaning(card, props.appLang)),
-                        card.nuance ? createElement('div', { className: 'flashcard-nuance' }, '💡 ' + card.nuance) : null,
-                        card.example ? createElement('div', { className: 'flashcard-example' },
-                            createElement('div', null, card.example),
-                            card.exampleEn ? createElement('div', { style: { color: 'var(--text-muted)', fontSize: '0.85rem', fontStyle: 'italic', marginTop: 4 } }, card.exampleEn) : null
-                        ) : null
-                    )
-                )
-            ),
-
-            flipped ? createElement('div', { className: 'srs-grade-buttons' },
-                createElement('button', { className: 'srs-btn srs-btn--again', onClick: function () { handleGrade(1); } }, '🔄 Again'),
-                createElement('button', { className: 'srs-btn srs-btn--hard', onClick: function () { handleGrade(3); } }, '😓 Hard'),
-                createElement('button', { className: 'srs-btn srs-btn--good', onClick: function () { handleGrade(4); } }, '👍 Good'),
-                createElement('button', { className: 'srs-btn srs-btn--easy', onClick: function () { handleGrade(5); } }, '🌟 Easy')
-            ) : null
-        );
+        return <div className='glass-card'><div className='flashcard-header'><button className='quiz-bar__back' onClick={() => {
+      setSessionActive(false);
+      setSessionStats({
+        total: 0,
+        again: 0,
+        hard: 0,
+        good: 0,
+        easy: 0
+      });
+    }}>←</button><span>{'Card ' + (index + 1) + ' / ' + cards.length}</span><span className='quiz-level-tag'>{card.level || ''}</span></div><div className='progress-track'><div className='progress-fill' style={{
+      width: progress + '%'
+    }} /></div><div className={'flashcard-container' + (flipped ? ' flashcard--flipped' : '')} onClick={() => {
+    if (!flipped) setFlipped(true);
+  }}><div className='flashcard-inner'><div className='flashcard-front'><div className='flashcard-word'>{card.word}</div>{card.reading && props.showFurigana ? <div className='flashcard-reading'>{card.reading}</div> : null}<div className='flashcard-hint'>Tap to reveal</div></div><div className='flashcard-back'><div className='flashcard-word' style={{
+          fontSize: '1.5rem'
+        }}>{card.word}</div>{card.reading ? <div className='flashcard-reading'>{card.reading}</div> : null}<div className='flashcard-meaning'>{getVocabMeaning(card, props.appLang)}</div>{card.nuance ? <div className='flashcard-nuance'>{'💡 ' + card.nuance}</div> : null}{card.example ? <div className='flashcard-example'><div>{card.example}</div>{card.exampleEn ? <div style={{
+            color: 'var(--text-muted)',
+            fontSize: '0.85rem',
+            fontStyle: 'italic',
+            marginTop: 4
+          }}>{card.exampleEn}</div> : null}</div> : null}</div></div></div>{flipped ? <div className='srs-grade-buttons'><button className='srs-btn srs-btn--again' onClick={() => {
+      handleGrade(1);
+    }}>🔄 Again</button><button className='srs-btn srs-btn--hard' onClick={() => {
+      handleGrade(3);
+    }}>😓 Hard</button><button className='srs-btn srs-btn--good' onClick={() => {
+      handleGrade(4);
+    }}>👍 Good</button><button className='srs-btn srs-btn--easy' onClick={() => {
+      handleGrade(5);
+    }}>🌟 Easy</button></div> : null}</div>;
     }
 
     // Setup screen
@@ -912,48 +826,29 @@ function FlashcardTab(props) {
     if (props.savedWords && props.savedWords.length > 0) levels.push('Saved');
 
     var levelBtns = levels.map(function (lv) {
-        return createElement('button', {
-            key: lv,
-            className: 'level-btn' + (level === lv ? ' level-btn--active' : ''),
-            onClick: function () { setLevel(lv); }
-        }, lv);
+        return <button key={lv} className={'level-btn' + (level === lv ? ' level-btn--active' : '')} onClick={() => {
+  setLevel(lv);
+}}>{lv}</button>;
     });
 
     var modeBtns = [
         { id: 'all', label: '🃏 All Cards' },
         { id: 'due', label: '⏰ Due for Review' }
     ].map(function (m) {
-        return createElement('button', {
-            key: m.id,
-            className: 'mode-btn' + (mode === m.id ? ' mode-btn--active' : ''),
-            onClick: function () { setMode(m.id); }
-        }, m.label);
+        return <button key={m.id} className={'mode-btn' + (mode === m.id ? ' mode-btn--active' : '')} onClick={() => {
+  setMode(m.id);
+}}>{m.label}</button>;
     });
 
     var dueCount = SRS.stats().dueToday;
 
-    return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, '🃏 ' + t('Flashcards', props.appLang)),
-        createElement('p', { className: 'section-desc' }, t('Review vocabulary with spaced repetition. Cards you struggle with appear more often.', props.appLang)),
-
-        createElement('h3', { className: 'setup-label' }, t('Select Level', props.appLang)),
-        createElement('div', { className: 'level-selector' }, levelBtns),
-
-        createElement('h3', { className: 'setup-label' }, t('Mode', props.appLang)),
-        createElement('div', { className: 'mode-selector' }, modeBtns),
-
-        dueCount > 0 ? createElement('p', { style: { textAlign: 'center', color: 'var(--accent-amber)', marginTop: 12 } },
-            '⏰ ' + dueCount + ' cards due for review!'
-        ) : null,
-
-        createElement('div', { className: 'setup-center' },
-            createElement('button', {
-                className: 'btn btn--primary btn--large btn--glow',
-                onClick: startSession,
-                style: { marginTop: 20 }
-            }, '▶  Start Flashcards')
-        )
-    );
+    return <div className='glass-card'><h2 className='section-title'>{'🃏 ' + t('Flashcards', props.appLang)}</h2><p className='section-desc'>{t('Review vocabulary with spaced repetition. Cards you struggle with appear more often.', props.appLang)}</p><h3 className='setup-label'>{t('Select Level', props.appLang)}</h3><div className='level-selector'>{levelBtns}</div><h3 className='setup-label'>{t('Mode', props.appLang)}</h3><div className='mode-selector'>{modeBtns}</div>{dueCount > 0 ? <p style={{
+    textAlign: 'center',
+    color: 'var(--accent-amber)',
+    marginTop: 12
+  }}>{'⏰ ' + dueCount + ' cards due for review!'}</p> : null}<div className='setup-center'><button className='btn btn--primary btn--large btn--glow' onClick={startSession} style={{
+      marginTop: 20
+    }}>▶  Start Flashcards</button></div></div>;
 }
 
 
@@ -1029,19 +924,17 @@ function ConjugationTab(props) {
 
     if (phase === 'result') {
         var pct = Math.round((score / questions.length) * 100);
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'result-panel' },
-                createElement('div', { className: 'result-panel__emoji' }, pct >= 70 ? '🎉' : '📚'),
-                createElement('div', { className: 'result-panel__title' }, pct >= 70 ? 'Great Job!' : 'Keep Practicing!'),
-                createElement('div', { style: { fontSize: '2rem', fontWeight: 700, margin: '16px 0' } }, pct + '%'),
-                createElement('div', { style: { color: 'var(--text-secondary)' } }, score + ' / ' + questions.length + ' correct'),
-                createElement('button', {
-                    className: 'btn btn--primary',
-                    onClick: function () { setPhase('setup'); },
-                    style: { marginTop: 20 }
-                }, '↻ Try Again')
-            )
-        );
+        return <div className='glass-card'><div className='result-panel'><div className='result-panel__emoji'>{pct >= 70 ? '🎉' : '📚'}</div><div className='result-panel__title'>{pct >= 70 ? 'Great Job!' : 'Keep Practicing!'}</div><div style={{
+      fontSize: '2rem',
+      fontWeight: 700,
+      margin: '16px 0'
+    }}>{pct + '%'}</div><div style={{
+      color: 'var(--text-secondary)'
+    }}>{score + ' / ' + questions.length + ' correct'}</div><button className='btn btn--primary' onClick={() => {
+      setPhase('setup');
+    }} style={{
+      marginTop: 20
+    }}>↻ Try Again</button></div></div>;
     }
 
     if (phase === 'active') {
@@ -1049,103 +942,52 @@ function ConjugationTab(props) {
         var ans = userAnswer.trim();
         var isCorrect = showAnswer && (ans === q.answer.hiragana || ans === q.answer.kanji);
 
-        return createElement('div', { className: 'glass-card' },
-            createElement('div', { className: 'flashcard-header' },
-                createElement('button', { className: 'quiz-bar__back', onClick: function () { setPhase('setup'); } }, '←'),
-                createElement('span', null, (qIndex + 1) + ' / ' + questions.length),
-                createElement('span', null, score + ' ✓')
-            ),
-            createElement('div', { className: 'progress-track' },
-                createElement('div', { className: 'progress-fill', style: { width: ((qIndex + 1) / questions.length * 100) + '%' } })
-            ),
-
-            createElement('div', { className: 'conjugation-question' },
-                createElement('div', { className: 'conjugation-word' }, q.word),
-                createElement('div', { className: 'conjugation-reading' }, q.reading),
-                createElement('div', { className: 'conjugation-prompt' },
-                    'Conjugate to: ',
-                    createElement('strong', null, q.formLabel)
-                ),
-                createElement('div', { style: { color: 'var(--text-muted)', fontSize: '0.9rem' } }, '(' + q.meaning + ')')
-            ),
-
-            !showAnswer ? createElement('div', { className: 'input-row', style: { marginTop: 20 } },
-                createElement('input', {
-                    className: 'input-field',
-                    type: 'text',
-                    value: userAnswer,
-                    onChange: function (e) { setUserAnswer(e.target.value); },
-                    onKeyDown: function (e) { if (e.key === 'Enter') checkAnswer(); },
-                    placeholder: 'Type the conjugated form...',
-                    autoFocus: true,
-                    style: { fontFamily: 'var(--font-jp)', fontSize: '1.2rem' }
-                }),
-                createElement('button', { className: 'btn btn--primary', onClick: checkAnswer }, 'Check')
-            ) : null,
-
-            showAnswer ? createElement('div', { className: 'conjugation-answer' },
-                createElement('div', {
-                    className: 'conjugation-answer__badge' + (isCorrect ? ' conjugation-answer__badge--correct' : ' conjugation-answer__badge--wrong')
-                }, isCorrect ? '✔ Correct!' : '✘ Incorrect'),
-                !isCorrect ? createElement('div', { className: 'conjugation-answer__your' },
-                    'Your answer: ', createElement('span', { style: { color: 'var(--accent-red)' } }, userAnswer || '(empty)')
-                ) : null,
-                createElement('div', { className: 'conjugation-answer__correct' },
-                    'Answer: ', createElement('strong', { style: { fontSize: '1.3rem' } }, q.answer.kanji !== q.answer.hiragana ? (q.answer.kanji + ' (' + q.answer.hiragana + ')') : q.answer.hiragana)
-                ),
-                createElement('div', { style: { marginTop: 8, color: 'var(--text-muted)', fontSize: '0.9rem' } },
-                    'Verb type: ' + q.verbType + ' · Form: ' + q.formLabel
-                ),
-                createElement('button', {
-                    className: 'btn btn--primary btn--full',
-                    onClick: nextQuestion,
-                    style: { marginTop: 16 }
-                }, qIndex + 1 >= questions.length ? 'View Results →' : 'Next →')
-            ) : null
-        );
+        return <div className='glass-card'><div className='flashcard-header'><button className='quiz-bar__back' onClick={() => {
+      setPhase('setup');
+    }}>←</button><span>{qIndex + 1 + ' / ' + questions.length}</span><span>{score + ' ✓'}</span></div><div className='progress-track'><div className='progress-fill' style={{
+      width: (qIndex + 1) / questions.length * 100 + '%'
+    }} /></div><div className='conjugation-question'><div className='conjugation-word'>{q.word}</div><div className='conjugation-reading'>{q.reading}</div><div className='conjugation-prompt'>{'Conjugate to: '}<strong>{q.formLabel}</strong></div><div style={{
+      color: 'var(--text-muted)',
+      fontSize: '0.9rem'
+    }}>{'(' + q.meaning + ')'}</div></div>{!showAnswer ? <div className='input-row' style={{
+    marginTop: 20
+  }}><input className='input-field' type='text' value={userAnswer} onChange={e => {
+      setUserAnswer(e.target.value);
+    }} onKeyDown={e => {
+      if (e.key === 'Enter') checkAnswer();
+    }} placeholder='Type the conjugated form...' autoFocus={true} style={{
+      fontFamily: 'var(--font-jp)',
+      fontSize: '1.2rem'
+    }} /><button className='btn btn--primary' onClick={checkAnswer}>Check</button></div> : null}{showAnswer ? <div className='conjugation-answer'><div className={'conjugation-answer__badge' + (isCorrect ? ' conjugation-answer__badge--correct' : ' conjugation-answer__badge--wrong')}>{isCorrect ? '✔ Correct!' : '✘ Incorrect'}</div>{!isCorrect ? <div className='conjugation-answer__your'>{'Your answer: '}<span style={{
+        color: 'var(--accent-red)'
+      }}>{userAnswer || '(empty)'}</span></div> : null}<div className='conjugation-answer__correct'>{'Answer: '}<strong style={{
+        fontSize: '1.3rem'
+      }}>{q.answer.kanji !== q.answer.hiragana ? q.answer.kanji + ' (' + q.answer.hiragana + ')' : q.answer.hiragana}</strong></div><div style={{
+      marginTop: 8,
+      color: 'var(--text-muted)',
+      fontSize: '0.9rem'
+    }}>{'Verb type: ' + q.verbType + ' · Form: ' + q.formLabel}</div><button className='btn btn--primary btn--full' onClick={nextQuestion} style={{
+      marginTop: 16
+    }}>{qIndex + 1 >= questions.length ? 'View Results →' : 'Next →'}</button></div> : null}</div>;
     }
 
     // Setup
     var formCheckboxes = CONJUGATION.FORMS.map(function (f) {
         var isSelected = selectedForms.indexOf(f.id) !== -1;
-        return createElement('button', {
-            key: f.id,
-            className: 'form-check' + (isSelected ? ' form-check--active' : ''),
-            onClick: function () { toggleForm(f.id); }
-        },
-            createElement('span', { className: 'form-check__box' }, isSelected ? '☑' : '☐'),
-            createElement('span', null, f.label),
-            createElement('span', { className: 'form-check__desc' }, f.desc)
-        );
+        return <button key={f.id} className={'form-check' + (isSelected ? ' form-check--active' : '')} onClick={() => {
+  toggleForm(f.id);
+}}><span className='form-check__box'>{isSelected ? '☑' : '☐'}</span><span>{f.label}</span><span className='form-check__desc'>{f.desc}</span></button>;
     });
 
     var levelBtns = ['All', 'N5', 'N4', 'N3', 'N2', 'N1'].map(function (lv) {
-        return createElement('button', {
-            key: lv,
-            className: 'level-btn' + (level === lv ? ' level-btn--active' : ''),
-            onClick: function () { setLevel(lv); }
-        }, lv);
+        return <button key={lv} className={'level-btn' + (level === lv ? ' level-btn--active' : '')} onClick={() => {
+  setLevel(lv);
+}}>{lv}</button>;
     });
 
-    return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, t('Conjugation Practice', props.appLang)),
-        createElement('p', { className: 'section-desc' }, t('Master Japanese verb conjugations. Select forms to practice and test yourself.', props.appLang)),
-
-        createElement('h3', { className: 'setup-label' }, t('Level', props.appLang)),
-        createElement('div', { className: 'level-selector' }, levelBtns),
-
-        createElement('h3', { className: 'setup-label' }, 'Select Forms to Practice'),
-        createElement('div', { className: 'form-check-grid' }, formCheckboxes),
-
-        createElement('div', { className: 'setup-center' },
-            createElement('button', {
-                className: 'btn btn--primary btn--large btn--glow',
-                onClick: startDrill,
-                disabled: selectedForms.length === 0,
-                style: { marginTop: 24 }
-            }, '▶  Start Drill')
-        )
-    );
+    return <div className='glass-card'><h2 className='section-title'>{t('Conjugation Practice', props.appLang)}</h2><p className='section-desc'>{t('Master Japanese verb conjugations. Select forms to practice and test yourself.', props.appLang)}</p><h3 className='setup-label'>{t('Level', props.appLang)}</h3><div className='level-selector'>{levelBtns}</div><h3 className='setup-label'>Select Forms to Practice</h3><div className='form-check-grid'>{formCheckboxes}</div><div className='setup-center'><button className='btn btn--primary btn--large btn--glow' onClick={startDrill} disabled={selectedForms.length === 0} style={{
+      marginTop: 24
+    }}>▶  Start Drill</button></div></div>;
 }
 
 
@@ -1176,14 +1018,10 @@ function GrammarTab(props) {
 
     var levelBtns = ['N5', 'N4', 'N3', 'N2', 'N1'].map(function (lv) {
         var count = GRAMMAR_DATA.filter(function (g) { return g.level === lv; }).length;
-        return createElement('button', {
-            key: lv,
-            className: 'level-btn' + (level === lv ? ' level-btn--active' : ''),
-            onClick: function () { setLevel(lv); setExpandedIdx(-1); }
-        },
-            createElement('span', { className: 'level-btn__label' }, lv),
-            createElement('span', { className: 'level-btn__count' }, count)
-        );
+        return <button key={lv} className={'level-btn' + (level === lv ? ' level-btn--active' : '')} onClick={() => {
+  setLevel(lv);
+  setExpandedIdx(-1);
+}}><span className='level-btn__label'>{lv}</span><span className='level-btn__count'>{count}</span></button>;
     });
 
     var grammarCards = filtered.map(function (g, idx) {
@@ -1195,10 +1033,7 @@ function GrammarTab(props) {
                 var exText = ex.en;
                 if (props.appLang === 'vn' && ex.vn) exText = ex.vn;
                 if (props.appLang === 'my' && ex.my) exText = ex.my;
-                return createElement('div', { key: i, className: 'grammar-example' },
-                    createElement('div', { className: 'grammar-example__jp' }, ex.jp),
-                    createElement('div', { className: 'grammar-example__en' }, exText)
-                );
+                return <div key={i} className='grammar-example'><div className='grammar-example__jp'>{ex.jp}</div><div className='grammar-example__en'>{exText}</div></div>;
             });
         }
 
@@ -1206,52 +1041,25 @@ function GrammarTab(props) {
         if (props.appLang === 'vn' && g.meaning_vn) displayMeaning = g.meaning_vn;
         if (props.appLang === 'my' && g.meaning_my) displayMeaning = g.meaning_my;
 
-        return createElement('div', {
-            key: idx,
-            className: 'grammar-card' + (isExpanded ? ' grammar-card--expanded' : ''),
-            onClick: function () { setExpandedIdx(isExpanded ? -1 : idx); }
-        },
-            createElement('div', { className: 'grammar-card__header' },
-                createElement('div', { className: 'grammar-card__pattern' }, g.pattern),
-                createElement('div', { className: 'grammar-card__meaning' }, displayMeaning),
-                createElement('span', { className: 'grammar-card__arrow' }, isExpanded ? '▲' : '▼')
-            ),
-            isExpanded ? createElement('div', { className: 'grammar-card__body' },
-                createElement('div', { className: 'grammar-card__structure' },
-                    createElement('span', { className: 'dict-result__label' }, 'Structure'),
-                    createElement('code', null, g.structure)
-                ),
-                exampleEls.length > 0 ? createElement('div', { className: 'grammar-card__examples' },
-                    createElement('span', { className: 'dict-result__label', style: { display: 'block', marginBottom: 8 } }, 'Examples'),
-                    exampleEls
-                ) : null,
-                g.notes ? createElement('div', { className: 'grammar-card__notes' },
-                    '💡 ', g.notes
-                ) : null
-            ) : null
-        );
+        return <div key={idx} className={'grammar-card' + (isExpanded ? ' grammar-card--expanded' : '')} onClick={() => {
+  setExpandedIdx(isExpanded ? -1 : idx);
+}}><div className='grammar-card__header'><div className='grammar-card__pattern'>{g.pattern}</div><div className='grammar-card__meaning'>{displayMeaning}</div><span className='grammar-card__arrow'>{isExpanded ? '▲' : '▼'}</span></div>{isExpanded ? <div className='grammar-card__body'><div className='grammar-card__structure'><span className='dict-result__label'>Structure</span><code>{g.structure}</code></div>{exampleEls.length > 0 ? <div className='grammar-card__examples'><span className='dict-result__label' style={{
+        display: 'block',
+        marginBottom: 8
+      }}>Examples</span>{exampleEls}</div> : null}{g.notes ? <div className='grammar-card__notes'>{'💡 '}{g.notes}</div> : null}</div> : null}</div>;
     });
 
-    return createElement('div', { className: 'glass-card' },
-        createElement('h2', { className: 'section-title' }, t('Grammar Reference', props.appLang)),
-        createElement('p', { className: 'section-desc' }, t('Essential Japanese grammar points organized by JLPT level.', props.appLang)),
-
-        createElement('div', { className: 'level-selector' }, levelBtns),
-
-        createElement('div', { style: { marginTop: 16, marginBottom: 16 } },
-            createElement('input', {
-                className: 'input-field',
-                type: 'text',
-                placeholder: 'Search grammar patterns...',
-                value: searchQ,
-                onChange: function (e) { setSearchQ(e.target.value); setExpandedIdx(-1); }
-            })
-        ),
-
-        createElement('div', { className: 'grammar-list' },
-            grammarCards.length > 0 ? grammarCards : createElement('p', { style: { textAlign: 'center', color: 'var(--text-muted)', padding: 40 } }, 'No grammar points found.')
-        )
-    );
+    return <div className='glass-card'><h2 className='section-title'>{t('Grammar Reference', props.appLang)}</h2><p className='section-desc'>{t('Essential Japanese grammar points organized by JLPT level.', props.appLang)}</p><div className='level-selector'>{levelBtns}</div><div style={{
+    marginTop: 16,
+    marginBottom: 16
+  }}><input className='input-field' type='text' placeholder='Search grammar patterns...' value={searchQ} onChange={e => {
+      setSearchQ(e.target.value);
+      setExpandedIdx(-1);
+    }} /></div><div className='grammar-list'>{grammarCards.length > 0 ? grammarCards : <p style={{
+      textAlign: 'center',
+      color: 'var(--text-muted)',
+      padding: 40
+    }}>No grammar points found.</p>}</div></div>;
 }
 
 function getGrammarMeaning(q, lang) {
