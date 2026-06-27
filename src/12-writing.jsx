@@ -338,7 +338,7 @@ function KanjiWritingTab(props) {
       setPhase('setup');
     }}>←</button><span>{index + 1 + ' / ' + items.length}</span><span>{score + ' ✓'}</span></div><div className='progress-track'><div className='progress-fill' style={{
       width: (index + 1) / items.length * 100 + '%'
-    }} /></div> // Prompt: what to write
+    }} /></div>
   <div className='writing-prompt'><div className='writing-prompt__label'>{mode === 'trace' ? t('Trace this kanji', props.appLang) : t('Write the kanji for:', props.appLang)}</div><div className='writing-prompt__meaning'>{meaningStr || '—'}</div>{readings ? <div className='writing-prompt__reading' lang='ja'>{readings}</div> : null}</div><div style={{
     textAlign: 'center',
     marginTop: 16
