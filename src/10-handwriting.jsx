@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 
 /* =================================================================
    JLPT Master — Handwriting input for Kanji search
@@ -212,7 +212,7 @@ function HandwritingInput(props) {
     gap: '16px',
     flexWrap: 'wrap',
     alignItems: 'flex-start'
-  }}> // Drawing canvas
+  }}>
     <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} style={{
       width: CANVAS_SIZE + 'px',
       height: CANVAS_SIZE + 'px',
@@ -222,7 +222,7 @@ function HandwritingInput(props) {
       background: '#fff',
       touchAction: 'none',
       cursor: 'crosshair'
-    }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp} /> // Candidates + controls
+    }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp} />
     <div style={{
       flex: 1,
       minWidth: '180px'

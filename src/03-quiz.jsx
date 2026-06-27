@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AudioButton, SaveButton, Toast, formatTime, generateOptions, getVocabMeaning, playAudio, shuffleArray, t } from './01-core.jsx';
 import { FuriganaText } from './05-exams.jsx';
 import { PROGRESS } from './features.js';
@@ -389,10 +389,10 @@ function QuizTab(props) {
 
     // =============== PHASE: SETUP ===============
     if (phase === 'setup') {
-        return <div className='glass-card' key='quiz-setup'><h2 className='section-title'>{t('Vocab Test', props.appLang)}</h2><p className='section-desc'>Configure your exam, then test your knowledge under time pressure.</p> // Level filter buttons
-  <h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={props.savedWords} /> // Quiz mode selector
-  <h3 className='setup-label'>Quiz Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} /> // Question count selector
-  <h3 className='setup-label'>Questions</h3><CountSelector selected={questionCount} onSelect={setQuestionCount} maxAvailable={availableQuestions.length} /> // Exam info and start button
+        return <div className='glass-card' key='quiz-setup'><h2 className='section-title'>{t('Vocab Test', props.appLang)}</h2><p className='section-desc'>Configure your exam, then test your knowledge under time pressure.</p>
+  <h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={props.savedWords} />
+  <h3 className='setup-label'>Quiz Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} />
+  <h3 className='setup-label'>Questions</h3><CountSelector selected={questionCount} onSelect={setQuestionCount} maxAvailable={availableQuestions.length} />
   <div className='setup-center'><div className='setup-stats'><div className='setup-stat'><span className='setup-stat__value'>{NUM_QUESTIONS}</span><span className='setup-stat__label'>Questions</span></div><div className='setup-stat'><span className='setup-stat__value'>{Math.ceil(EXAM_DURATION / 60) + ' min'}</span><span className='setup-stat__label'>Time Limit</span></div><div className='setup-stat'><span className='setup-stat__value'>{selectedLevel === 'All' ? 'All' : selectedLevel}</span><span className='setup-stat__label'>Level</span></div></div><button id='start-exam-btn' className='btn btn--primary btn--large btn--glow' onClick={startQuiz} disabled={availableQuestions.length === 0}>▶  START EXAM</button>{
     // Warning if no questions available
     availableQuestions.length === 0 ? <p style={{
@@ -457,7 +457,7 @@ function QuizTab(props) {
         var strokeDashoffset = circumference - (pct / 100) * circumference;
         var scoreRingColor = pct >= 70 ? 'var(--accent-green)' : pct >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)';
 
-        return <div className='glass-card' key='quiz-result'><div className='result-panel'><div className='result-panel__emoji'>{emoji}</div><div className='result-panel__title'>{timedOut ? "\u23F0 Time's Up!" : msg}</div> // Score ring
+        return <div className='glass-card' key='quiz-result'><div className='result-panel'><div className='result-panel__emoji'>{emoji}</div><div className='result-panel__title'>{timedOut ? "\u23F0 Time's Up!" : msg}</div>
     <div className='score-ring-container'><svg width={140} height={140} viewBox='0 0 120 120' className='score-ring'><circle cx={60} cy={60} r={54} fill='none' stroke='rgba(255,255,255,0.08)' strokeWidth={8} /><circle cx={60} cy={60} r={54} fill='none' stroke={scoreRingColor} strokeWidth={8} strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap='round' transform='rotate(-90 60 60)' style={{
           transition: 'stroke-dashoffset 1.5s ease-out'
         }} /></svg><div className='score-ring__text'><div className='score-ring__pct'>{pct + '%'}</div><div className='score-ring__count'>{score + '/' + answeredCount}</div></div></div><div className='result-panel__meta'><span className='result-meta-tag'>{levelLabel}</span><span className='result-meta-tag'>{modeLabel + ' Mode'}</span>{timedOut ? <span className='result-meta-tag result-meta-tag--warn'>{'Answered ' + answeredCount + ' of ' + total}</span> : null}</div><button id='retry-exam-btn' className='btn btn--primary' onClick={resetQuiz} style={{
@@ -526,16 +526,16 @@ function QuizTab(props) {
 }} disabled={!canAnswer || showExample} style={optStyle}>{optContent}</button>;
     });
 
-    return <div className='glass-card' key='quiz-active'> // Top bar: back button + question counter + JLPT level tag + countdown timer
-  <div className='quiz-bar'><button className='quiz-bar__back' onClick={resetQuiz} title='Back to Setup'>←</button><div className='quiz-bar__info'>{'Question '}<strong>{qIndex + 1}</strong>{' / ' + quiz.length}{q.level || q.jlpt ? <span className='quiz-level-tag'>{q.level || q.jlpt}</span> : null}</div><div className={timerClass}>{formatTime(timeLeft)}</div></div> // Progress bar
+    return <div className='glass-card' key='quiz-active'>
+  <div className='quiz-bar'><button className='quiz-bar__back' onClick={resetQuiz} title='Back to Setup'>←</button><div className='quiz-bar__info'>{'Question '}<strong>{qIndex + 1}</strong>{' / ' + quiz.length}{q.level || q.jlpt ? <span className='quiz-level-tag'>{q.level || q.jlpt}</span> : null}</div><div className={timerClass}>{formatTime(timeLeft)}</div></div>
   <div className='progress-track'><div className='progress-fill' style={{
       width: progress + '%'
-    }} /></div> // Question display
+    }} /></div>
   <div className='quiz-question'><span className='quiz-question__word' style={quizMode === 'reverse' ? {
       fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
       fontFamily: 'var(--font-main)'
-    } : {}}>{questionWord}</span>{questionReading && props.showFurigana ? <span className='quiz-question__reading'>{'(' + questionReading + ')'}</span> : null}<span className='quiz-question__prompt'>{questionPrompt}</span></div> // Answer options grid
-  <div className='quiz-options'>{optionEls}</div> // Example reveal card (shown after answering)
+    } : {}}>{questionWord}</span>{questionReading && props.showFurigana ? <span className='quiz-question__reading'>{'(' + questionReading + ')'}</span> : null}<span className='quiz-question__prompt'>{questionPrompt}</span></div>
+  <div className='quiz-options'>{optionEls}</div>
   <ExampleReveal visible={showExample} question={q} wasCorrect={wasCorrect} isSaved={props.savedWords ? props.savedWords.some(function (w) {
     return w.word === q.word;
   }) : false} onToggleSave={props.toggleSavedWord ? function () {

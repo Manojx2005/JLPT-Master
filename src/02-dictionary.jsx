@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
 import { installDict, getInstalledInfo } from './dict-local.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
@@ -341,13 +341,14 @@ function DictionaryTab(props) {
   if (!isExpanded) setExpandedIdx(idx);
 }} style={!isExpanded ? {
   cursor: 'pointer'
-} : {}}> // Top row: word + reading + actions
+} : {}}>
+
   <div className='dict-result__header'><div className='dict-result__word-group'><span className={'dict-result__word' + (isExpanded ? '' : ' dict-result__word--compact')}>{res.word}</span>{res.reading && res.reading !== res.word ? <span className='dict-result__reading'>{res.reading}</span> : null}{badgeEls.length > 0 ? <div className='dict-result__badges'>{badgeEls}</div> : null}</div><div className='dict-result__actions'><AudioButton text={res.word} audioUrl={res.audioUrl} />{props.toggleSavedWord ? <SaveButton isSaved={isSaved} onToggle={() => {
         props.toggleSavedWord(res);
       }} /> : null}{isExpanded && results.length > 1 ? <button className='dict-result__collapse-btn' onClick={e => {
         e.stopPropagation();
         setExpandedIdx(-1);
-      }} title='Collapse'>▲</button> : null}</div></div> // Meanings
+      }} title='Collapse'>▲</button> : null}</div></div>
   <div className='dict-result__meanings'>{meaningEls}</div>{
   // Tags (shown when expanded)
   isExpanded && tagEls.length > 0 ? <div className='dict-result__tags-row'>{tagEls}</div> : null}{
@@ -421,7 +422,7 @@ function DictionaryTab(props) {
     }
 
     // --- Render the Dictionary Tab ---
-    return <div className='glass-card' key='dict'><h2 className='section-title'>{t('Dictionary Search', props.appLang)}</h2><p className='section-desc'>{t('Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.', props.appLang) + ' ' + MOCK_DICT.length + ' ' + t('words available offline.', props.appLang)}</p> // Search input row (text field + search button)
+    return <div className='glass-card' key='dict'><h2 className='section-title'>{t('Dictionary Search', props.appLang)}</h2><p className='section-desc'>{t('Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.', props.appLang) + ' ' + MOCK_DICT.length + ' ' + t('words available offline.', props.appLang)}</p>
   <div className='input-row'><input id='dict-search-input' className='input-field' type='text' placeholder='e.g. water, 猫, たべる, 経済, love, カタカナ...' value={query} onChange={e => {
       setQuery(e.target.value);
     }} onKeyDown={handleKey} />{

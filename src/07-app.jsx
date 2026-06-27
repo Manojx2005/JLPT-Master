@@ -371,14 +371,14 @@ function App() {
     }
 
     // Merge built-in vocabulary with user's custom questions
-    var allQuestions = JLPT_VOCAB.concat(customQs);
+    var allQuestions = window.JLPT_VOCAB.concat(customQs);
 
     // Tab order — used for directional slide transitions
     var TAB_ORDER = ['dict', 'kanji', 'kana', 'grammar', 'grammarquiz', 'quiz', 'pdfexam', 'mockexam', 'flash', 'writing', 'conj', 'multi', 'dash', 'leader', 'saved', 'reviews', 'custom'];
 
     // SRS due count for Flashcards badge
     var srsDueCount = useMemo(function () {
-        return SRS.dueWords(JLPT_VOCAB).length;
+        return SRS.dueWords(window.JLPT_VOCAB).length;
     }, []);
 
     // Current streak for sidebar and controls bar
@@ -646,12 +646,9 @@ function App() {
     if (tab === 'privacy') activeTabMeta = { full: 'Privacy Policy' };
 
     // --- Render the App Shell ---
-    return <div className='app-wrapper'> // PWA install banner (browser-only; hidden in the native app).
-  <InstallPrompt />{
-  // Backdrop closes the expanded island on outside tap.
-  moreSheetBackdrop} // The island dock: the expandable More grid sits above the persistent
-  // pill row, all in one capsule that grows/shrinks as a single element.
-  <div className={'island-dock' + (moreSheetOpen ? ' island-dock--open' : '')}>{moreExpand}{bottomNav}</div> // Sidebar Navigation
+    return <div className='app-wrapper'>
+  <InstallPrompt />{moreSheetBackdrop}
+  <div className={'island-dock' + (moreSheetOpen ? ' island-dock--open' : '')}>{moreExpand}{bottomNav}</div>
   <aside className={'sidebar' + (!isSidebarExpanded ? ' sidebar--collapsed' : '')}><div className='sidebar-header'><div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -661,25 +658,25 @@ function App() {
         setIsSidebarExpanded(!isSidebarExpanded);
       }} title={isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'} style={{
         flexShrink: 0
-      }}><svg width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='11 4 5 8 11 12' /></svg></button></div><nav className='sidebar-nav'>{tabBtns}</nav></aside> // Main Content Area
-  <main className='app-main' ref={mainRef}> // Slim contextual page header: page title left, controls right.
+      }}><svg width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='11 4 5 8 11 12' /></svg></button></div><nav className='sidebar-nav'>{tabBtns}</nav></aside>
+  <main className='app-main' ref={mainRef}>
     <header className='page-header'><div className='page-header__heading' style={{
         display: 'flex',
         alignItems: 'center',
         gap: '12px'
       }}>{tabHistory.length > 0 ? <button className='page-header__back' onClick={goBack} title={t('Back', appLang)} aria-label={t('Back', appLang)}><svg width={18} height={18} viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth={2} strokeLinecap='round' strokeLinejoin='round'><path d='m15 18-6-6 6-6' /></svg></button> : null}<div style={{
           minWidth: 0
-        }}> // Clicking the title scrolls the current tab back to the top.
+        }}>
           <h1 className='page-header__title' onClick={scrollToTop} style={{
             cursor: 'pointer'
-          }} title={t('Scroll to top', appLang)}>{t(activeTabMeta.full, appLang)}</h1><p className='page-header__sub'>{'JLPT Master \u00b7 ' + JLPT_VOCAB.length + ' words' + (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : '')}</p></div></div><div className='app-controls-bar__actions page-header__actions'><button className={'ctrl-btn' + (showFurigana ? ' ctrl-btn--active' : '')} onClick={() => {
+          }} title={t('Scroll to top', appLang)}>{t(activeTabMeta.full, appLang)}</h1><p className='page-header__sub'>{'JLPT Master \u00b7 ' + window.JLPT_VOCAB.length + ' words' + (currentStreak > 0 ? ' \u00b7 ' + currentStreak + ' day streak' : '')}</p></div></div><div className='app-controls-bar__actions page-header__actions'><button className={'ctrl-btn' + (showFurigana ? ' ctrl-btn--active' : '')} onClick={() => {
           setShowFurigana(!showFurigana);
         }} title={'Furigana ' + (showFurigana ? 'ON' : 'OFF')}>あ</button><button className={'ctrl-btn' + (autoPronounce ? ' ctrl-btn--active' : '')} onClick={() => {
           setAutoPronounce(!autoPronounce);
         }} title={'Auto-Pronounce ' + (autoPronounce ? 'ON' : 'OFF')}>{autoPronounce ? '\uD83D\uDD0A' : '\uD83D\uDD07'}</button><LanguageSelector value={appLang} onChange={newLang => {
           setAppLang(newLang);
-        }} /><ThemeToggle isLight={isLightMode} onToggle={toggleTheme} /><HeaderLoginWidget /></div></header> // Active tab content with transition
-    <div className={'tab-content ' + tabAnim}>{activeTab}</div> // Footer: brand close + legal links
+        }} /><ThemeToggle isLight={isLightMode} onToggle={toggleTheme} /><HeaderLoginWidget /></div></header>
+    <div className={'tab-content ' + tabAnim}>{activeTab}</div>
     <footer className='app-footer'><span className='app-footer__copy'>{'\u00a9 ' + new Date().getFullYear() + ' JLPT Master'}</span><nav className='app-footer__links' aria-label='Legal'><button className='app-footer__link' onClick={() => {
           switchTab('privacy');
         }}>Privacy Policy</button><span className='app-footer__dot'>·</span><button className='app-footer__link' onClick={() => {

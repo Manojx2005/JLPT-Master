@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 import { SRS, PROGRESS, CONJUGATION, GRAMMAR_DATA, AUTH, LEADERBOARD_API } from './features.js';
@@ -148,8 +148,7 @@ function KanjiTab(props) {
     gap: '24px',
     alignItems: 'flex-start',
     flexWrap: 'wrap'
-  }}> // Large Character Display — tap anywhere to replay the
-    // reading (and restart the stroke-order animation via key).
+  }}>
     <div className='kanji-large-display' style={{
       position: 'relative',
       cursor: 'pointer'
@@ -174,7 +173,7 @@ function KanjiTab(props) {
             correct: res.meanings.join(', '),
             level: res.jlpt !== null ? 'N' + res.jlpt : 'None'
           });
-        }} /> : null}</div></div> // Details
+        }} /> : null}</div></div>
     <div style={{
       flex: 1,
       minWidth: '200px'
@@ -390,7 +389,7 @@ function LeaderboardTab(props) {
     marginBottom: '30px'
   }}><h2 className='section-title' style={{
       margin: 0
-    }}>{t('Global Leaderboard', props.appLang)}</h2><button className='btn btn--outline' onClick={loadData} disabled={state.loading}>{state.loading ? '↻ Loading...' : '↻ Refresh'}</button></div> // Profile Edit Section
+    }}>{t('Global Leaderboard', props.appLang)}</h2><button className='btn btn--outline' onClick={loadData} disabled={state.loading}>{state.loading ? '↻ Loading...' : '↻ Refresh'}</button></div>
   <div style={{
     padding: '15px',
     background: 'rgba(0,0,0,0.1)',
@@ -405,7 +404,7 @@ function LeaderboardTab(props) {
       gap: '14px',
       flex: 1,
       width: '100%'
-    }}> // Live preview + name input
+    }}>
       <div style={{
         display: 'flex',
         gap: '12px',
@@ -429,7 +428,7 @@ function LeaderboardTab(props) {
           flex: 1,
           padding: '10px',
           minWidth: '160px'
-        }} placeholder={t('Display name', props.appLang)} maxLength={24} /></div> // Emoji avatar picker
+        }} placeholder={t('Display name', props.appLang)} maxLength={24} /></div>
       <div><div style={{
           fontSize: '0.78rem',
           color: 'var(--text-muted)',
@@ -458,7 +457,7 @@ function LeaderboardTab(props) {
               objectFit: 'cover'
             }} /></button> : null}</div><input ref={fileRef} type='file' accept='image/*' style={{
           display: 'none'
-        }} onChange={handleAvatarUpload} /></div> // Actions
+        }} onChange={handleAvatarUpload} /></div>
       <div style={{
         display: 'flex',
         gap: '8px',
@@ -673,8 +672,8 @@ function DashboardTab(props) {
     }
 
     return <div className='glass-card'><h2 className='section-title'>{t('Dashboard', props.appLang)}</h2>{insightsSection}{rankCard}{questsSection} // Streak & Today stats
-  <div className='dash-stats-grid'><div className='dash-stat-card dash-stat-card--streak'><div className='dash-stat-card__icon'>{streak > 0 ? '🔥' : '❄️'}</div><div className='dash-stat-card__value'>{streak}</div><div className='dash-stat-card__label'>Day Streak</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>📝</div><div className='dash-stat-card__value'>{todayStats.wordsReviewed}</div><div className='dash-stat-card__label'>Reviews Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>🎯</div><div className='dash-stat-card__value'>{todayStats.quizzesTaken}</div><div className='dash-stat-card__label'>Quizzes Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>⏰</div><div className='dash-stat-card__value'>{srsStats.dueToday}</div><div className='dash-stat-card__label'>Due for Review</div></div></div> // SRS Distribution
-  <div className='dash-section'><h3 className='dash-section__title'>SRS Progress</h3><div className='srs-bar'>{srsBarEls}</div><div className='srs-labels'>{srsLabelEls}</div></div> // Weekly Activity Chart
+  <div className='dash-stats-grid'><div className='dash-stat-card dash-stat-card--streak'><div className='dash-stat-card__icon'>{streak > 0 ? '🔥' : '❄️'}</div><div className='dash-stat-card__value'>{streak}</div><div className='dash-stat-card__label'>Day Streak</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>📝</div><div className='dash-stat-card__value'>{todayStats.wordsReviewed}</div><div className='dash-stat-card__label'>Reviews Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>🎯</div><div className='dash-stat-card__value'>{todayStats.quizzesTaken}</div><div className='dash-stat-card__label'>Quizzes Today</div></div><div className='dash-stat-card'><div className='dash-stat-card__icon'>⏰</div><div className='dash-stat-card__value'>{srsStats.dueToday}</div><div className='dash-stat-card__label'>Due for Review</div></div></div>
+  <div className='dash-section'><h3 className='dash-section__title'>SRS Progress</h3><div className='srs-bar'>{srsBarEls}</div><div className='srs-labels'>{srsLabelEls}</div></div>
   <div className='dash-section'><h3 className='dash-section__title'>Weekly Activity</h3><div className='weekly-chart'>{chartBars}</div></div>{
   // Quiz History
   quizCards.length > 0 ? <div className='dash-section'><h3 className='dash-section__title'>Recent Quizzes</h3><div className='quiz-history-grid'>{quizCards}</div></div> : null} // Totals
@@ -712,9 +711,9 @@ function FlashcardTab(props) {
         if (level === 'Saved') {
             pool = props.savedWords || [];
         } else if (level === 'All') {
-            pool = JLPT_VOCAB;
+            pool = window.JLPT_VOCAB;
         } else {
-            pool = JLPT_VOCAB.filter(function (w) { return w.level === level; });
+            pool = window.JLPT_VOCAB.filter(function (w) { return w.level === level; });
         }
 
         if (mode === 'due') {

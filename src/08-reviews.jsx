@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { t } from './01-core.jsx';
 import { AUTH, LEADERBOARD_API } from './features.js';
 
@@ -190,17 +190,17 @@ function ReviewsTab(props) {
 
     var isSignedIn = !!user;
 
-    return <div className='glass-card reviews-container'> // Header
+    return <div className='glass-card reviews-container'>
   <div className='reviews-header'><div><h2 className='section-title' style={{
         margin: 0
       }}>{'💬 ' + t('Reviews & Ratings', appLang)}</h2><p className='section-desc' style={{
         margin: '4px 0 0'
-      }}>{t('See what learners think — and share your own experience.', appLang)}</p></div><button className='btn btn--outline' onClick={loadReviews} disabled={state.loading}>{state.loading ? '↻ ' + t('Loading…', appLang) : '↻ ' + t('Refresh', appLang)}</button></div> // Summary
+      }}>{t('See what learners think — and share your own experience.', appLang)}</p></div><button className='btn btn--outline' onClick={loadReviews} disabled={state.loading}>{state.loading ? '↻ ' + t('Loading…', appLang) : '↻ ' + t('Refresh', appLang)}</button></div>
   <div className='reviews-summary'><div className='reviews-summary__score'><div className='reviews-summary__avg'>{count ? avg.toFixed(1) : '—'}</div><StarRating value={roundedAvg} size='1.1rem' /><div className='reviews-summary__count'>{count ? count + ' ' + t(count === 1 ? 'review' : 'reviews', appLang) : t('No reviews yet', appLang)}</div></div><div className='reviews-summary__bars'>{dist.map(function (d) {
         return <div key={d.star} className='review-bar'><span className='review-bar__label'>{d.star + '★'}</span><div className='review-bar__track'><div className='review-bar__fill' style={{
               width: d.pct + '%'
             }} /></div><span className='review-bar__count'>{d.count}</span></div>;
-      })}</div></div> // Write a review
+      })}</div></div>
   <div className='review-form'><h3 className='review-form__title'>{t('Write a review', appLang)}</h3>{isSignedIn ? <div><div className='review-form__rate-row'><span className='review-form__rate-label'>{t('Your rating', appLang) + ':'}</span><StarRating value={rating} onRate={setRating} size='1.8rem' /></div><textarea className='input-field review-form__textarea' placeholder={t('Share your thoughts about JLPT Master (optional)…', appLang)} value={text} maxLength={1000} onChange={e => {
         setText(e.target.value);
       }} /><div className='review-form__actions'><span className='review-form__counter'>{text.length + '/1000'}</span><button className='btn btn--primary' onClick={submit} disabled={submitting || !rating}>{submitting ? t('Submitting…', appLang) : t('Submit Review', appLang)}</button></div></div> : <div className='review-form__signin'><p style={{

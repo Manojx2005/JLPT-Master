@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { formatTime, sanitizeHTML, shuffleArray, t } from './01-core.jsx';
 import { CountSelector, LevelSelector, ModeSelector } from './03-quiz.jsx';
 import { generateGrammarOptions, getGrammarMeaning } from './04-study.jsx';
@@ -737,14 +737,14 @@ function SharedExamTab(props) {
             }
         }
 
-        return <div className='glass-card exam-card'> // Top bar
+        return <div className='glass-card exam-card'>
   <div className='exam-topbar'><button className='quiz-bar__back' onClick={() => {
       if (confirm('Are you sure? Your progress will be saved for review.')) finishExam();
-    }}>✕</button><span>{examData.title}</span><span className='exam-timer'>{'⏱ ' + formatTime(timer)}</span></div> // Progress
+    }}>✕</button><span>{examData.title}</span><span className='exam-timer'>{'⏱ ' + formatTime(timer)}</span></div>
   <div className='progress-track'><div className='progress-fill' style={{
       width: totalProgress + '%'
-    }} /></div> // Section pills
-  <div className='exam-sec-nav'>{sectionPills}</div> // Section info
+    }} /></div>
+  <div className='exam-sec-nav'>{sectionPills}</div>
   <div className='exam-section-info'>{sectionTypeBadge(sec.type)}{sec.instructions && <p className='exam-section-instr'>{sec.instructions}</p>}</div>{
   // Reading passage
   sec.passage && <div className='exam-passage'><div className='exam-passage__label'>📖 Reading Passage</div><div className='exam-passage__text'>{sec.passage}</div></div>}{
@@ -755,7 +755,7 @@ function SharedExamTab(props) {
   q && <div className='exam-question'><div className='exam-question__num'>{'Q' + q.number}</div><div className='exam-question__text' dangerouslySetInnerHTML={{
       __html: sanitizeHTML(q.text)
     }} /></div>} // Options
-  <div className='exam-options'>{optionEls}</div> // Navigation
+  <div className='exam-options'>{optionEls}</div>
   <div className='exam-nav-btns'><button className='btn btn--outline btn--small' disabled={isFirst} onClick={goPrev}>← Previous</button><button className='btn btn--primary' onClick={isLast ? finishExam : goNext}>{isLast ? '✓ Finish Exam' : 'Next →'}</button>{!isLast ? <button className='btn btn--outline btn--small' style={{
       marginLeft: '12px',
       borderColor: 'var(--danger)',

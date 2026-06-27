@@ -187,8 +187,8 @@ function KanjiWritingTab(props) {
     function buildPool() {
         var words;
         if (level === 'Saved') words = (props.savedWords || []).map(function (w) { return w.word; });
-        else if (level === 'All') words = JLPT_VOCAB.map(function (w) { return w.word; });
-        else words = JLPT_VOCAB.filter(function (w) { return w.level === level; }).map(function (w) { return w.word; });
+        else if (level === 'All') words = window.JLPT_VOCAB.map(function (w) { return w.word; });
+        else words = window.JLPT_VOCAB.filter(function (w) { return w.level === level; }).map(function (w) { return w.word; });
 
         var out = [], seen = {};
         words.forEach(function (w) {
