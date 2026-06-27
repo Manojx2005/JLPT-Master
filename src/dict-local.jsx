@@ -254,7 +254,10 @@ function readableTag(code) {
     return POS_FALLBACK[code] || code;
 }
 
-/** Maps a stored record to the app's dictionary result shape. */
+/**
+ * Maps a stored record to the shared DictResult shape (see 01-core.jsx typedef).
+ * @returns {import('./01-core.jsx').DictResult}
+ */
 function toResult(rec) {
     return {
         word: rec.k,

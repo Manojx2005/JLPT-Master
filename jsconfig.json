@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "target": "ES2018",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": false,
+    "paths": {}
+  },
+  "include": ["src/**/*.js", "src/**/*.jsx", "scripts/**/*.mjs", "worker/**/*.js"],
+  "exclude": ["node_modules", "dist", "public"]
+}

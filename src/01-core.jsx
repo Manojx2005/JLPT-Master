@@ -5,6 +5,53 @@ import { deinflect } from './deinflect.js';
 import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 
 /* =================================================================
+   SHARED TYPE DEFINITIONS (JSDoc — enforced by jsconfig.json checkJs)
+
+   All three dictionary sources (searchJotoba, searchJishoOrg, searchLocal
+   in dict-local.jsx) must return objects that conform to DictResult.
+   VocabItem is the shape stored in JLPT_VOCAB / MOCK_DICT.
+   ================================================================= */
+
+/**
+ * @typedef {Object} DictResult
+ * @property {string}   word        - Primary headword (kanji or kana)
+ * @property {string}   reading     - Kana reading (empty string if same as word)
+ * @property {string[]} meanings    - English gloss strings (one per sense)
+ * @property {string[]} tags        - Part-of-speech / misc tags
+ * @property {string}   jlpt        - JLPT level label e.g. "N3", or ""
+ * @property {'jisho'|'local'|'offline'} source - Which source produced this result
+ * @property {{word:string, reading:string}[]} otherForms - Alternate spellings
+ * @property {boolean}  isCommon    - Whether the word is marked as common
+ * @property {string|null} audioUrl - Audio URL from Jotoba, or null
+ */
+
+/**
+ * @typedef {Object} VocabItem
+ * @property {string} word        - Kanji / primary form
+ * @property {string} reading     - Kana reading
+ * @property {string} correct     - English meaning (primary)
+ * @property {string} [meaning_vn] - Vietnamese meaning
+ * @property {string} [meaning_my] - Burmese meaning
+ * @property {string} level       - JLPT level: "N5" … "N1" or "Custom"
+ * @property {string} [nuance]    - Usage note / context hint
+ * @property {string} [example]   - Example sentence (Japanese)
+ * @property {string} [exampleEn] - Example sentence (English)
+ */
+
+/**
+ * @typedef {Object} MockDictItem
+ * @property {string} kanji
+ * @property {string} kana
+ * @property {string} english
+ * @property {string} [meaning_vn]
+ * @property {string} [meaning_my]
+ * @property {string} level
+ * @property {string} [nuance]
+ * @property {string} [example]
+ * @property {string} [exampleEn]
+ */
+
+/* =================================================================
    JLPT Master — Core: setup, helpers, shared UI primitives
    Part of the app, split from the original app.js for readability.
    All components share the global scope and load in order (see index.html).
@@ -658,7 +705,7 @@ function generateOptions(question, pool, mode, appLang) {
  * Returns an ARRAY of results (up to 10) for comprehensive coverage.
  *
  * @param {string} query - Search term (English, Kanji, or Hiragana)
- * @returns {Array|null} Array of dictionary result objects, or null if all proxies fail
+ * @returns {Promise<DictResult[]|null>}
  */
 async function searchJotoba(query) {
     try {
@@ -842,7 +889,7 @@ async function _fetchJisho(url) {
  *   - Web prod: race public CORS proxies in parallel, first valid JSON wins.
  *
  * @param {string} query - Search term (English, kanji, kana, or romaji)
- * @returns {Array|null} Normalized result objects, or null if all paths fail
+ * @returns {Promise<DictResult[]|null>}
  */
 async function searchJishoOrg(query) {
     var keyword = encodeURIComponent(query);
@@ -917,7 +964,7 @@ var _searchCache = _loadSearchCache();
  * localStorage for 24 hours so repeat searches are instant and offline.
  *
  * @param {string} query - Search term
- * @returns {Array|null} First non-empty result set, or null if all sources fail
+ * @returns {Promise<DictResult[]|null>}
  */
 async function searchDictionary(query) {
     if (!query) return null;
