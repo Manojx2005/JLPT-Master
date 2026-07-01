@@ -1,6 +1,5 @@
 {
   "rules": {
-    // Vocabulary and grammar data: public read, no client writes.
     "global_jlpt_vocab": {
       ".read": true,
       ".write": false
@@ -9,23 +8,36 @@
       ".read": true,
       ".write": false
     },
-
-    // Leaderboard: authenticated users can write their own score only.
     "leaderboard": {
       ".read": true,
       "$uid": {
         ".write": "auth !== null && auth.uid === $uid",
-        ".validate": "newData.hasChildren(['name', 'score']) && newData.child('score').isNumber()"
+        ".validate": "newData.hasChildren(['name', 'xp']) && newData.child('xp').isNumber()"
       }
     },
-
-    // community_dictionary is retired — block all access.
+    "user_data": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    },
+    "app_reviews": {
+      ".read": true,
+      ".write": "auth !== null"
+    },
+    "rooms": {
+      ".read": true,
+      ".indexOn": [
+        "state"
+      ],
+      "$code": {
+        ".write": true
+      }
+    },
     "community_dictionary": {
       ".read": false,
       ".write": false
     },
-
-    // Everything else is denied by default.
     "$other": {
       ".read": false,
       ".write": false
