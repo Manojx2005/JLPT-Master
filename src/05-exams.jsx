@@ -10,6 +10,31 @@ import { PDF_EXAM, PROGRESS, LEADERBOARD_API, AUTH } from './features.js';
    All components share the global scope and load in order (see index.html).
    ================================================================= */
 
+/* -----------------------------------------------------------------
+   In-progress test persistence (localStorage). Each test type uses its
+   own key so a saved Grammar test, PDF exam, and Mock exam don't collide.
+   Lets a user close mid-test and resume from the same point.
+   ----------------------------------------------------------------- */
+function saveExamSession(key, session) {
+    try { localStorage.setItem(key, JSON.stringify(session)); } catch (e) { /* quota / private mode */ }
+}
+
+function clearExamSession(key) {
+    try { localStorage.removeItem(key); } catch (e) { /* no-op */ }
+}
+
+function loadExamSession(key, validate) {
+    try {
+        var s = JSON.parse(localStorage.getItem(key) || 'null');
+        if (s && (!validate || validate(s))) return s;
+    } catch (e) { /* corrupt — ignore */ }
+    return null;
+}
+
+var GRAMMAR_SESSION_KEY = 'jlpt_grammar_session';
+var MOCK_SESSION_KEY = 'jlpt_mock_session';
+var PDF_SESSION_KEY = 'jlpt_pdf_session';
+
 /* =================================================================
    GRAMMARQUIZTAB — Dedicated test section for Grammar
    ================================================================= */
@@ -52,6 +77,13 @@ function GrammarQuizTab(props) {
     var _wasCorrect = useState(false);
     var wasCorrect = _wasCorrect[0], setWasCorrect = _wasCorrect[1];
 
+    var _resumable = useState(function () {
+        return loadExamSession(GRAMMAR_SESSION_KEY, function (s) {
+            return s && Array.isArray(s.quiz) && s.quiz.length > 0 && s.qIndex < s.quiz.length;
+        });
+    });
+    var resumable = _resumable[0], setResumable = _resumable[1];
+
     var filteredQuestions = useMemo(function () {
         if (selectedLevel === 'All') return questions;
         return questions.filter(function (q) { return q.level === selectedLevel; });
@@ -59,8 +91,42 @@ function GrammarQuizTab(props) {
 
     var NUM_QUESTIONS = Math.min(filteredQuestions.length, questionCount);
 
+    // Persist at the start of each question so a resumed test lands on the
+    // current, still-unanswered question.
+    useEffect(function () {
+        if (phase !== 'active') return;
+        saveExamSession(GRAMMAR_SESSION_KEY, {
+            quiz: quiz, qIndex: qIndex, score: score,
+            quizMode: quizMode, selectedLevel: selectedLevel, savedAt: Date.now(),
+        });
+    }, [phase, qIndex]);
+
+    function resumeQuiz() {
+        var s = resumable;
+        if (!s || !s.quiz || !s.quiz.length) return;
+        setQuiz(s.quiz);
+        setQIndex(s.qIndex);
+        setScore(s.score || 0);
+        setQuizMode(s.quizMode);
+        setSelectedLevel(s.selectedLevel);
+        setCanAnswer(true);
+        setSelected(null);
+        setShowExample(false);
+        setWasCorrect(false);
+        setShuffledOpts(generateGrammarOptions(s.quiz[s.qIndex], questions, s.quizMode, props.appLang));
+        setResumable(null);
+        setPhase('active');
+    }
+
+    function discardResumable() {
+        clearExamSession(GRAMMAR_SESSION_KEY);
+        setResumable(null);
+    }
+
     function startQuiz() {
         if (filteredQuestions.length === 0) return;
+        clearExamSession(GRAMMAR_SESSION_KEY);
+        setResumable(null);
         var picked = shuffleArray(filteredQuestions).slice(0, NUM_QUESTIONS);
         setQuiz(picked);
         setQIndex(0);
@@ -94,6 +160,7 @@ function GrammarQuizTab(props) {
         setShowExample(false);
         var nextIdx = qIndex + 1;
         if (nextIdx >= quiz.length) {
+            clearExamSession(GRAMMAR_SESSION_KEY);
             setPhase('result');
             var finalScore = score + (wasCorrect ? 1 : 0);
             if (window.confetti && finalScore === quiz.length) {
@@ -125,7 +192,8 @@ function GrammarQuizTab(props) {
     }
 
     if (phase === 'setup') {
-        return <div className='glass-card'><h2 className='section-title'>{t('Grammar Test', props.appLang)}</h2><p className='section-desc'>Test your grammar knowledge.</p><h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={[]} /><h3 className='setup-label'>Test Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} modes={[{
+        var gResumeBanner = resumable ? <div className='quiz-resume'><div className='quiz-resume__info'><span className='quiz-resume__icon'>⏸️</span><div><div className='quiz-resume__title'>{t('Resume your test', props.appLang)}</div><div className='quiz-resume__sub'>{t('You have an unfinished test', props.appLang) + ' — ' + t('Question', props.appLang) + ' ' + (resumable.qIndex + 1) + '/' + resumable.quiz.length + (resumable.selectedLevel && resumable.selectedLevel !== 'All' ? ' · ' + resumable.selectedLevel : '')}</div></div></div><div className='quiz-resume__actions'><button className='btn btn--primary btn--small' onClick={resumeQuiz}>{t('Resume', props.appLang)}</button><button className='btn btn--outline btn--small' onClick={discardResumable}>{t('Discard', props.appLang)}</button></div></div> : null;
+        return <div className='glass-card'><h2 className='section-title'>{t('Grammar Test', props.appLang)}</h2><p className='section-desc'>Test your grammar knowledge.</p>{gResumeBanner}<h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={[]} /><h3 className='setup-label'>Test Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} modes={[{
     id: 'meaning',
     label: '🇯🇵 → EN',
     desc: 'Meaning'
@@ -467,7 +535,47 @@ function SharedExamTab(props) {
         }
     }
 
+    // --- Save / resume an in-progress uploaded exam ---
+    var _resumable = useState(function () {
+        return loadExamSession(PDF_SESSION_KEY, function (s) {
+            return s && s.examData && Array.isArray(s.examData.sections);
+        });
+    });
+    var resumable = _resumable[0], setResumable = _resumable[1];
+
+    var timerValRef = useRef(timer);
+    timerValRef.current = timer;
+
+    useEffect(function () {
+        if (phase !== 'exam' || !examData || !examData.sections) return;
+        saveExamSession(PDF_SESSION_KEY, {
+            examData: examData, fileName: fileName, currentSection: currentSection,
+            currentQ: currentQ, answers: answers, timer: timerValRef.current, savedAt: Date.now(),
+        });
+    }, [phase, currentSection, currentQ, answers]);
+
+    function resumeExam() {
+        var s = resumable;
+        if (!s || !s.examData) return;
+        setExamData(s.examData);
+        setFileName(s.fileName || '');
+        setCurrentSection(s.currentSection || 0);
+        setCurrentQ(s.currentQ || 0);
+        setAnswers(s.answers || {});
+        setTimer(s.timer || 0);
+        setTimerActive(true);
+        setResumable(null);
+        setPhase('exam');
+    }
+
+    function discardResumable() {
+        clearExamSession(PDF_SESSION_KEY);
+        setResumable(null);
+    }
+
     function startExam() {
+        clearExamSession(PDF_SESSION_KEY);
+        setResumable(null);
         setCurrentSection(0);
         setCurrentQ(0);
         setAnswers({});
@@ -502,11 +610,14 @@ function SharedExamTab(props) {
     }
 
     function finishExam() {
+        clearExamSession(PDF_SESSION_KEY);
         setTimerActive(false);
         setPhase('review');
     }
 
     function resetAll() {
+        clearExamSession(PDF_SESSION_KEY);
+        setResumable(null);
         setPhase('upload');
         setExamData(null);
         setAllExams([]);
@@ -842,7 +953,8 @@ function SharedExamTab(props) {
     // UPLOAD PHASE
     // ==============================
     if (isMock) return null; // Mock exam doesn't use upload phase anymore
-    return <div className='glass-card'><h2 className='section-title'>{isMock ? '🎓 Mock Exam' : '📄 PDF Exam'}</h2><p className='section-desc'>{isMock ? 'Loading the mock exam...' : 'Upload a real JLPT practice exam PDF. The app will parse sections (語彙・文法・読解), extract questions with options, and let you take a timed exam.'}</p><div className={'pdf-upload-zone' + (dragOver ? ' pdf-upload-zone--dragover' : '')} onDrop={e => {
+    var pdfResumeBanner = resumable ? <div className='quiz-resume'><div className='quiz-resume__info'><span className='quiz-resume__icon'>⏸️</span><div><div className='quiz-resume__title'>{t('Resume your exam', props.appLang)}</div><div className='quiz-resume__sub'>{(resumable.fileName ? resumable.fileName + ' · ' : '') + t('You have an unfinished test', props.appLang) + ' — ⏱ ' + formatTime(resumable.timer || 0)}</div></div></div><div className='quiz-resume__actions'><button className='btn btn--primary btn--small' onClick={resumeExam}>{t('Resume', props.appLang)}</button><button className='btn btn--outline btn--small' onClick={discardResumable}>{t('Discard', props.appLang)}</button></div></div> : null;
+    return <div className='glass-card'><h2 className='section-title'>{isMock ? '🎓 Mock Exam' : '📄 PDF Exam'}</h2><p className='section-desc'>{isMock ? 'Loading the mock exam...' : 'Upload a real JLPT practice exam PDF. The app will parse sections (語彙・文法・読解), extract questions with options, and let you take a timed exam.'}</p>{pdfResumeBanner}<div className={'pdf-upload-zone' + (dragOver ? ' pdf-upload-zone--dragover' : '')} onDrop={e => {
     e.preventDefault();
     setDragOver(false);
     if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
@@ -894,6 +1006,41 @@ function MockExamTab(props) {
     var timerActive = _timerActive[0], setTimerActive = _timerActive[1];
 
     var timerRef = useRef(null);
+
+    var _resumable = useState(function () {
+        return loadExamSession(MOCK_SESSION_KEY, function (s) { return s && s.answers && typeof s.answers === 'object'; });
+    });
+    var resumable = _resumable[0], setResumable = _resumable[1];
+
+    // Latest timer value for the persistence effect (avoids saving every tick).
+    var timerValRef = useRef(timer);
+    timerValRef.current = timer;
+
+    // Persist position + answers + elapsed time on every answer/navigation.
+    useEffect(function () {
+        if (phase !== 'exam') return;
+        saveExamSession(MOCK_SESSION_KEY, {
+            currentSection: currentSection, currentQ: currentQ, answers: answers,
+            timer: timerValRef.current, savedAt: Date.now(),
+        });
+    }, [phase, currentSection, currentQ, answers]);
+
+    function resumeExam() {
+        var s = resumable;
+        if (!s) return;
+        setCurrentSection(s.currentSection || 0);
+        setCurrentQ(s.currentQ || 0);
+        setAnswers(s.answers || {});
+        setTimer(s.timer || 0);
+        setTimerActive(true);
+        setResumable(null);
+        setPhase('exam');
+    }
+
+    function discardResumable() {
+        clearExamSession(MOCK_SESSION_KEY);
+        setResumable(null);
+    }
 
     useEffect(function() {
         if (!window.N2_MOCK_EXAM) {
@@ -958,12 +1105,21 @@ function MockExamTab(props) {
     }
 
     function startExam() {
+        clearExamSession(MOCK_SESSION_KEY);
+        setResumable(null);
         setCurrentSection(0);
         setCurrentQ(0);
         setAnswers({});
         setTimer(0);
         setTimerActive(true);
         setPhase('exam');
+    }
+
+    // Finish the exam: drop the resumable session, stop timer, show review.
+    function submitExam() {
+        clearExamSession(MOCK_SESSION_KEY);
+        setPhase('review');
+        setTimerActive(false);
     }
 
     function selectAnswer(sIdx, qIdx, optIdx) {
@@ -1012,7 +1168,7 @@ function MockExamTab(props) {
     }}>{t('Total Questions: ', props.appLang) + examData.totalQuestions}</p><p style={{
       marginBottom: '30px',
       fontSize: '1.1rem'
-    }}>{t('Time Limit: ', props.appLang) + examData.timeLimit + ' ' + t('minutes', props.appLang)}</p><button className='btn btn--primary btn--large btn--glow' onClick={startExam}>{'▶ ' + t('START EXAM', props.appLang)}</button></div></div>;
+    }}>{t('Time Limit: ', props.appLang) + examData.timeLimit + ' ' + t('minutes', props.appLang)}</p>{resumable ? <div className='quiz-resume' style={{ textAlign: 'left', marginBottom: 20 }}><div className='quiz-resume__info'><span className='quiz-resume__icon'>⏸️</span><div><div className='quiz-resume__title'>{t('Resume your test', props.appLang)}</div><div className='quiz-resume__sub'>{t('You have an unfinished test', props.appLang) + ' — ⏱ ' + formatTime(resumable.timer || 0)}</div></div></div><div className='quiz-resume__actions'><button className='btn btn--primary btn--small' onClick={resumeExam}>{t('Resume', props.appLang)}</button><button className='btn btn--outline btn--small' onClick={discardResumable}>{t('Discard', props.appLang)}</button></div></div> : null}<button className='btn btn--primary btn--large btn--glow' onClick={startExam}>{'▶ ' + t('START EXAM', props.appLang)}</button></div></div>;
     }
 
     if (phase === 'exam' && examData) {
@@ -1038,6 +1194,8 @@ function MockExamTab(props) {
       padding: '0 16px',
       borderRadius: '20px'
     }} onClick={() => {
+      // Pause, not discard: keep the saved session so it can be resumed.
+      setResumable({ currentSection: currentSection, currentQ: currentQ, answers: answers, timer: timerValRef.current, savedAt: Date.now() });
       setPhase('setup');
       setTimerActive(false);
     }}>{'✕ ' + t('Quit', props.appLang)}</button><span style={{
@@ -1077,8 +1235,7 @@ function MockExamTab(props) {
         borderColor: 'var(--danger)'
       }} onClick={() => {
         if (confirm(t('Are you sure you want to submit early?', props.appLang) || 'Are you sure you want to submit early?')) {
-          setPhase('review');
-          setTimerActive(false);
+          submitExam();
         }
       }}>{t('Submit Early', props.appLang) || 'Submit Early'}</button><button className='btn btn--primary' onClick={() => {
         if (currentQ < sec.questions.length - 1) setCurrentQ(currentQ + 1);else {
@@ -1087,10 +1244,7 @@ function MockExamTab(props) {
         }
       }}>{t('Next', props.appLang) + ' →'}</button></div> : <button className='btn btn--primary' style={{
       background: 'var(--success)'
-    }} onClick={() => {
-      setPhase('review');
-      setTimerActive(false);
-    }}>{t('Submit Exam', props.appLang) + ' ✓'}</button>}</div></div>;
+    }} onClick={submitExam}>{t('Submit Exam', props.appLang) + ' ✓'}</button>}</div></div>;
     }
 
     if (phase === 'review' && examData) {

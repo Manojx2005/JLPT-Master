@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
 import { installDict, getInstalledInfo, getExamples } from './dict-local.jsx';
+import { FuriganaText } from './05-exams.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 
@@ -315,24 +316,31 @@ function DictionaryTab(props) {
                 nuanceEl = <div className='dict-result__nuance'><span className='dict-result__nuance-label'>💡 Context</span><span>{res.nuance}</span></div>;
             }
 
-            // Lazy-load an example sentence on expand for results that don't
-            // already carry one (e.g. online Jisho results). Uses the offline
-            // examples store; a no-op when the offline data isn't installed.
-            if (isExpanded && !res.example && !res._exampleTried) {
+            // On expand, pull the full set of example sentences from the offline
+            // examples store (multiple, with furigana). Upgrades even results
+            // that already carry a single baked example; a no-op when the
+            // offline data isn't installed (falls back to the single example).
+            if (isExpanded && !res.examples && !res._exampleTried) {
                 res._exampleTried = true;
                 getExamples(res.word).then(function (list) {
                     if (list && list.length) {
-                        res.example = list[0].jp;
-                        res.exampleEn = list[0].en;
+                        res.examples = list;
                         setResults(function (prev) { return prev ? [].concat(prev) : prev; });
                     }
                 });
             }
 
-            // Render example sentence if available (offline data)
+            // Build the example list: prefer the multi-example array, else fall
+            // back to a single baked example. Rendered with furigana ruby.
+            var exampleList = res.examples && res.examples.length
+                ? res.examples
+                : (res.example ? [{ jp: res.example, en: res.exampleEn }] : []);
             var exampleEl = null;
-            if (isExpanded && res.example) {
-                exampleEl = <div className='dict-result__example'><div className='dict-result__example-jp'>{res.example}</div>{res.exampleEn ? <div className='dict-result__example-en'>{res.exampleEn}</div> : null}</div>;
+            if (isExpanded && exampleList.length > 0) {
+                var exRows = exampleList.slice(0, 4).map(function (ex, ei) {
+                    return <div key={ei} className='dict-result__example-item'><div className='dict-result__example-jp'><FuriganaText text={ex.jp} show={true} /></div>{ex.en ? <div className='dict-result__example-en'>{ex.en}</div> : null}</div>;
+                });
+                exampleEl = <div className='dict-result__example'><div className='dict-result__example-label'>{t('Examples', props.appLang)}</div>{exRows}</div>;
             }
             
             // Render Kanji Breakdown if expanded

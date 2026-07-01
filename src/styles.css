@@ -875,6 +875,27 @@ body {
     font-style: italic;
 }
 
+.dict-result__example-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--accent-amber);
+    margin-bottom: 10px;
+}
+
+.dict-result__example-item + .dict-result__example-item {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-glass);
+}
+
+.dict-result__example-jp ruby rt {
+    font-size: 0.6em;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
 /* ===== Enhanced Multi-Result Dictionary Styles ===== */
 
 /* Container for all results */
@@ -6430,4 +6451,54 @@ html { overflow-x: hidden; }
 
 .dict-offline-tip__icon {
     flex-shrink: 0;
+}
+
+/* Resume-in-progress-test banner (Vocab Test setup) */
+.quiz-resume {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 4px 0 20px;
+    padding: 14px 16px;
+    border: 1px solid rgba(var(--accent-amber-rgb), 0.4);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(var(--accent-amber-rgb), 0.12), rgba(var(--accent-amber-rgb), 0.03));
+}
+
+.quiz-resume__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.quiz-resume__icon {
+    font-size: 1.3rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.quiz-resume__title {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.quiz-resume__sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.quiz-resume__actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+    .quiz-resume { align-items: stretch; }
+    .quiz-resume__actions { width: 100%; }
+    .quiz-resume__actions .btn { flex: 1; }
 }

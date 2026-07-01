@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AnimatedCounter, AudioButton, SaveButton, fetchKanjiSvg, getVocabMeaning, playAudio, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, shuffleArray, t, translateToEnglishQuery } from './01-core.jsx';
+import { FuriganaText } from './05-exams.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 import { SRS, PROGRESS, CONJUGATION, GRAMMAR_DATA, AUTH, LEADERBOARD_API } from './features.js';
 
@@ -804,7 +805,7 @@ function FlashcardTab(props) {
     if (!flipped) setFlipped(true);
   }}><div className='flashcard-inner'><div className='flashcard-front'><div className='flashcard-word'>{card.word}</div>{card.reading && props.showFurigana ? <div className='flashcard-reading'>{card.reading}</div> : null}<div className='flashcard-hint'>Tap to reveal</div></div><div className='flashcard-back'><div className='flashcard-word' style={{
           fontSize: '1.5rem'
-        }}>{card.word}</div>{card.reading ? <div className='flashcard-reading'>{card.reading}</div> : null}<div className='flashcard-meaning'>{getVocabMeaning(card, props.appLang)}</div>{card.nuance ? <div className='flashcard-nuance'>{'💡 ' + card.nuance}</div> : null}{card.example ? <div className='flashcard-example'><div>{card.example}</div>{card.exampleEn ? <div style={{
+        }}>{card.word}</div>{card.reading ? <div className='flashcard-reading'>{card.reading}</div> : null}<div className='flashcard-meaning'>{getVocabMeaning(card, props.appLang)}</div>{card.nuance ? <div className='flashcard-nuance'>{'💡 ' + card.nuance}</div> : null}{card.example ? <div className='flashcard-example'><div><FuriganaText text={card.example} show={props.showFurigana} /></div>{card.exampleEn ? <div style={{
             color: 'var(--text-muted)',
             fontSize: '0.85rem',
             fontStyle: 'italic',

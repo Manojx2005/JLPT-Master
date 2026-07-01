@@ -437,7 +437,8 @@ async function attachExamples(results) {
         await Promise.all(results.map(function (r) {
             return reqPromise(store.get(r.word)).then(function (rec) {
                 if (rec && rec.e && rec.e.length) {
-                    r.example = rec.e[0][0];
+                    r.examples = rec.e.map(function (p) { return { jp: p[0], en: p[1] }; });
+                    r.example = rec.e[0][0];    // first, for single-example consumers
                     r.exampleEn = rec.e[0][1];
                 }
             }).catch(function () {});

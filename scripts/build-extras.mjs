@@ -3,22 +3,22 @@
  *
  * Produces three gitignored files under public/dict/ (regenerated each build):
  *
- *   examples.json    — { headword: [[jp, en], ...] } from the Tanaka/Tatoeba
- *                      example corpus. Loaded (opt-in) into IndexedDB alongside
- *                      the offline dictionary; powers example sentences on
- *                      dictionary search results.
+ *   examples.json    — { key: [[jp, en], ...] } from the Tatoeba/Tanaka example
+ *                      corpus, keyed by BOTH headword and reading. `jp` carries
+ *                      inline 漢字（かな）furigana reconstructed from the corpus
+ *                      B-line so <FuriganaText> can render ruby. Loaded (opt-in)
+ *                      into IndexedDB; powers example sentences on dictionary
+ *                      results (multiple per word).
  *   vocab-fixes.json — { word: { example, exampleEn } } authoritative corpus
- *                      sentences that OVERRIDE the machine-generated (and often
- *                      wrong / mixed-language) examples shipped in data.js for
- *                      the quiz + flashcards. Merged at bootstrap (small).
+ *                      sentences (furigana-annotated) that OVERRIDE the
+ *                      machine-generated (often wrong / mixed-language) examples
+ *                      shipped in data.js for the quiz + flashcards.
  *   jlpt-extra.json  — [{ word, reading, correct, level, example, exampleEn }]
- *                      new N5–N1 words NOT already in JLPT_VOCAB, so the quiz
- *                      pool grows. Merged into window.JLPT_VOCAB at bootstrap.
+ *                      new N5–N1 words NOT already in JLPT_VOCAB.
  *
- * Data sources (both fetched at build time, both fail gracefully so a build
- * never breaks if the network or a source is unavailable):
+ * Data sources (fetched at build time, both fail gracefully):
  *   - Tanaka corpus: http://ftp.edrdg.org/pub/Nihongo/examples.utf.gz
- *     © Tatoeba Project, CC-BY 2.0 FR. (Attribution surfaced in src/09-legal.jsx.)
+ *     © Tatoeba Project, CC-BY 2.0 FR. (Attribution in src/09-legal.jsx.)
  *   - JLPT word lists: jamsinclair/open-anki-jlpt-decks (CSV per level).
  *
  * Run: node scripts/build-extras.mjs   (invoked automatically before build/dev)
@@ -37,9 +37,11 @@ const DATA_JS = resolve(__dirname, '..', 'public', 'data.js');
 const TANAKA_URL = 'http://ftp.edrdg.org/pub/Nihongo/examples.utf.gz';
 const JLPT_BASE = 'https://raw.githubusercontent.com/jamsinclair/open-anki-jlpt-decks/master/src/';
 
-const MAX_EX_PER_HEAD = 3;   // examples kept per headword in examples.json
-const MAX_JP_LEN = 48;       // prefer short, learnable sentences
-const HAS_KANJI = /[一-龯々]/;
+const MAX_EX_PER_HEAD = 4;   // examples kept per key in examples.json
+const MAX_JP_LEN = 48;       // prefer short, learnable sentences (plain length)
+const KANJI = /[一-龯々]/;
+const KANJI_ONLY = /^[一-龯々]+$/;
+const KANA = /[ぁ-んァ-ヶー]/;
 const JP_ONLY_TOKEN = /^[ぁ-んァ-ヶー一-龯々]+$/;
 
 async function fetchBuffer(url) {
@@ -54,17 +56,78 @@ async function fetchText(url) {
   return res.text();
 }
 
-/* ---- Tanaka corpus → examples-by-headword ---------------------------- */
+/* ---- Furigana reconstruction --------------------------------------- */
+
+function isKana(ch) { return KANA.test(ch); }
 
 /**
- * Parses the Tanaka corpus. Each example is two lines:
- *   A: 日本語文\tEnglish gloss#ID=...
- *   B: 頭語(よみ)[sense]{表層} 頭語2 ...   (space-separated indexed words)
- * We key each [jp, en] pair by every headword listed on the B line.
+ * Annotates a single word with inline furigana in the 漢字（かな）form that
+ * <FuriganaText> understands. Handles pure-kanji words (時間→時間（じかん）) and
+ * a single kanji-run with okurigana (忙しい→忙（いそが）しい) by trimming the
+ * kana that surface and reading share. Anything trickier (multiple kanji runs,
+ * conjugated surfaces) falls back to the plain surface — never garbled.
+ */
+function annotateWord(surface, reading) {
+  if (!surface || !reading || !KANJI.test(surface)) return surface;
+  let s = surface, r = reading, suf = '', pre = '';
+  // shared okurigana suffix
+  while (s.length && r.length && s[s.length - 1] === r[r.length - 1] && isKana(s[s.length - 1])) {
+    suf = s[s.length - 1] + suf;
+    s = s.slice(0, -1); r = r.slice(0, -1);
+  }
+  // shared prefix (e.g. お-)
+  while (s.length && r.length && s[0] === r[0] && isKana(s[0])) {
+    pre += s[0]; s = s.slice(1); r = r.slice(1);
+  }
+  if (s && r && KANJI_ONLY.test(s) && !KANJI.test(r)) {
+    return pre + s + '（' + r + '）' + suf;
+  }
+  return surface; // couldn't cleanly align — leave plain
+}
+
+/** Parses one B-line token into { surface, reading }. */
+function parseToken(tok) {
+  const head = tok.split(/[([{~|]/)[0];
+  const rm = tok.match(/\(([^)]+)\)/);
+  const reading = rm && rm[1][0] !== '#' ? rm[1] : '';   // (#12345) is a xref, not a reading
+  const sm = tok.match(/\{([^}]+)\}/);
+  const surface = sm ? sm[1] : head;
+  return { head, reading, surface };
+}
+
+/**
+ * Rebuilds the Japanese sentence with inline furigana by walking the plain
+ * A-line and annotating each B-line word where it occurs, in order.
+ */
+function annotateSentence(jp, tokens) {
+  let out = '', cursor = 0;
+  for (const t of tokens) {
+    if (!t.surface) continue;
+    const pos = jp.indexOf(t.surface, cursor);
+    if (pos === -1) continue;
+    out += jp.slice(cursor, pos) + annotateWord(t.surface, t.reading);
+    cursor = pos + t.surface.length;
+  }
+  out += jp.slice(cursor);
+  return out;
+}
+
+/* ---- Tanaka corpus → examples-by-key ------------------------------- */
+
+/**
+ * Parses the Tanaka corpus into two maps (headword→examples, reading→examples).
+ * Each example is { j: furigana-annotated jp, e: english, L: plain jp length }.
  */
 function parseTanaka(text) {
   const lines = text.split('\n');
-  const byHead = new Map(); // headword → array of [jp, en]
+  const byHead = new Map();
+  const byRead = new Map();
+  const push = (map, key, entry) => {
+    if (!key) return;
+    let arr = map.get(key);
+    if (!arr) { arr = []; map.set(key, arr); }
+    arr.push(entry);
+  };
   for (let i = 0; i < lines.length - 1; i++) {
     if (lines[i][0] !== 'A') continue;
     const aBody = lines[i].slice(3);
@@ -79,33 +142,39 @@ function parseTanaka(text) {
 
     const bLine = lines[i + 1];
     if (!bLine || bLine[0] !== 'B') continue;
-    const tokens = bLine.slice(3).trim().split(/\s+/);
-    const seen = new Set();
-    for (const tok of tokens) {
-      // headword = leading part before any of ( [ { ~ markers
-      const head = tok.split(/[([{~|]/)[0];
-      if (!head || seen.has(head)) continue;
-      seen.add(head);
-      let arr = byHead.get(head);
-      if (!arr) { arr = []; byHead.set(head, arr); }
-      arr.push([jp, en]);
+    const tokens = bLine.slice(3).trim().split(/\s+/).map(parseToken);
+    const annotated = annotateSentence(jp, tokens);
+    const entry = { j: annotated, e: en, L: jp.length };
+
+    const seenH = new Set(), seenR = new Set();
+    for (const t of tokens) {
+      if (t.head && !seenH.has(t.head)) { seenH.add(t.head); push(byHead, t.head, entry); }
+      if (t.reading && t.reading !== t.head && !seenR.has(t.reading)) {
+        seenR.add(t.reading); push(byRead, t.reading, entry);
+      }
     }
   }
-  return byHead;
+  return { byHead, byRead };
 }
 
-/** Picks up to `max` best examples for a headword: shortest first, prefer kanji. */
+/** Picks up to `max` best examples: shortest first, prefer kanji, dedup. */
 function bestExamples(list, max) {
+  const seen = new Set();
   return list
     .slice()
     .sort((a, b) => {
-      const ak = HAS_KANJI.test(a[0]) ? 0 : 1;
-      const bk = HAS_KANJI.test(b[0]) ? 0 : 1;
+      const ak = KANJI.test(a.j) ? 0 : 1;
+      const bk = KANJI.test(b.j) ? 0 : 1;
       if (ak !== bk) return ak - bk;
-      return a[0].length - b[0].length;
+      return a.L - b.L;
     })
-    .filter((e) => e[0].length <= MAX_JP_LEN)
-    .slice(0, max);
+    .filter((e) => {
+      if (e.L > MAX_JP_LEN || seen.has(e.j)) return false;
+      seen.add(e.j);
+      return true;
+    })
+    .slice(0, max)
+    .map((e) => [e.j, e.e]);
 }
 
 /* ---- data.js → existing JLPT_VOCAB (for dedup + fixes) --------------- */
@@ -115,7 +184,6 @@ async function loadExistingVocab() {
   const marker = 'var JLPT_VOCAB';
   const start = src.indexOf('[', src.indexOf(marker));
   if (start === -1) throw new Error('JLPT_VOCAB array not found in data.js');
-  // Bracket-count to find the matching close bracket.
   let depth = 0, end = -1, inStr = false, esc = false;
   for (let i = start; i < src.length; i++) {
     const c = src[i];
@@ -135,7 +203,6 @@ async function loadExistingVocab() {
 
 /* ---- JLPT CSV lists → extra leveled vocab --------------------------- */
 
-/** Minimal RFC-4180-ish CSV row parser (handles quoted fields with commas). */
 function parseCsv(text) {
   const rows = [];
   let row = [], field = '', inQ = false;
@@ -155,11 +222,10 @@ function parseCsv(text) {
   return rows;
 }
 
-/** True for a clean single-word quiz entry (kanji/kana only, no markup). */
 function isQuizWord(word, reading) {
   if (!word || !reading) return false;
   if (word.length > 8) return false;
-  if (!JP_ONLY_TOKEN.test(word)) return false;   // rejects ~, (), spaces, latin
+  if (!JP_ONLY_TOKEN.test(word)) return false;
   if (!JP_ONLY_TOKEN.test(reading)) return false;
   return true;
 }
@@ -173,30 +239,37 @@ async function main() {
     return;
   }
 
-  // 1) Tanaka corpus → examples-by-headword (graceful).
-  let byHead = new Map();
+  // 1) Tanaka corpus → examples-by-key (graceful).
+  let byHead = new Map(), byRead = new Map();
   try {
     console.log('[build-extras] Downloading Tanaka example corpus…');
     const gz = await fetchBuffer(TANAKA_URL);
     const text = gunzipSync(gz).toString('utf8');
-    byHead = parseTanaka(text);
-    console.log(`[build-extras] Parsed examples for ${byHead.size} headwords.`);
+    const parsed = parseTanaka(text);
+    byHead = parsed.byHead; byRead = parsed.byRead;
+    console.log(`[build-extras] Parsed examples for ${byHead.size} headwords / ${byRead.size} readings.`);
   } catch (err) {
     console.warn('[build-extras] Example corpus unavailable — writing empty examples:', err.message);
   }
 
-  // examples.json — capped map for the offline dictionary search.
+  // examples.json — keyed by headword AND reading, multiple examples each.
   const examplesOut = {};
   for (const [head, list] of byHead) {
     const best = bestExamples(list, MAX_EX_PER_HEAD);
     if (best.length) examplesOut[head] = best;
   }
+  for (const [read, list] of byRead) {
+    if (examplesOut[read]) continue; // headword entry wins
+    const best = bestExamples(list, MAX_EX_PER_HEAD);
+    if (best.length) examplesOut[read] = best;
+  }
   await writeFile(resolve(OUT_DIR, 'examples.json'), JSON.stringify(examplesOut));
-  console.log(`[build-extras] Wrote examples.json (${Object.keys(examplesOut).length} headwords).`);
+  console.log(`[build-extras] Wrote examples.json (${Object.keys(examplesOut).length} keys).`);
 
-  // Helper: single best example for a headword (kanji preferred, shortest).
-  const oneExample = (head) => {
-    const list = byHead.get(head);
+  // Best single example for a word, trying headword then reading.
+  const oneExample = (word, reading) => {
+    let list = byHead.get(word);
+    if (!list && reading) list = byRead.get(reading);
     if (!list) return null;
     const best = bestExamples(list, 1);
     return best.length ? best[0] : null;
@@ -212,7 +285,7 @@ async function main() {
   const existingSet = new Set(existing.map((v) => v.word));
   const fixes = {};
   for (const v of existing) {
-    const ex = oneExample(v.word);
+    const ex = oneExample(v.word, v.reading);
     if (ex) fixes[v.word] = { example: ex[0], exampleEn: ex[1] };
   }
   await writeFile(resolve(OUT_DIR, 'vocab-fixes.json'), JSON.stringify(fixes));
@@ -230,13 +303,13 @@ async function main() {
       console.warn(`[build-extras] ${lv}.csv unavailable:`, err.message);
       continue;
     }
-    const level = lv.toUpperCase(); // n5 → N5
-    for (let i = 1; i < rows.length; i++) {           // skip header
+    const level = lv.toUpperCase();
+    for (let i = 1; i < rows.length; i++) {
       const [word, reading, meaning] = rows[i];
       if (!isQuizWord(word, reading)) continue;
-      if (existingSet.has(word) || added.has(word)) continue; // easiest level wins
+      if (existingSet.has(word) || added.has(word)) continue;
       added.add(word);
-      const ex = oneExample(word);
+      const ex = oneExample(word, reading);
       extra.push({
         word,
         reading,
@@ -253,6 +326,5 @@ async function main() {
 
 main().catch((err) => {
   console.error('[build-extras] failed:', err);
-  // Non-fatal: don't block the build if extras can't be generated.
-  process.exit(0);
+  process.exit(0); // non-fatal: never block the build
 });

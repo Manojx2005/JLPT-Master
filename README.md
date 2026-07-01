@@ -41,7 +41,7 @@ Dictionary · Kanji · Grammar · Timed exams · SRS flashcards · Multiplayer �
 
 ### 📝 Tests
 - **Grammar Test** — Timed, multiple modes (meaning, pattern, fill-in-the-blank).
-- **Vocab Test** — Meaning / reverse / reading modes with smart, same-level distractors. **8,000+ words** across N5–N1 (curated set plus ~6,000 from open JLPT decks), each with an authentic example sentence.
+- **Vocab Test** — Meaning / reverse / reading modes with smart, same-level distractors. **8,000+ words** across N5–N1 (curated set plus ~6,000 from open JLPT decks), each with an authentic example sentence. **Auto-saves progress** — close mid-test and resume from the same question later.
 - **PDF Exam** — Upload a **PDF or DOCX** exam; auto-parses 語彙・文法・読解, then runs a timed, auto-graded test.
 - **Mock Exam** — A full JLPT N2 mock, timed and offline-ready.
 

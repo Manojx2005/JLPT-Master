@@ -10,6 +10,29 @@ import { PROGRESS } from './features.js';
    ================================================================= */
 
 /* -----------------------------------------------------------------
+   In-progress test persistence (localStorage) — lets a user resume a
+   quiz from the exact question they left off on, even after a reload.
+   ----------------------------------------------------------------- */
+var QUIZ_SESSION_KEY = 'jlpt_quiz_session';
+
+function saveQuizSession(session) {
+    try { localStorage.setItem(QUIZ_SESSION_KEY, JSON.stringify(session)); } catch (e) { /* quota / private mode */ }
+}
+
+function clearQuizSession() {
+    try { localStorage.removeItem(QUIZ_SESSION_KEY); } catch (e) { /* no-op */ }
+}
+
+/** Returns a valid, incomplete saved session, or null. */
+function loadQuizSession() {
+    try {
+        var s = JSON.parse(localStorage.getItem(QUIZ_SESSION_KEY) || 'null');
+        if (s && Array.isArray(s.quiz) && s.quiz.length > 0 && s.qIndex < s.quiz.length) return s;
+    } catch (e) { /* corrupt — ignore */ }
+    return null;
+}
+
+/* -----------------------------------------------------------------
    LevelSelector — JLPT level filter button group
    Renders buttons for "All", "N5", "N4", "N3", "N2", "N1".
    Each button shows the level name and the count of available questions.
@@ -240,6 +263,29 @@ function QuizTab(props) {
 
     var timerRef = useRef(null); // Holds the setInterval ID for cleanup
 
+    // --- Save / resume in-progress test ---
+    // A session is persisted per answered question so a user can close the app
+    // mid-test and pick up from the same question later.
+    var _resumable = useState(function () { return loadQuizSession(); });
+    var resumable = _resumable[0], setResumable = _resumable[1];
+
+    // Keep the latest timeLeft available to the persistence effect without
+    // re-saving every tick (the effect saves on question/answer changes).
+    var timeLeftRef = useRef(timeLeft);
+    timeLeftRef.current = timeLeft;
+
+    // Persist at the START of each question only (deps: phase, qIndex) so a
+    // resumed test picks up on the current, still-unanswered question — never
+    // re-scoring one already answered.
+    useEffect(function () {
+        if (phase !== 'active') return;
+        saveQuizSession({
+            quiz: quiz, qIndex: qIndex, score: score, timeLeft: timeLeftRef.current,
+            answerHistory: answerHistory, quizMode: quizMode, selectedLevel: selectedLevel,
+            savedAt: Date.now(),
+        });
+    }, [phase, qIndex]);
+
     // Filter the question pool by the selected JLPT level
     var filteredQuestions = useMemo(function () {
         if (selectedLevel === 'All') return questions;
@@ -267,6 +313,8 @@ function QuizTab(props) {
      */
     function startQuiz() {
         if (availableQuestions.length === 0) return;
+        clearQuizSession();       // starting fresh — drop any prior saved test
+        setResumable(null);
         var picked = shuffleArray(availableQuestions).slice(0, NUM_QUESTIONS);
         setQuiz(picked);
         setQIndex(0);
@@ -293,6 +341,7 @@ function QuizTab(props) {
             setTimeLeft(function (prev) {
                 if (prev <= 1) {
                     clearInterval(timerRef.current);
+                    clearQuizSession();   // time up — session no longer resumable
                     setTimedOut(true);
                     setCanAnswer(false);
                     setPhase('result');
@@ -352,6 +401,7 @@ function QuizTab(props) {
         var nextIdx = qIndex + 1;
         if (nextIdx >= quiz.length) {
             clearInterval(timerRef.current);
+            clearQuizSession();   // test finished — nothing to resume
             setPhase('result');
             var finalScore = score + (wasCorrect ? 1 : 0);
             PROGRESS.recordQuiz(finalScore, quiz.length, selectedLevel, quizMode);
@@ -387,9 +437,37 @@ function QuizTab(props) {
         setPhase('setup');
     }
 
+    /** Resume a previously saved, incomplete test from where it left off. */
+    function resumeQuiz() {
+        var s = resumable;
+        if (!s || !s.quiz || !s.quiz.length) return;
+        setQuiz(s.quiz);
+        setQIndex(s.qIndex);
+        setScore(s.score || 0);
+        setTimeLeft(s.timeLeft || EXAM_DURATION);
+        setQuizMode(s.quizMode);
+        setSelectedLevel(s.selectedLevel);
+        setAnswerHistory(s.answerHistory || []);
+        setCanAnswer(true);
+        setSelected(null);
+        setTimedOut(false);
+        setShowExample(false);
+        setWasCorrect(false);
+        setShuffledOpts(generateOptions(s.quiz[s.qIndex], questions, s.quizMode, props.appLang));
+        setResumable(null);
+        setPhase('active');
+    }
+
+    /** Discard the saved test so it no longer offers to resume. */
+    function discardResumable() {
+        clearQuizSession();
+        setResumable(null);
+    }
+
     // =============== PHASE: SETUP ===============
     if (phase === 'setup') {
-        return <div className='glass-card' key='quiz-setup'><h2 className='section-title'>{t('Vocab Test', props.appLang)}</h2><p className='section-desc'>Configure your exam, then test your knowledge under time pressure.</p>
+        var resumeBanner = resumable ? <div className='quiz-resume'><div className='quiz-resume__info'><span className='quiz-resume__icon'>⏸️</span><div><div className='quiz-resume__title'>{t('Resume your test', props.appLang)}</div><div className='quiz-resume__sub'>{t('You have an unfinished test', props.appLang) + ' — ' + t('Question', props.appLang) + ' ' + (resumable.qIndex + 1) + '/' + resumable.quiz.length + (resumable.selectedLevel && resumable.selectedLevel !== 'All' ? ' · ' + resumable.selectedLevel : '')}</div></div></div><div className='quiz-resume__actions'><button className='btn btn--primary btn--small' onClick={resumeQuiz}>{t('Resume', props.appLang)}</button><button className='btn btn--outline btn--small' onClick={discardResumable}>{t('Discard', props.appLang)}</button></div></div> : null;
+        return <div className='glass-card' key='quiz-setup'><h2 className='section-title'>{t('Vocab Test', props.appLang)}</h2><p className='section-desc'>Configure your exam, then test your knowledge under time pressure.</p>{resumeBanner}
   <h3 className='setup-label'>Select Level</h3><LevelSelector selected={selectedLevel} onSelect={setSelectedLevel} questions={questions} allCount={questions.length} savedWords={props.savedWords} />
   <h3 className='setup-label'>Quiz Mode</h3><ModeSelector selected={quizMode} onSelect={setQuizMode} appLang={props.appLang} />
   <h3 className='setup-label'>Questions</h3><CountSelector selected={questionCount} onSelect={setQuestionCount} maxAvailable={availableQuestions.length} />
