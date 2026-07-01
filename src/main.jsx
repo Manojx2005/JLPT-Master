@@ -59,6 +59,51 @@ function mountApp() {
     root.render(<ErrorBoundary><App /></ErrorBoundary>);
 }
 
+/**
+ * Merges the build-time extras into the in-memory vocabulary:
+ *   dict/vocab-fixes.json → authoritative example sentences that OVERRIDE the
+ *      machine-generated (often wrong / mixed-language) examples in data.js.
+ *   dict/jlpt-extra.json  → additional N5–N1 words appended to the quiz pool.
+ * Runs in the background (never blocks first paint) and is idempotent. Failure
+ * is non-fatal — the app simply uses the shipped data.js vocabulary.
+ */
+function applyVocabExtras() {
+    if (window.__vocabExtrasApplied) return Promise.resolve();
+    window.__vocabExtrasApplied = true;
+    var base = '';
+    try { base = import.meta.env.BASE_URL || ''; } catch (e) { base = ''; }
+    if (base && base.slice(-1) !== '/') base += '/';
+
+    var getJson = function (file) {
+        return fetch(base + 'dict/' + file).then(function (r) {
+            return r.ok ? r.json() : null;
+        }).catch(function () { return null; });
+    };
+
+    return Promise.all([getJson('vocab-fixes.json'), getJson('jlpt-extra.json')])
+        .then(function (res) {
+            var fixes = res[0], extra = res[1];
+            if (!Array.isArray(window.JLPT_VOCAB)) return;
+
+            // Apply corrected example sentences in place.
+            if (fixes) {
+                window.JLPT_VOCAB.forEach(function (v) {
+                    var fix = fixes[v.word];
+                    if (fix) { v.example = fix.example; v.exampleEn = fix.exampleEn; }
+                });
+            }
+
+            // Append new leveled words not already present.
+            if (Array.isArray(extra) && extra.length) {
+                var have = {};
+                window.JLPT_VOCAB.forEach(function (v) { have[v.word] = 1; });
+                extra.forEach(function (w) {
+                    if (!have[w.word]) { window.JLPT_VOCAB.push(w); have[w.word] = 1; }
+                });
+            }
+        });
+}
+
 if (_localDataMissing && typeof firebase !== 'undefined' && firebase.database) {
     console.warn("Local data files (data.js / features.js data) missing or failed. Falling back to Firebase Realtime Database...");
     var db = firebase.database();
@@ -87,13 +132,16 @@ if (_localDataMissing && typeof firebase !== 'undefined' && firebase.database) {
             };
         });
         window.MOCK_DICT = window.MOCK_DICT.concat(CUSTOM_DICT.load());
-        mountApp();
+        applyVocabExtras().finally(mountApp);
     }).catch(function(e) {
         console.error("Firebase fallback failed:", e);
         if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
         mountApp();
     });
 } else {
+    // Mount immediately for fast first paint; merge the vocab extras in the
+    // background (they land well before the user reaches the quiz/flashcards).
+    applyVocabExtras();
     mountApp();
 }
 

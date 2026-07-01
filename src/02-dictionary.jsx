@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AudioButton, MOCK_DICT, SaveButton, fetchKanjiSvg, getVocabMeaning, sanitizeHTML, searchDictionary, searchKanji, searchMockDict, t, translateText, translateToEnglishQuery } from './01-core.jsx';
-import { installDict, getInstalledInfo } from './dict-local.jsx';
+import { installDict, getInstalledInfo, getExamples } from './dict-local.jsx';
 import { HandwritingInput } from './10-handwriting.jsx';
 import { CUSTOM_DICT, SEARCH_HISTORY, DAILY_WORD } from './features.js';
 
@@ -315,6 +315,20 @@ function DictionaryTab(props) {
                 nuanceEl = <div className='dict-result__nuance'><span className='dict-result__nuance-label'>💡 Context</span><span>{res.nuance}</span></div>;
             }
 
+            // Lazy-load an example sentence on expand for results that don't
+            // already carry one (e.g. online Jisho results). Uses the offline
+            // examples store; a no-op when the offline data isn't installed.
+            if (isExpanded && !res.example && !res._exampleTried) {
+                res._exampleTried = true;
+                getExamples(res.word).then(function (list) {
+                    if (list && list.length) {
+                        res.example = list[0].jp;
+                        res.exampleEn = list[0].en;
+                        setResults(function (prev) { return prev ? [].concat(prev) : prev; });
+                    }
+                });
+            }
+
             // Render example sentence if available (offline data)
             var exampleEl = null;
             if (isExpanded && res.example) {
@@ -405,10 +419,17 @@ function DictionaryTab(props) {
     }}>Clear</button></div><div className='search-history__chips'>{chips}</div></div>;
     }
 
+    // Contextual nudge shown under results when the offline dictionary isn't
+    // installed: example sentences and instant lookups need it.
+    var offlineTipEl = null;
+    if (dictState === 'not-installed' && results && results.length > 0) {
+        offlineTipEl = <div className='dict-offline-tip' onClick={handleDownloadDict} role='button' tabIndex={0}><span className='dict-offline-tip__icon'>💡</span><span>{t('Tip: download the offline dictionary to see example sentences and search instantly, even without internet.', props.appLang)}</span></div>;
+    }
+
     // --- Offline dictionary banner (opt-in download / progress / installed) ---
     var dictOfflineEl = null;
     if (dictState === 'not-installed') {
-        dictOfflineEl = <div className='dict-offline dict-offline--prompt'><div className='dict-offline__info'><span className='dict-offline__icon'>⚡</span><div><div className='dict-offline__title'>{t('Use the dictionary offline', props.appLang)}</div><div className='dict-offline__sub'>{t('Download the full dictionary (218,000+ words, ~20 MB) to search instantly with no internet. WiFi recommended.', props.appLang)}</div></div></div><button className='btn btn--primary dict-offline__btn' onClick={handleDownloadDict}>{'⬇️ ' + t('Download', props.appLang) + ' (20 MB)'}</button></div>;
+        dictOfflineEl = <div className='dict-offline dict-offline--prompt'><div className='dict-offline__info'><span className='dict-offline__icon'>⚡</span><div><div className='dict-offline__title'>{t('Recommended: download the offline dictionary', props.appLang)}</div><div className='dict-offline__sub'>{t('Get the full dictionary (218,000+ words, ~20 MB) for the best experience — instant results with no internet, plus example sentences on every word. Without it, search relies on online services that can be slower or unavailable. WiFi recommended.', props.appLang)}</div></div></div><button className='btn btn--primary dict-offline__btn' onClick={handleDownloadDict}>{'⬇️ ' + t('Download', props.appLang) + ' (20 MB)'}</button></div>;
     } else if (dictState === 'installing') {
         var known = dictProgress > 0;
         var pct = Math.round(dictProgress * 100);
@@ -449,7 +470,7 @@ function DictionaryTab(props) {
   // Loading indicator
   dailyWordEl}{
   // Daily word card
-  resultEls}{
+  resultEls}{offlineTipEl}{
   // Search results (or null)
   errorEl // Error message (or null)
   }</div>;

@@ -24,9 +24,10 @@
 import { deinflect } from './deinflect.js';
 
 var DB_NAME = 'jlpt-dict';
-var DB_VERSION = 1;
+var DB_VERSION = 2;
 var STORE = 'entries';
 var META_STORE = 'meta';
+var EX_STORE = 'examples';   // headword → [[jp, en], ...] (Tanaka corpus)
 var CHUNK = 2000; // records per write transaction — keeps the UI responsive
 
 var _status = 'idle';
@@ -35,6 +36,7 @@ var _installPromise = null; // the heavy download + import (opt-in)
 var _installedInfo = { installed: false, count: 0, version: null };
 var _db = null;
 var _tagMap = {}; // POS code → readable label, from meta.json
+var _examplesChecked = false; // guards the one-time background examples backfill
 
 function getDictStatus() { return _status; }
 
@@ -67,6 +69,10 @@ function openDB() {
             }
             if (!db.objectStoreNames.contains(META_STORE)) {
                 db.createObjectStore(META_STORE, { keyPath: 'key' });
+            }
+            // Example-sentence store (added in DB_VERSION 2). Keyed by headword.
+            if (!db.objectStoreNames.contains(EX_STORE)) {
+                db.createObjectStore(EX_STORE, { keyPath: 'w' });
             }
         };
         open.onsuccess = function () { resolve(open.result); };
@@ -127,6 +133,9 @@ function ensureOpen() {
                 if (storedMeta.tags) _tagMap = storedMeta.tags;
                 _installedInfo = { installed: true, count: storedMeta.count, version: storedMeta.version };
                 if (_status === 'idle') _status = 'ready';
+                // Already opted into offline mode — backfill example sentences in
+                // the background (covers DBs installed before examples shipped).
+                if (!_examplesChecked) { _examplesChecked = true; ensureExamples(); }
             } else {
                 _installedInfo = { installed: false, count: 0, version: null };
                 if (_status === 'idle') _status = 'not-installed';
@@ -167,8 +176,11 @@ function installDict() {
         var meta = await fetchShippedMeta();
         if (meta && meta.tags) _tagMap = meta.tags;
 
-        // Already installed and current → nothing to download.
+        // Already installed and current → skip the heavy entry import, but still
+        // ensure the example sentences are present (they may be missing on DBs
+        // installed before examples shipped, or after the v2 store upgrade).
         if (info.installed && (!meta || info.version === meta.version)) {
+            await ensureExamples();
             _status = 'ready';
             emitProgress(info.count, info.count);
             return;
@@ -200,6 +212,8 @@ function installDict() {
             emitProgress(end, total);
         }
 
+        await ensureExamples();
+
         var saveTx = _db.transaction(META_STORE, 'readwrite');
         saveTx.objectStore(META_STORE).put({
             key: 'build',
@@ -220,6 +234,57 @@ function installDict() {
         throw err;
     });
     return _installPromise;
+}
+
+/**
+ * Ensures the example-sentence store is populated. Downloads examples.json
+ * (headword → [[jp, en], ...]) once and bulk-imports it. Idempotent and
+ * non-fatal: if the file is missing or the fetch fails, dictionary search
+ * still works, just without example sentences.
+ */
+async function ensureExamples() {
+    if (!_db || !_db.objectStoreNames.contains(EX_STORE)) return;
+    try {
+        var countTx = _db.transaction(EX_STORE, 'readonly');
+        var existing = await reqPromise(countTx.objectStore(EX_STORE).count());
+        if (existing > 0) return; // already imported
+
+        var res = await fetch(dictUrl('examples.json'));
+        if (!res.ok) return;
+        var map = await res.json();
+        var heads = Object.keys(map);
+        for (var start = 0; start < heads.length; start += CHUNK) {
+            var tx = _db.transaction(EX_STORE, 'readwrite');
+            var store = tx.objectStore(EX_STORE);
+            var end = Math.min(start + CHUNK, heads.length);
+            for (var i = start; i < end; i++) {
+                store.put({ w: heads[i], e: map[heads[i]] });
+            }
+            await txDone(tx);
+        }
+    } catch (e) {
+        console.warn('Example sentences import skipped:', e && e.message);
+    }
+}
+
+/**
+ * Returns example sentences for a headword as an array of { jp, en } objects
+ * (empty when the offline data is not installed or the word has no examples).
+ * @returns {Promise<Array<{jp:string, en:string}>>}
+ */
+async function getExamples(word) {
+    var w = (word || '').trim();
+    if (!w) return [];
+    var info = await ensureOpen();
+    if (!info.installed || !_db || !_db.objectStoreNames.contains(EX_STORE)) return [];
+    try {
+        var tx = _db.transaction(EX_STORE, 'readonly');
+        var rec = await reqPromise(tx.objectStore(EX_STORE).get(w));
+        if (!rec || !rec.e) return [];
+        return rec.e.map(function (pair) { return { jp: pair[0], en: pair[1] }; });
+    } catch (e) {
+        return [];
+    }
 }
 
 /** Collects up to `limit` records from an index for an exact or prefix key. */
@@ -335,7 +400,7 @@ async function searchLocal(query) {
             await queryIndex('r', q, true, LIMIT, prefix);     // prefix reading (original only)
         }
         var merged = rankRecords(exact.records).concat(rankRecords(prefix.records));
-        return merged.slice(0, LIMIT).map(toResult);
+        return attachExamples(merged.slice(0, LIMIT).map(toResult));
     }
 
     // English / romaji: intersect entries containing every query token, then
@@ -356,7 +421,29 @@ async function searchLocal(query) {
         return true;
     });
     matched.sort(function (a, b) { return scoreEnglish(b, ql) - scoreEnglish(a, ql); });
-    return matched.slice(0, LIMIT).map(toResult);
+    return attachExamples(matched.slice(0, LIMIT).map(toResult));
 }
 
-export { installDict, getInstalledInfo, searchLocal, getDictStatus };
+/**
+ * Enriches search results with a single example sentence each (from the
+ * examples store) so the dictionary card can show it without a second lookup.
+ * Non-fatal — returns the results unchanged if examples aren't available.
+ */
+async function attachExamples(results) {
+    if (!results.length || !_db || !_db.objectStoreNames.contains(EX_STORE)) return results;
+    try {
+        var tx = _db.transaction(EX_STORE, 'readonly');
+        var store = tx.objectStore(EX_STORE);
+        await Promise.all(results.map(function (r) {
+            return reqPromise(store.get(r.word)).then(function (rec) {
+                if (rec && rec.e && rec.e.length) {
+                    r.example = rec.e[0][0];
+                    r.exampleEn = rec.e[0][1];
+                }
+            }).catch(function () {});
+        }));
+    } catch (e) { /* leave results without examples */ }
+    return results;
+}
+
+export { installDict, getInstalledInfo, searchLocal, getDictStatus, getExamples };
