@@ -104,6 +104,49 @@ function applyVocabExtras() {
         });
 }
 
+/**
+ * Loads the baked Simplified-Chinese meaning maps (committed under
+ * public/i18n/) into window.VOCAB_ZH (word → 中文) and window.GRAMMAR_ZH
+ * (pattern → 中文). getVocabMeaning / getGrammarMeaning read these for the
+ * 'zh' language, so offline vocab + grammar render in Chinese with no network.
+ * Missing entries (e.g. JMdict results) fall back to live translation.
+ * Failure is non-fatal — Chinese simply falls back to English/live-translate.
+ */
+function applyChineseMeanings() {
+    if (window.__zhApplied) return Promise.resolve();
+    window.__zhApplied = true;
+    var base = '';
+    try { base = import.meta.env.BASE_URL || ''; } catch (e) { base = ''; }
+    if (base && base.slice(-1) !== '/') base += '/';
+
+    var getJson = function (file) {
+        return fetch(base + 'i18n/' + file).then(function (r) {
+            return r.ok ? r.json() : null;
+        }).catch(function () { return null; });
+    };
+
+    return Promise.all([getJson('vocab-zh.json'), getJson('grammar-zh.json')])
+        .then(function (res) {
+            if (res[0]) window.VOCAB_ZH = res[0];
+            if (res[1]) window.GRAMMAR_ZH = res[1];
+        });
+}
+
+// The active UI language decides whether the Chinese maps must be ready before
+// first paint: a 'zh' user should see Chinese immediately, everyone else loads
+// it lazily in the background (no cost to the common case).
+function isChineseUI() {
+    try { return localStorage.getItem('jlpt_lang') === 'zh'; } catch (e) { return false; }
+}
+
+// Kick off background vocab extras + Chinese map load, then mount — gating first
+// paint on the Chinese maps only when the UI is actually in Chinese.
+function bootstrapAndMount() {
+    applyVocabExtras();
+    var zh = applyChineseMeanings();
+    if (isChineseUI()) { zh.finally(mountApp); } else { mountApp(); }
+}
+
 if (_localDataMissing && typeof firebase !== 'undefined' && firebase.database) {
     console.warn("Local data files (data.js / features.js data) missing or failed. Falling back to Firebase Realtime Database...");
     var db = firebase.database();
@@ -132,16 +175,17 @@ if (_localDataMissing && typeof firebase !== 'undefined' && firebase.database) {
             };
         });
         window.MOCK_DICT = window.MOCK_DICT.concat(CUSTOM_DICT.load());
-        applyVocabExtras().finally(mountApp);
+        bootstrapAndMount();
     }).catch(function(e) {
         console.error("Firebase fallback failed:", e);
         if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
         mountApp();
     });
 } else {
-    // Mount immediately for fast first paint; merge the vocab extras in the
-    // background (they land well before the user reaches the quiz/flashcards).
-    applyVocabExtras();
-    mountApp();
+    // Mount immediately for fast first paint; merge the vocab extras + Chinese
+    // maps in the background (they land well before the user reaches the
+    // quiz/flashcards). A Chinese UI waits for its maps so meanings aren't
+    // momentarily English.
+    bootstrapAndMount();
 }
 

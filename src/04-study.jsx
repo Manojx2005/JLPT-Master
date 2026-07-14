@@ -1009,9 +1009,7 @@ function GrammarTab(props) {
         if (!matchLevel) return false;
         if (!searchQ.trim()) return true;
         var q = searchQ.toLowerCase();
-        var matchMeaning = g.meaning || '';
-        if (props.appLang === 'vn' && g.meaning_vn) matchMeaning = g.meaning_vn;
-        if (props.appLang === 'my' && g.meaning_my) matchMeaning = g.meaning_my;
+        var matchMeaning = getGrammarMeaning(g, props.appLang) || '';
         return g.pattern.toLowerCase().indexOf(q) !== -1 ||
             matchMeaning.toLowerCase().indexOf(q) !== -1;
     });
@@ -1037,9 +1035,7 @@ function GrammarTab(props) {
             });
         }
 
-        var displayMeaning = g.meaning;
-        if (props.appLang === 'vn' && g.meaning_vn) displayMeaning = g.meaning_vn;
-        if (props.appLang === 'my' && g.meaning_my) displayMeaning = g.meaning_my;
+        var displayMeaning = getGrammarMeaning(g, props.appLang);
 
         return <div key={idx} className={'grammar-card' + (isExpanded ? ' grammar-card--expanded' : '')} onClick={() => {
   setExpandedIdx(isExpanded ? -1 : idx);
@@ -1065,6 +1061,10 @@ function GrammarTab(props) {
 function getGrammarMeaning(q, lang) {
     if (lang === 'vn' && q.meaning_vn) return q.meaning_vn;
     if (lang === 'my' && q.meaning_my) return q.meaning_my;
+    if (lang === 'zh') {
+        if (q.meaning_zh) return q.meaning_zh;
+        if (q.pattern && window.GRAMMAR_ZH && window.GRAMMAR_ZH[q.pattern]) return window.GRAMMAR_ZH[q.pattern];
+    }
     return q.meaning;
 }
 

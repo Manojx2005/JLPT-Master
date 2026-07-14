@@ -70,6 +70,7 @@ function ModeSelector(props) {
     var langStr = 'EN';
     if (props.appLang === 'vn') langStr = 'VN';
     else if (props.appLang === 'my') langStr = 'MY';
+    else if (props.appLang === 'zh') langStr = 'ZH';
     else if (props.appLang === 'ja') langStr = 'JA';
 
     var defaultModes = [

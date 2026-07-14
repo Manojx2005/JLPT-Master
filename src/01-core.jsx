@@ -338,6 +338,158 @@ var UI_TRANSLATIONS = {
     'Your custom name and photo are shown publicly instead of your Google identity.': { vn: 'Tên và ảnh tùy chỉnh của bạn sẽ hiển thị công khai thay cho danh tính Google.', my: 'သင့် Google အထောက်အထားအစား စိတ်ကြိုက်အမည်နှင့်ဓာတ်ပုံကို အများမြင်အောင်ပြသပါမည်။', ja: 'Googleの情報の代わりに、設定した名前と写真が公開されます。' }
 };
 
+/* Simplified-Chinese UI strings, kept as a flat map and merged into
+   UI_TRANSLATIONS below so the existing (vn/my/ja) entries stay untouched.
+   Any English key without a zh entry falls back to English via t(). */
+var UI_TRANSLATIONS_ZH = {
+    'Dictionary Search': '词典搜索',
+    'Mock Exam': '模拟考试',
+    'Settings': '设置',
+    'Study': '学习',
+    'Tests': '考试',
+    'Practice': '练习',
+    'Track': '追踪',
+    'Multiplayer': '多人对战',
+    'Leaderboard': '排行榜',
+    'Privacy Policy': '隐私政策',
+    'Terms of Use': '使用条款',
+    'Dashboard': '仪表板',
+    'Quiz': '测验',
+    'Grammar': '语法',
+    'Saved Words': '已保存的单词',
+    'Custom Vocab': '自定义词汇',
+    'Conjugation': '动词变位',
+    'Search': '搜索',
+    'Searching…': '搜索中…',
+    'Word not found. Try a different search term or check your spelling.': '未找到单词。请尝试其他搜索词或检查拼写。',
+    'Try searching in Japanese (hiragana, katakana, or kanji) or English.': '尝试用日语（平假名、片假名或汉字）或英语搜索。',
+    'Searching dictionaries…': '正在搜索词典…',
+    'Word of the Day': '每日单词',
+    'Recent Searches': '最近搜索',
+    'Clear': '清除',
+    'Other forms': '其他形式',
+    'Context': '语境',
+    'Results from Jisho.org': '来自 Jisho.org 的结果',
+    'Results from offline dictionary': '来自离线词典的结果',
+    'Loading Mock Exam...': '正在加载模拟考试...',
+    'Fetching N2test.json': '正在获取 N2test.json',
+    'Error': '错误',
+    'START EXAM': '开始考试',
+    'Quit': '退出',
+    'Previous': '上一个',
+    'Next': '下一个',
+    'Submit Exam': '提交考试',
+    'Total Questions: ': '总题数：',
+    'Time Limit: ': '时间限制：',
+    'minutes': '分钟',
+    'Review your starred vocabulary.': '复习你收藏的词汇。',
+    'You havent saved any words yet!': '你还没有保存任何单词！',
+    'Search for words in the Dictionary or Kanji tab and click the star icon to save them.': '在词典或汉字标签中搜索单词，然后点击星形图标保存。',
+    'Export Data': '导出数据',
+    'Import Data': '导入数据',
+    'Delete All': '全部删除',
+    'JLPT Timed Exam': 'JLPT 计时考试',
+    'Add Custom Questions': '添加自定义题目',
+    'Kanji Search': '汉字搜索',
+    'Flashcards': '记忆卡',
+    'Conjugation Practice': '动词变位练习',
+    'Grammar Reference': '语法参考',
+    'Grammar Test': '语法测试',
+    'Test Complete!': '测试完成！',
+    'Exam Complete': '考试完成',
+    'Vocabulary Mode': '词汇模式',
+    'PDF Exam': 'PDF 考试',
+    'Dictionary': '词典',
+    'Kanji': '汉字',
+    'Vocab Test': '词汇测试',
+    'Saved': '已保存',
+    'Add': '添加',
+    'Reviews': '评价',
+    'Reviews & Ratings': '评价与评分',
+    'See what learners think — and share your own experience.': '看看学习者怎么说——也分享你自己的体验。',
+    'Refresh': '刷新',
+    'Loading…': '加载中…',
+    'review': '条评价',
+    'reviews': '条评价',
+    'No reviews yet': '暂无评价',
+    'Write a review': '写评价',
+    'Your rating': '你的评分',
+    'Share your thoughts about JLPT Master (optional)…': '分享你对 JLPT Master 的看法（可选）…',
+    'Submitting…': '提交中…',
+    'Submit Review': '提交评价',
+    'Sign in to leave a review.': '登录后即可发表评价。',
+    'Sign in with Google': '使用 Google 登录',
+    'Continue as Guest': '以访客身份继续',
+    'Could not load reviews:': '无法加载评价：',
+    'Loading reviews…': '正在加载评价…',
+    'No reviews yet — be the first to leave one!': '暂无评价——快来成为第一个评价的人吧！',
+    'Hiragana & Katakana': '平假名和片假名',
+    'Hiragana': '平假名',
+    'Katakana': '片假名',
+    'Chart': '假名表',
+    'How to write': '书写方法',
+    'Tap any character to hear it and see the stroke order. Switch to Quiz to test yourself.': '点击任意字符即可听发音并查看笔顺。切换到测验来自我检测。',
+    'Basic (Gojŭon)': '基本（五十音）',
+    'Voiced (Dakuten)': '浊音（浊点）',
+    'Combinations (Yōon)': '拗音',
+    'Great Job!': '做得好！',
+    'Keep Practicing!': '继续加油！',
+    'correct': '正确',
+    'Try Again': '再试一次',
+    'View Results': '查看结果',
+    'Tap to replay': '点击重播',
+    'Back': '返回',
+    'Scroll to top': '回到顶部',
+    'Global Leaderboard': '全球排行榜',
+    'Your Rank': '你的排名',
+    'No kanji found for that word. Try a Japanese word or a kanji character.': '未找到该单词的汉字。请尝试日语单词或汉字字符。',
+    'Enter a kanji, a Japanese word, or a word in your language (e.g. "water") to see details for every kanji involved.': '输入汉字、日语单词或你所用语言的单词（例如 “water”），即可查看其中每个汉字的详情。',
+    'Review vocabulary with spaced repetition. Cards you struggle with appear more often.': '用间隔重复法复习词汇。你容易出错的卡片会更频繁地出现。',
+    'Master Japanese verb conjugations. Select forms to practice and test yourself.': '掌握日语动词变位。选择要练习的形式并自我检测。',
+    'Essential Japanese grammar points organized by JLPT level.': '按 JLPT 等级整理的必备日语语法要点。',
+    'Select Level': '选择等级',
+    'Mode': '模式',
+    'Level': '等级',
+    'Search any Japanese word in English, kanji, hiragana, or katakana — powered by Jotoba.': '用英语、汉字、平假名或片假名搜索任何日语单词——由 Jotoba 提供支持。',
+    'words available offline.': '个单词可离线使用。',
+    'Results from Jotoba': '来自 Jotoba 的结果',
+    'Results from Local & Jotoba': '来自本地和 Jotoba 的结果',
+    'Undo': '撤销',
+    'Kanji Writing Practice': '汉字书写练习',
+    'Draw kanji by hand and get instant feedback. Recall mode hides the character; Trace mode shows a guide to copy.': '手写汉字并即时获得反馈。回忆模式会隐藏字符；描红模式会显示范本供临摹。',
+    'Recall': '回忆',
+    'Trace': '描红',
+    'Start Practice': '开始练习',
+    'Preparing your writing set…': '正在准备书写练习…',
+    'No kanji available for this selection. Try another level.': '此选择没有可用的汉字。请尝试其他等级。',
+    'Trace this kanji': '描写这个汉字',
+    'Write the kanji for:': '写出以下含义的汉字：',
+    'Checking…': '检查中…',
+    'Correct!': '正确！',
+    'Not recognized — try again or reveal the answer.': '无法识别——请重试或显示答案。',
+    'Reveal answer': '显示答案',
+    'I wrote it right': '我写对了',
+    'Skip': '跳过',
+    'Check': '检查',
+    'Edit Profile': '编辑个人资料',
+    'Display name': '显示名称',
+    'Choose an avatar': '选择头像',
+    'Upload photo': '上传照片',
+    'Use Google photo': '使用 Google 照片',
+    'Save': '保存',
+    'Cancel': '取消',
+    'Sign Out': '退出登录',
+    'Reset to Google': '重置为 Google',
+    'Show your real Google name and photo again': '重新显示你真实的 Google 名称和照片',
+    'Your custom name and photo are shown publicly instead of your Google identity.': '公开显示的是你的自定义名称和照片，而非你的 Google 身份。'
+};
+
+// Merge the Chinese strings into the main table without disturbing existing langs.
+Object.keys(UI_TRANSLATIONS_ZH).forEach(function (k) {
+    if (UI_TRANSLATIONS[k]) UI_TRANSLATIONS[k].zh = UI_TRANSLATIONS_ZH[k];
+    else UI_TRANSLATIONS[k] = { zh: UI_TRANSLATIONS_ZH[k] };
+});
+
 function t(englishText, lang) {
     if (!lang || lang === 'en') return englishText;
     if (UI_TRANSLATIONS[englishText] && UI_TRANSLATIONS[englishText][lang]) {
@@ -361,6 +513,7 @@ var MOCK_DICT = window.JLPT_VOCAB.map(function (q) {
         english: q.correct,
         meaning_vn: q.meaning_vn,
         meaning_my: q.meaning_my,
+        meaning_zh: q.meaning_zh,
         level: q.level,
         nuance: q.nuance || '',
         example: q.example || '',
@@ -374,7 +527,16 @@ MOCK_DICT = MOCK_DICT.concat(CUSTOM_DICT.load());
 function getVocabMeaning(q, lang) {
     if (lang === 'vn' && q.meaning_vn) return q.meaning_vn;
     if (lang === 'my' && q.meaning_my) return q.meaning_my;
-    
+    if (lang === 'zh') {
+        // Baked offline Chinese: prefer an inline field, else the word-keyed map
+        // loaded at bootstrap (window.VOCAB_ZH). Works for both JLPT_VOCAB items
+        // (.word) and MOCK_DICT / dictionary items (.kanji). Falls through to the
+        // live-translate cache below for anything not baked (e.g. JMdict results).
+        if (q.meaning_zh) return q.meaning_zh;
+        var zhKey = q.word || q.kanji;
+        if (zhKey && window.VOCAB_ZH && window.VOCAB_ZH[zhKey]) return window.VOCAB_ZH[zhKey];
+    }
+
     var meanings = [];
     if (q.meanings && Array.isArray(q.meanings) && q.meanings.length > 0) {
         meanings = q.meanings;

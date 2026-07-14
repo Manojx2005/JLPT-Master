@@ -1345,6 +1345,7 @@ function LanguageSelector(props) {
             { id: 'en', label: '🇬🇧 EN' },
             { id: 'vn', label: '🇻🇳 VN' },
             { id: 'my', label: '🇲🇲 MY' },
+            { id: 'zh', label: '🇨🇳 中文' },
             { id: 'ja', label: '🇯🇵 JA' }
         ];
         var styleId = 'language-selector-styles';
@@ -1402,6 +1403,7 @@ function LanguageSelector(props) {
         { id: 'en', label: '🇬🇧 EN' },
         { id: 'vn', label: '🇻🇳 VN' },
         { id: 'my', label: '🇲🇲 MY' },
+        { id: 'zh', label: '🇨🇳 中文' },
         { id: 'ja', label: '🇯🇵 JA' }
     ];
     var selected = options.find(function(o) { return o.id === props.value; }) || options[0];

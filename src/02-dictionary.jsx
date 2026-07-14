@@ -254,6 +254,12 @@ function DictionaryTab(props) {
                     needsTranslation = true;
                     sourceToTranslate = [meaningStr];
                 }
+            } else if (res.source === 'local' && props.appLang === 'zh' && window.VOCAB_ZH && window.VOCAB_ZH[res.word]) {
+                // The downloaded 218k JMdict is English-only, but for words that
+                // are also in our baked JLPT set we can show the offline Chinese
+                // meaning with no network. Everything else falls through to the
+                // live-translate branch below (cached for later offline reuse).
+                finalMeanings = [window.VOCAB_ZH[res.word]];
             } else if ((res.source === 'jisho' || res.source === 'local') && props.appLang !== 'en') {
                 needsTranslation = true;
                 sourceToTranslate = res.meanings;
